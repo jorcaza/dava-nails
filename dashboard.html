@@ -99,7 +99,7 @@
         <div class="time-cell"><strong>3:00 PM</strong><small>Manicure Gel</small></div>
         <div class="mani-cell">Laura</div>
         <span class="status pending">Pendiente</span>
-        <a class="btn-wa" href="https://wa.me/573205100176?text=Hola%20Jorge%0A%0ARECUERDA%20TU%20CITA%0A%0ANombre%3A%20Jorge%20Calle%0AFecha%3A%2010%20de%20junio%0AHora%3A%203%3A00%20PM%0A%0AGracias%20por%20preferirnos" target="_blank">
+        <a class="btn-wa" id="waBtn" target="_blank">
   WhatsApp
 </a>target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
       </div>
@@ -188,5 +188,26 @@
 </div>
 
 <script src="js/dashboard.js"></script>
+<script>
+const name = "Jorge Calle";
+const date = "10 de junio";
+const time = "3:00 PM";
+const phone = "573205100176";
+
+const message = `Hola ${name}
+
+RECUERDA TU CITA
+
+Nombre: ${name}
+Fecha: ${date}
+Hora: ${time}
+
+Gracias por preferirnos`;
+
+const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+const btn = document.getElementById("waBtn");
+btn.href = url;
+</script>
 </body>
 </html>
