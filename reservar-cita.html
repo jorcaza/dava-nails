@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservar Cita – NailStudio</title>
+ <link rel="stylesheet" href="css/reservar-cita.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="#"><i class="fa fa-spa"></i> NailStudio</a>
+  <span class="header-tag">Reservas en línea</span>
+</header>
+
+<!-- Banner bienvenida cliente recurrente -->
+<div class="welcome-banner" id="welcomeBanner">
+  <div class="wb-avatar" id="wbAvatar">A</div>
+  <div class="wb-text">
+    <strong id="wbName">¡Hola de nuevo!</strong>
+    <span id="wbSub">Tus datos están guardados, solo elige servicio y hora 💅</span>
+  </div>
+  <button class="wb-clear" onclick="clearSavedData()" title="Borrar mis datos">Borrar datos</button>
+</div>
+
+<div class="hero">
+  <span class="hero-eyebrow">✦ Agenda tu visita</span>
+  <h1>Tu momento de<br><em>mimo</em> te espera</h1>
+  <p>Reserva tu cita en 3 sencillos pasos y recibe confirmación al instante.</p>
+</div>
+
+<div class="steps" id="stepsBar">
+  <div class="step active" id="s1"><div class="step-dot"><span class="step-num">1</span></div><div class="step-label">Servicio</div></div>
+  <div class="step-line" id="line1"></div>
+  <div class="step" id="s2"><div class="step-dot"><span class="step-num">2</span></div><div class="step-label">Fecha & hora</div></div>
+  <div class="step-line" id="line2"></div>
+  <div class="step" id="s3"><div class="step-dot"><span class="step-num">3</span></div><div class="step-label">Tus datos</div></div>
+</div>
+
+<div class="form-card">
+
+  <!-- PANEL 1: Servicio -->
+  <div class="panel active" id="panel1">
+    <div class="panel-title">¿Qué servicio deseas?</div>
+    <div class="panel-subtitle">Selecciona el tratamiento y tu manicurista preferida.</div>
+
+    <div class="service-grid">
+      <label class="svc-card" onclick="selectSvc(this,'Manicure Gel','60 min','$45.000')">
+        <input type="radio" name="servicio" value="Manicure Gel">
+        <div class="svc-check"><i class="fa fa-check"></i></div>
+        <div class="svc-icon">💅</div><div class="svc-name">Manicure Gel</div>
+        <div class="svc-time">60 min</div><div class="svc-price">$45.000</div>
+      </label>
+      <label class="svc-card" onclick="selectSvc(this,'Pedicure Spa','75 min','$55.000')">
+        <input type="radio" name="servicio" value="Pedicure Spa">
+        <div class="svc-check"><i class="fa fa-check"></i></div>
+        <div class="svc-icon">🦶</div><div class="svc-name">Pedicure Spa</div>
+        <div class="svc-time">75 min</div><div class="svc-price">$55.000</div>
+      </label>
+      <label class="svc-card" onclick="selectSvc(this,'Acrílicas','90 min','$80.000')">
+        <input type="radio" name="servicio" value="Acrilicas">
+        <div class="svc-check"><i class="fa fa-check"></i></div>
+        <div class="svc-icon">✨</div><div class="svc-name">Acrílicas</div>
+        <div class="svc-time">90 min</div><div class="svc-price">$80.000</div>
+      </label>
+      <label class="svc-card" onclick="selectSvc(this,'Nail Art','45 min','$35.000')">
+        <input type="radio" name="servicio" value="NailArt">
+        <div class="svc-check"><i class="fa fa-check"></i></div>
+        <div class="svc-icon">🎨</div><div class="svc-name">Nail Art</div>
+        <div class="svc-time">45 min</div><div class="svc-price">$35.000</div>
+      </label>
+      <label class="svc-card" onclick="selectSvc(this,'Manicure Clásica','40 min','$28.000')">
+        <input type="radio" name="servicio" value="Clasica">
+        <div class="svc-check"><i class="fa fa-check"></i></div>
+        <div class="svc-icon">💎</div><div class="svc-name">Manicure Clásica</div>
+        <div class="svc-time">40 min</div><div class="svc-price">$28.000</div>
+      </label>
+      <label class="svc-card" onclick="selectSvc(this,'Retiro + Diseño','50 min','$38.000')">
+        <input type="radio" name="servicio" value="Retiro">
+        <div class="svc-check"><i class="fa fa-check"></i></div>
+        <div class="svc-icon">🌸</div><div class="svc-name">Retiro + Diseño</div>
+        <div class="svc-time">50 min</div><div class="svc-price">$38.000</div>
+      </label>
+    </div>
+    <div class="field-error show" id="err-svc" style="display:none;margin-bottom:10px;">Por favor selecciona un servicio.</div>
+
+    <div class="field">
+      <label>Manicurista preferida</label>
+      <div class="mani-grid">
+        <label class="mani-pill selected" onclick="selectMani(this,'Sin preferencia')">
+          <input type="radio" name="mani" value="Sin preferencia" checked>
+          <div class="mani-avatar ma-any">★</div> Sin preferencia
+        </label>
+        <label class="mani-pill" onclick="selectMani(this,'Laura')">
+          <input type="radio" name="mani" value="Laura">
+          <div class="mani-avatar ma-1">L</div> Laura
+        </label>
+        <label class="mani-pill" onclick="selectMani(this,'Valeria')">
+          <input type="radio" name="mani" value="Valeria">
+          <div class="mani-avatar ma-2">V</div> Valeria
+        </label>
+        <label class="mani-pill" onclick="selectMani(this,'Daniela')">
+          <input type="radio" name="mani" value="Daniela">
+          <div class="mani-avatar ma-3">D</div> Daniela
+        </label>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-next" onclick="goTo(2)">Elegir fecha y hora <i class="fa fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- PANEL 2: Fecha & hora -->
+  <div class="panel" id="panel2">
+    <div class="panel-title">Fecha y hora</div>
+    <div class="panel-subtitle">Elige el día y el horario que más te convenga.</div>
+    <div class="field">
+      <label>Fecha <span class="req">*</span></label>
+      <input type="date" id="fecha" oninput="clearErr('err-fecha',this)">
+      <div class="field-error" id="err-fecha">Por favor selecciona una fecha.</div>
+    </div>
+    <div class="field">
+      <label>Horario disponible <span class="req">*</span></label>
+      <div class="slot-grid">
+        <div class="slot" onclick="selectSlot(this)">9:00 AM</div>
+        <div class="slot" onclick="selectSlot(this)">9:30 AM</div>
+        <div class="slot taken">10:00 AM</div>
+        <div class="slot" onclick="selectSlot(this)">10:30 AM</div>
+        <div class="slot taken">11:00 AM</div>
+        <div class="slot" onclick="selectSlot(this)">11:30 AM</div>
+        <div class="slot" onclick="selectSlot(this)">12:00 PM</div>
+        <div class="slot taken">12:30 PM</div>
+        <div class="slot" onclick="selectSlot(this)">2:00 PM</div>
+        <div class="slot" onclick="selectSlot(this)">2:30 PM</div>
+        <div class="slot" onclick="selectSlot(this)">3:00 PM</div>
+        <div class="slot taken">3:30 PM</div>
+        <div class="slot" onclick="selectSlot(this)">4:00 PM</div>
+        <div class="slot" onclick="selectSlot(this)">4:30 PM</div>
+        <div class="slot" onclick="selectSlot(this)">5:00 PM</div>
+        <div class="slot" onclick="selectSlot(this)">5:30 PM</div>
+      </div>
+      <div class="field-hint" style="margin-top:-6px;">Las celdas grises están ocupadas.</div>
+      <div class="field-error" id="err-slot">Por favor selecciona un horario.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goTo(1)"><i class="fa fa-arrow-left"></i> Atrás</button>
+      <button class="btn-next" onclick="goTo(3)">Mis datos <i class="fa fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- PANEL 3: Datos del cliente -->
+  <div class="panel" id="panel3">
+    <div class="panel-title">Tus datos</div>
+    <div class="panel-subtitle">Solo la primera vez — los guardamos para tu próxima reserva.</div>
+
+    <!-- chip que aparece si los datos ya estaban guardados -->
+    <div class="prefilled-chip" id="prefilledChip">
+      <i class="fa fa-check-circle"></i> Datos cargados automáticamente
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Nombre <span class="req">*</span></label>
+        <input type="text" id="nombre" placeholder="Ej: Ana" oninput="clearErr('err-nombre',this)">
+        <div class="field-error" id="err-nombre">Campo requerido.</div>
+      </div>
+      <div class="field">
+        <label>Apellido <span class="req">*</span></label>
+        <input type="text" id="apellido" placeholder="Ej: Pérez" oninput="clearErr('err-apellido',this)">
+        <div class="field-error" id="err-apellido">Campo requerido.</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Celular (WhatsApp) <span class="req">*</span></label>
+      <input type="tel" id="celular" placeholder="Ej: 3001234567" maxlength="10" oninput="clearErr('err-cel',this)">
+      <div class="field-hint">Recibirás la confirmación por WhatsApp.</div>
+      <div class="field-error" id="err-cel">Ingresa un número válido de 10 dígitos.</div>
+    </div>
+    <div class="field">
+      <label>Correo electrónico</label>
+      <input type="email" id="email" placeholder="Ej: ana@correo.com">
+      <div class="field-hint">Opcional – para enviarte un recordatorio.</div>
+    </div>
+    <div class="field">
+      <label>¿Es tu primera visita?</label>
+      <div class="select-wrap">
+        <select id="primera">
+          <option value="si">Sí, es mi primera vez 🌸</option>
+          <option value="no">No, ya he venido antes</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Notas adicionales</label>
+      <textarea id="notas" placeholder="Ej: Alergia al acrílico, prefiero diseños neutros…"></textarea>
+    </div>
+
+    <div class="summary" id="resumen">
+      <div class="summary-title">✦ Resumen de tu cita</div>
+      <div class="summary-row"><i class="fa fa-paint-brush"></i><div><strong id="r-svc">–</strong><span>Servicio</span></div></div>
+      <div class="summary-row"><i class="fa fa-calendar"></i><div><strong id="r-fecha">–</strong><span>Fecha</span></div></div>
+      <div class="summary-row"><i class="fa fa-clock"></i><div><strong id="r-hora">–</strong><span>Hora</span></div></div>
+      <div class="summary-row"><i class="fa fa-user"></i><div><strong id="r-mani">–</strong><span>Manicurista</span></div></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goTo(2)"><i class="fa fa-arrow-left"></i> Atrás</button>
+      <button class="btn-next" onclick="confirmar()"><i class="fa fa-check"></i> Confirmar cita</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successPanel">
+    <div class="success-icon"><i class="fa fa-check"></i></div>
+    <h2>¡Cita registrada!</h2>
+    <p id="successMsg">Tu reserva quedó guardada.<br>Toca el botón para confirmar por WhatsApp.</p>
+    <div class="summary" style="text-align:left;margin-bottom:20px;">
+      <div class="summary-title">✦ Detalles de tu cita</div>
+      <div class="summary-row"><i class="fa fa-paint-brush"></i><div><strong id="c-svc">–</strong><span>Servicio</span></div></div>
+      <div class="summary-row"><i class="fa fa-calendar"></i><div><strong id="c-fecha">–</strong><span>Fecha y hora</span></div></div>
+      <div class="summary-row"><i class="fa fa-user"></i><div><strong id="c-mani">–</strong><span>Manicurista</span></div></div>
+    </div>
+    <div class="btn-row" style="flex-direction:column;">
+      <a class="btn-wa-confirm" id="waLink" href="#" target="_blank">
+        <i class="fab fa-whatsapp"></i> Confirmar por WhatsApp
+      </a>
+      <button class="btn-back" style="justify-content:center;margin-top:6px;" onclick="resetForm()">
+        <i class="fa fa-plus"></i> Registrar otra cita
+      </button>
+    </div>
+  </div>
+
+</div><!-- /form-card -->
+
+<script src="js/reservar-cita.js"></script>
+</body>
+</html>

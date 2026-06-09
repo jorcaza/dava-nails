@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Citas - Salón de Uñas</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- Backdrop for mobile -->
+<div class="overlay" id="overlay"></div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-top">
+    <div class="logo">
+      <i class="fa fa-spa"></i>
+      <span class="logo-text">NailStudio</span>
+    </div>
+    <button class="toggle-btn" id="toggleBtn" title="Ocultar menú">
+      <i class="fa fa-chevron-left chevron"></i>
+    </button>
+  </div>
+
+  <nav>
+    <a class="active" data-tip="Citas"><i class="fa fa-calendar"></i><span class="nav-label">Citas</span></a>
+    <a data-tip="Clientes"><i class="fa fa-user"></i><span class="nav-label">Clientes</span></a>
+    <a data-tip="Servicios"><i class="fa fa-paint-brush"></i><span class="nav-label">Servicios</span></a>
+    <a data-tip="Ajustes"><i class="fa fa-cog"></i><span class="nav-label">Ajustes</span></a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <strong>Admin</strong>
+        <small>Gestora</small>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ CONTENT ═══ -->
+<div class="content">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <!-- mobile hamburger -->
+    <button class="hamburger" id="hamburger"><i class="fa fa-bars"></i></button>
+
+    <div class="topbar-left">
+      <h1>Citas del día</h1>
+      <p>Domingo, 8 de junio de 2025</p>
+    </div>
+    <div class="topbar-right">
+      <span class="badge-today">💅 4 citas hoy</span>
+      <button class="btn-new"><i class="fa fa-plus"></i><span class="btn-label"> Nueva cita</span></button>
+    </div>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-icon rose"><i class="fa fa-calendar-check"></i></div>
+      <div><div class="kpi-label">Total hoy</div><div class="kpi-value">4</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon green"><i class="fa fa-check-circle"></i></div>
+      <div><div class="kpi-label">Completadas</div><div class="kpi-value">1</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon gold"><i class="fa fa-clock"></i></div>
+      <div><div class="kpi-label">Pendientes</div><div class="kpi-value">2</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon blue"><i class="fa fa-check"></i></div>
+      <div><div class="kpi-label">Confirmadas</div><div class="kpi-value">1</div></div>
+    </div>
+  </div>
+
+  <!-- TABLE SECTION -->
+  <div class="table-wrap">
+    <div class="table-card">
+      <div class="table-card-header">
+        <h2>Lista de citas</h2>
+        <div class="search-bar"><i class="fa fa-search"></i> Buscar cliente…</div>
+      </div>
+
+      <!-- Desktop table -->
+      <div class="t-head">
+        <span>Cliente</span><span>Hora / Servicio</span><span>Manicurista</span><span>Estado</span><span>Acción</span>
+      </div>
+
+      <div class="t-row">
+        <div class="client-cell"><div class="avatar av-rose">A</div><div><strong>Ana Pérez</strong><small>3001234567</small></div></div>
+        <div class="time-cell"><strong>3:00 PM</strong><small>Manicure Gel</small></div>
+        <div class="mani-cell">Laura</div>
+        <span class="status pending">Pendiente</span>
+        <a class="btn-wa" href="https://wa.me/573001234567?text=Hola%20Ana%20👋%20Te%20recordamos%20tu%20cita%20hoy%20a%20las%203:00%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+      </div>
+
+      <div class="t-row">
+        <div class="client-cell"><div class="avatar av-purple">S</div><div><strong>Sofía Martínez</strong><small>3109876543</small></div></div>
+        <div class="time-cell"><strong>11:00 AM</strong><small>Pedicure Spa</small></div>
+        <div class="mani-cell">Valeria</div>
+        <span class="status done">Completada</span>
+        <a class="btn-wa" href="https://wa.me/573109876543?text=Hola%20Sofía%20👋%20Gracias%20por%20tu%20visita%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+      </div>
+
+      <div class="t-row">
+        <div class="client-cell"><div class="avatar av-blue">M</div><div><strong>María Torres</strong><small>3205551234</small></div></div>
+        <div class="time-cell"><strong>4:30 PM</strong><small>Acrílicas Francesas</small></div>
+        <div class="mani-cell">Laura</div>
+        <span class="status confirmed">Confirmada</span>
+        <a class="btn-wa" href="https://wa.me/573205551234?text=Hola%20María%20👋%20Te%20esperamos%20a%20las%204:30%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+      </div>
+
+      <div class="t-row">
+        <div class="client-cell"><div class="avatar av-teal">C</div><div><strong>Camila Ríos</strong><small>3147778899</small></div></div>
+        <div class="time-cell"><strong>6:00 PM</strong><small>Nail Art</small></div>
+        <div class="mani-cell">Daniela</div>
+        <span class="status pending">Pendiente</span>
+        <a class="btn-wa" href="https://wa.me/573147778899?text=Hola%20Camila%20👋%20Te%20recordamos%20tu%20cita%20a%20las%206:00%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+      </div>
+
+      <!-- Mobile cards (same data, card layout) -->
+      <div class="mobile-cards">
+
+        <div class="m-card">
+          <div class="m-card-top">
+            <div class="m-card-client"><div class="avatar av-rose">A</div><div><strong>Ana Pérez</strong><br><small>3001234567</small></div></div>
+            <span class="status pending">Pendiente</span>
+          </div>
+          <div class="m-card-body">
+            <div><div class="m-label">Hora</div><div class="m-val">3:00 PM</div></div>
+            <div><div class="m-label">Servicio</div><div class="m-val">Manicure Gel</div></div>
+            <div><div class="m-label">Manicurista</div><div class="m-val">Laura</div></div>
+          </div>
+          <div class="m-card-footer">
+            <a class="btn-wa" href="https://wa.me/573001234567?text=Hola%20Ana%20👋%20Te%20recordamos%20tu%20cita%20hoy%20a%20las%203:00%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          </div>
+        </div>
+
+        <div class="m-card">
+          <div class="m-card-top">
+            <div class="m-card-client"><div class="avatar av-purple">S</div><div><strong>Sofía Martínez</strong><br><small>3109876543</small></div></div>
+            <span class="status done">Completada</span>
+          </div>
+          <div class="m-card-body">
+            <div><div class="m-label">Hora</div><div class="m-val">11:00 AM</div></div>
+            <div><div class="m-label">Servicio</div><div class="m-val">Pedicure Spa</div></div>
+            <div><div class="m-label">Manicurista</div><div class="m-val">Valeria</div></div>
+          </div>
+          <div class="m-card-footer">
+            <a class="btn-wa" href="https://wa.me/573109876543?text=Hola%20Sofía%20👋%20Gracias%20por%20tu%20visita%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          </div>
+        </div>
+
+        <div class="m-card">
+          <div class="m-card-top">
+            <div class="m-card-client"><div class="avatar av-blue">M</div><div><strong>María Torres</strong><br><small>3205551234</small></div></div>
+            <span class="status confirmed">Confirmada</span>
+          </div>
+          <div class="m-card-body">
+            <div><div class="m-label">Hora</div><div class="m-val">4:30 PM</div></div>
+            <div><div class="m-label">Servicio</div><div class="m-val">Acrílicas Francesas</div></div>
+            <div><div class="m-label">Manicurista</div><div class="m-val">Laura</div></div>
+          </div>
+          <div class="m-card-footer">
+            <a class="btn-wa" href="https://wa.me/573205551234?text=Hola%20María%20👋%20Te%20esperamos%20a%20las%204:30%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          </div>
+        </div>
+
+        <div class="m-card">
+          <div class="m-card-top">
+            <div class="m-card-client"><div class="avatar av-teal">C</div><div><strong>Camila Ríos</strong><br><small>3147778899</small></div></div>
+            <span class="status pending">Pendiente</span>
+          </div>
+          <div class="m-card-body">
+            <div><div class="m-label">Hora</div><div class="m-val">6:00 PM</div></div>
+            <div><div class="m-label">Servicio</div><div class="m-val">Nail Art</div></div>
+            <div><div class="m-label">Manicurista</div><div class="m-val">Daniela</div></div>
+          </div>
+          <div class="m-card-footer">
+            <a class="btn-wa" href="https://wa.me/573147778899?text=Hola%20Camila%20👋%20Te%20recordamos%20tu%20cita%20a%20las%206:00%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          </div>
+        </div>
+
+      </div><!-- /mobile-cards -->
+    </div>
+  </div>
+</div><!-- /content -->
+<script src="js/dashboard.js"></script>
+</body>
+</html>
+
+
+
