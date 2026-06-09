@@ -1,21 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Citas - Salón de Uñas</title>
-  <link rel="stylesheet" href="css/dashboard.css">
+  <title>Dashboard Citas – NailStudio</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+  <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
 
-<!-- Backdrop for mobile -->
+<!-- Backdrop móvil -->
 <div class="overlay" id="overlay"></div>
 
-<!-- ═══ SIDEBAR ═══ -->
+<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-top">
     <div class="logo">
@@ -36,23 +34,24 @@
 
   <div class="sidebar-footer">
     <div class="user-pill">
-      <div class="user-avatar">A</div>
+      <div class="user-avatar" id="sideAvatar">A</div>
       <div class="user-info">
-        <strong>Admin</strong>
-        <small>Gestora</small>
+        <strong id="sideName">Admin</strong>
+        <small id="sideEmail">admin@nailstudio.co</small>
       </div>
     </div>
+    <a class="logout-btn" onclick="logout()" data-tip="Cerrar sesión">
+      <i class="fa fa-right-from-bracket"></i>
+      <span class="nav-label">Cerrar sesión</span>
+    </a>
   </div>
 </aside>
 
-<!-- ═══ CONTENT ═══ -->
+<!-- CONTENIDO PRINCIPAL -->
 <div class="content">
 
-  <!-- TOPBAR -->
   <div class="topbar">
-    <!-- mobile hamburger -->
     <button class="hamburger" id="hamburger"><i class="fa fa-bars"></i></button>
-
     <div class="topbar-left">
       <h1>Citas del día</h1>
       <p>Domingo, 8 de junio de 2025</p>
@@ -63,7 +62,7 @@
     </div>
   </div>
 
-  <!-- KPI STRIP -->
+  <!-- KPI -->
   <div class="kpi-strip">
     <div class="kpi-card">
       <div class="kpi-icon rose"><i class="fa fa-calendar-check"></i></div>
@@ -83,7 +82,7 @@
     </div>
   </div>
 
-  <!-- TABLE SECTION -->
+  <!-- TABLA -->
   <div class="table-wrap">
     <div class="table-card">
       <div class="table-card-header">
@@ -91,17 +90,16 @@
         <div class="search-bar"><i class="fa fa-search"></i> Buscar cliente…</div>
       </div>
 
-      <!-- Desktop table -->
       <div class="t-head">
         <span>Cliente</span><span>Hora / Servicio</span><span>Manicurista</span><span>Estado</span><span>Acción</span>
       </div>
 
       <div class="t-row">
-        <div class="client-cell"><div class="avatar av-rose">A</div><div><strong>Jorge Calle</strong><small>3205100176</small></div></div>
+        <div class="client-cell"><div class="avatar av-rose">A</div><div><strong>Ana Pérez</strong><small>3001234567</small></div></div>
         <div class="time-cell"><strong>3:00 PM</strong><small>Manicure Gel</small></div>
         <div class="mani-cell">Laura</div>
         <span class="status pending">Pendiente</span>
-        <a class="btn-wa" href="https://wa.me/573205100176?text=Hola%Jorge%20👋%20Te%20recordamos%20tu%20cita%20hoy%20a%20las%203:00%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a class="btn-wa" href="https://wa.me/573001234567?text=Hola%20Ana%20👋%20Te%20recordamos%20tu%20cita%20hoy%20a%20las%203:00%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
       </div>
 
       <div class="t-row">
@@ -128,9 +126,8 @@
         <a class="btn-wa" href="https://wa.me/573147778899?text=Hola%20Camila%20👋%20Te%20recordamos%20tu%20cita%20a%20las%206:00%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
       </div>
 
-      <!-- Mobile cards (same data, card layout) -->
+      <!-- Tarjetas móvil -->
       <div class="mobile-cards">
-
         <div class="m-card">
           <div class="m-card-top">
             <div class="m-card-client"><div class="avatar av-rose">A</div><div><strong>Ana Pérez</strong><br><small>3001234567</small></div></div>
@@ -141,9 +138,7 @@
             <div><div class="m-label">Servicio</div><div class="m-val">Manicure Gel</div></div>
             <div><div class="m-label">Manicurista</div><div class="m-val">Laura</div></div>
           </div>
-          <div class="m-card-footer">
-            <a class="btn-wa" href="https://wa.me/573001234567?text=Hola%20Ana%20👋%20Te%20recordamos%20tu%20cita%20hoy%20a%20las%203:00%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-          </div>
+          <div class="m-card-footer"><a class="btn-wa" href="https://wa.me/573001234567" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
         </div>
 
         <div class="m-card">
@@ -156,9 +151,7 @@
             <div><div class="m-label">Servicio</div><div class="m-val">Pedicure Spa</div></div>
             <div><div class="m-label">Manicurista</div><div class="m-val">Valeria</div></div>
           </div>
-          <div class="m-card-footer">
-            <a class="btn-wa" href="https://wa.me/573109876543?text=Hola%20Sofía%20👋%20Gracias%20por%20tu%20visita%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-          </div>
+          <div class="m-card-footer"><a class="btn-wa" href="https://wa.me/573109876543" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
         </div>
 
         <div class="m-card">
@@ -171,9 +164,7 @@
             <div><div class="m-label">Servicio</div><div class="m-val">Acrílicas Francesas</div></div>
             <div><div class="m-label">Manicurista</div><div class="m-val">Laura</div></div>
           </div>
-          <div class="m-card-footer">
-            <a class="btn-wa" href="https://wa.me/573205551234?text=Hola%20María%20👋%20Te%20esperamos%20a%20las%204:30%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-          </div>
+          <div class="m-card-footer"><a class="btn-wa" href="https://wa.me/573205551234" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
         </div>
 
         <div class="m-card">
@@ -186,18 +177,14 @@
             <div><div class="m-label">Servicio</div><div class="m-val">Nail Art</div></div>
             <div><div class="m-label">Manicurista</div><div class="m-val">Daniela</div></div>
           </div>
-          <div class="m-card-footer">
-            <a class="btn-wa" href="https://wa.me/573147778899?text=Hola%20Camila%20👋%20Te%20recordamos%20tu%20cita%20a%20las%206:00%20PM%20💅" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-          </div>
+          <div class="m-card-footer"><a class="btn-wa" href="https://wa.me/573147778899" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
         </div>
+      </div>
 
-      </div><!-- /mobile-cards -->
     </div>
   </div>
-</div><!-- /content -->
+</div>
+
 <script src="js/dashboard.js"></script>
 </body>
 </html>
-
-
-
