@@ -95,13 +95,7 @@
         <span>Cliente</span><span>Hora / Servicio</span><span>Manicurista</span><span>Estado</span><span>Acción</span>
       </div>
 
-      <div class="t-row">
-        <div class="client-cell"><div class="avatar av-rose">A</div><div><strong>Jorge Calle Zapata</strong><small>3205100176</small></div></div>
-        <div class="time-cell"><strong>3:00 PM</strong><small>Manicure Gel</small></div>
-        <div class="mani-cell">Laura</div>
-        <span class="status pending">Pendiente</span>
-<a class="btn-wa" id="waBtn" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-      </div>
+
 
       <div class="t-row">
         <div class="client-cell"><div class="avatar av-purple">S</div><div><strong>Sofía Martínez</strong><small>3109876543</small></div></div>
@@ -187,26 +181,6 @@
 </div>
 
 <script src="js/dashboard.js"></script>
-<script>
-const name = "Jorge Calle";
-const date = "10 de junio";
-const time = "3:00 PM";
-const phone = "573205100176";
 
-const message = `Hola ${name}
-
-RECUERDA TU CITA
-
-Nombre: ${name}
-Fecha: ${date}
-Hora: ${time}
-
-Gracias por preferirnos`;
-
-const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-
-const btn = document.getElementById("waBtn");
-btn.href = url;
-</script>
 </body>
 </html>
