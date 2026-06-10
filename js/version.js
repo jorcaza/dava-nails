@@ -1,2 +1,1 @@
-// AUTO-GENERATED ON DEPLOY
-window.APP_VERSION = "dev";
+window.APP_VERSION = "260609-2357";
