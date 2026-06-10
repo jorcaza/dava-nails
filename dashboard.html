@@ -15,38 +15,71 @@
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
+
+  <!-- TOP: LOGO + VERSION + TOGGLE -->
   <div class="sidebar-top">
+
     <div class="logo">
       <i class="fa fa-spa"></i>
       <span class="logo-text">NailStudio</span>            
     </div>    
+
+    <div class="app-version" id="appVersion"></div>
+
     <button class="toggle-btn" id="toggleBtn" title="Ocultar menú">
       <i class="fa fa-chevron-left chevron"></i>
     </button>   
-  </div>
-   <div class="app-version" id="appVersion"></div>
 
+  </div>
+
+  <!-- NAVIGATION -->
   <nav>
-    <a class="active" data-tip="Citas"><i class="fa fa-calendar"></i><span class="nav-label">Citas</span></a>
-    <a data-tip="Clientes"><i class="fa fa-user"></i><span class="nav-label">Clientes</span></a>
-    <a data-tip="Servicios"><i class="fa fa-paint-brush"></i><span class="nav-label">Servicios</span></a>
-    <a data-tip="Ajustes"><i class="fa fa-cog"></i><span class="nav-label">Ajustes</span></a>
+    <a class="active" data-tip="Citas">
+      <i class="fa fa-calendar"></i>
+      <span class="nav-label">Citas</span>
+    </a>
+
+    <a data-tip="Clientes">
+      <i class="fa fa-user"></i>
+      <span class="nav-label">Clientes</span>
+    </a>
+
+    <a data-tip="Servicios">
+      <i class="fa fa-paint-brush"></i>
+      <span class="nav-label">Servicios</span>
+    </a>
+
+    <a data-tip="Ajustes">
+      <i class="fa fa-cog"></i>
+      <span class="nav-label">Ajustes</span>
+    </a>
   </nav>
 
+  <!-- FOOTER -->
   <div class="sidebar-footer">
+
     <div class="user-pill">
       <div class="user-avatar" id="sideAvatar">A</div>
+
       <div class="user-info">
         <strong id="sideName">Admin</strong>
         <small id="sideEmail">admin@nailstudio.co</small>
       </div>
     </div>
+
     <a class="logout-btn" onclick="logout()" data-tip="Cerrar sesión">
       <i class="fa fa-right-from-bracket"></i>
       <span class="nav-label">Cerrar sesión</span>
     </a>
+
   </div>
+
 </aside>
+
+<!-- BOTÓN FUERA DEL SIDEBAR (CRÍTICO) -->
+<button id="openSidebarBtn" class="open-sidebar">
+  <i class="fa fa-chevron-right"></i>
+</button>
 
 <!-- CONTENIDO PRINCIPAL -->
 <div class="content">
@@ -180,7 +213,10 @@
   </div>
 </div>
 
+<script src="js/version.js"></script>
 <script src="js/dashboard.js"></script>
+
+
 
 </body>
 </html>

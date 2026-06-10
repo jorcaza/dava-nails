@@ -1,0 +1,2 @@
+// AUTO-GENERATED ON DEPLOY
+window.APP_VERSION = "dev";

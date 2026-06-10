@@ -1,0 +1,6 @@
+{
+    "scripts": {
+        "predeploy": "node scripts/gen-version.js",
+        "deploy": "vercel --prod"
+    }
+}

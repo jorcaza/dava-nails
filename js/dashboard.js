@@ -50,8 +50,27 @@ document.querySelectorAll('.sidebar nav a').forEach(a => {
 });
 
 /*── VERSION ──*/
-const DEPLOY_VERSION = Date.now();
-document.getElementById("appVersion").textContent =
-  DEPLOY_VERSION;
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("toggleBtn");
+  const openBtn = document.getElementById("openSidebarBtn");
+  const versionEl = document.getElementById("appVersion");
 
+  // 🔥 SIDEBAR CONTROL
+  function setSidebar(state) {
+    document.body.classList.toggle("collapsed", state);
+  }
 
+  toggleBtn.addEventListener("click", () => {
+    setSidebar(true);
+  });
+
+  openBtn.addEventListener("click", () => {
+    setSidebar(false);
+  });
+
+  // 🔥 VERSION (IMPORTANTE)
+  if (versionEl && window.APP_VERSION) {
+    versionEl.textContent = "Versión " + window.APP_VERSION;
+  }
+});
