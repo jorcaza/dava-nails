@@ -10,7 +10,7 @@
     if (nm) nm.textContent = u.name || 'Admin';
     const em = document.getElementById('sideEmail');
     if (em) em.textContent = u.email || '';
-  } catch (e) {}
+  } catch (e) { }
 })();
 
 /* ── Cerrar sesión ── */
@@ -21,10 +21,10 @@ function logout() {
 }
 
 /* ── Sidebar toggle (desktop) ── */
-const body      = document.body;
+const body = document.body;
 const toggleBtn = document.getElementById('toggleBtn');
 const hamburger = document.getElementById('hamburger');
-const overlay   = document.getElementById('overlay');
+const overlay = document.getElementById('overlay');
 
 toggleBtn.addEventListener('click', () => {
   body.classList.toggle('collapsed');
@@ -48,3 +48,10 @@ document.querySelectorAll('.sidebar nav a').forEach(a => {
     if (window.innerWidth <= 640) closeMobile();
   });
 });
+
+/*── VERSION ──*/
+const DEPLOY_VERSION = Date.now();
+document.getElementById("appVersion").textContent =
+  DEPLOY_VERSION;
+
+
