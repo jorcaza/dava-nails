@@ -3,13 +3,13 @@ import { auth } from "./firebase-config";
 import { signInWithEmailAndPassword } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// 🔹 elementos
+//elementos
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const btnLogin = document.getElementById("btnLogin");
 const errPw = document.getElementById("err-pw");
 
-// 🔹 loader
+//loader
 function setLoading(state) {
   if (state) {
     btnLogin.classList.add("loading");
