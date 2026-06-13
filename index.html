@@ -3,113 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NailStudio – Iniciar sesión</title>
+  <title>NailStudio ? Iniciar sesi�n</title>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/login.css">
 </head>
+
 <body>
 
-  <!-- PANEL IZQUIERDO (decorativo) -->
-  <div class="panel-left">
-    <div class="deco-ring deco-ring-1"></div>
-    <div class="deco-ring deco-ring-2"></div>
+<!-- CONTENIDO (sin cambios visuales importantes) -->
+<div class="panel-right">
 
-    <div class="float-card float-card-2">
-      <div class="fc-avatar" style="background:linear-gradient(135deg,#f48fb1,#ec407a);">L</div>
-      <div class="fc-text">
-        <strong>Laura — 3:00 PM</strong>
-        <span>Manicure Gel · Confirmada ✅</span>
-      </div>
+  <div class="right-header">
+    <h1>Bienvenida de nuevo ??</h1>
+    <p>Ingresa tus credenciales para acceder al panel.</p>
+  </div>
+
+  <!-- EMAIL -->
+  <div class="field">
+    <label>Correo electr�nico</label>
+    <div class="input-wrap">
+      <input type="email" id="email" placeholder="admin@nailstudio.co" autocomplete="email">
+      <i class="fa fa-envelope"></i>
     </div>
-
-    <div class="left-content">
-      <div class="left-logo"><i class="fa fa-spa"></i> NailStudio</div>
-      <div class="left-tagline">Gestiona tus citas con elegancia</div>
-      <p class="left-sub">Panel de administración para el control de reservas, clientes y manicuristas de tu salón.</p>
-      <div class="left-stats">
-        <div class="stat"><span class="stat-num">4</span><span class="stat-label">Citas hoy</span></div>
-        <div class="stat-div"></div>
-        <div class="stat"><span class="stat-num">3</span><span class="stat-label">Manicuristas</span></div>
-        <div class="stat-div"></div>
-        <div class="stat"><span class="stat-num">98%</span><span class="stat-label">Confirmadas</span></div>
-      </div>
-    </div>
-
-    <div class="float-card float-card-1">
-      <div class="fc-avatar" style="background:linear-gradient(135deg,#80cbc4,#00695c);">C</div>
-      <div class="fc-text">
-        <strong>Nueva reserva</strong>
-        <span>Camila · Nail Art · 6:00 PM</span>
-      </div>
+    <div class="field-error" id="err-email" style="display:none;">
+      Ingresa un correo v�lido.
     </div>
   </div>
 
-  <!-- PANEL DERECHO (formulario) -->
-  <div class="panel-right">
+  <!-- PASSWORD -->
+  <div class="field">
+    <label>Contrase�a</label>
 
-    <div id="mobileLogo" style="display:none;font-family:'Playfair Display',serif;font-size:22px;color:#c2185b;align-items:center;gap:7px;margin-bottom:28px;">
-      <i class="fa fa-spa"></i> NailStudio
+    <div class="input-wrap">
+      <input type="password" id="password" placeholder="????????" autocomplete="current-password">
+      
+      <i class="fa fa-lock"></i>
+
+      <!-- OJO CORREGIDO -->
+      <button class="pw-toggle" type="button" id="togglePassword" tabindex="-1">
+        <i class="fa fa-eye" id="pwIcon"></i>
+      </button>
     </div>
 
-    <div class="right-header">
-      <h1>Bienvenida de nuevo 👋</h1>
-      <p>Ingresa tus credenciales para acceder al panel.</p>
-    </div>
-
-    <div class="alert-error" id="alertError">
-      <i class="fa fa-circle-exclamation"></i>
-      <span id="alertMsg">Usuario o contraseña incorrectos.</span>
-    </div>
-
-    <div class="field">
-      <label>Correo electrónico</label>
-      <div class="input-wrap">
-        <input type="email" id="email" placeholder="admin@nailstudio.co" autocomplete="email" value="admin@nailstudio.co"
-               oninput="clearFieldError(this,'err-email')">
-        <i class="fa fa-envelope"></i>
-      </div>
-      <div class="field-error" id="err-email">Ingresa un correo válido.</div>
-    </div>
-
-    <div class="field">
-      <label>Contraseña</label>
-      <div class="input-wrap">
-        <input type="password" id="password" value="nail2025" placeholder="••••••••" autocomplete="current-password"
-               oninput="clearFieldError(this,'err-pw')" onkeydown="onEnter(event)">
-        <i class="fa fa-lock"></i>
-        <button class="pw-toggle" type="button" onclick="togglePw()" tabindex="-1">
-          <i class="fa fa-eye" id="pwIcon"></i>
-        </button>
-      </div>
-      <div class="field-error" id="err-pw">Ingresa tu contraseña.</div>
-    </div>
-
-    <div class="field-row-check">
-      <label class="check-label">
-        <input type="checkbox" id="remember">
-        <div class="check-box"></div>
-        Recordarme
-      </label>
-      <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
-    </div>
-
-    <button class="btn-login" id="btnLogin" onclick="login()">
-      <span class="btn-text"><i class="fa fa-arrow-right-to-bracket"></i> &nbsp;Iniciar sesión</span>
-      <div class="btn-spinner"></div>
-    </button>
-
-    <div class="demo-hint">
-      <strong>Credenciales de prueba</strong><br>
-      📧 <strong>admin@nailstudio.co</strong><br>
-      🔑 <strong>nail2025</strong>
-    </div>
-
-    <div class="right-footer">© 2025 NailStudio · Todos los derechos reservados</div>
+    <!-- ERROR CONTROLADO DESDE JS -->
+    <div class="field-error" id="err-pw" style="display:none;"></div>
   </div>
 
- 
-  <script type="module" src="js/login.js"></script>
- 
+  <!-- BOT�N -->
+  <button class="btn-login" id="btnLogin">
+    <span class="btn-text">
+      <i class="fa fa-arrow-right-to-bracket"></i> Iniciar sesi�n
+    </span>
+    <div class="btn-spinner"></div>
+  </button>
+
+</div>
+
+<!-- SOLO UN SCRIPT (modular) -->
+<script type="module" src="/js/login.js"></script>
+
 </body>
 </html>

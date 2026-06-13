@@ -154,3 +154,31 @@ body {
 @media (max-width: 420px) {
   .panel-right { padding: 36px 22px; }
 }
+
+
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid white;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-login.loading .btn-text {
+  display: none;
+}
+
+.btn-login.loading .btn-spinner {
+  display: block;
+}
+
+
+.btn-login {
+  transition: all 0.2s ease;
+}

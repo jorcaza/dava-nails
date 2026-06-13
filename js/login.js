@@ -1,7 +1,7 @@
 /* ── Si ya hay sesión activa, ir directo al dashboard ── */
 (function () {
   const s = sessionStorage.getItem('ns_session') || localStorage.getItem('ns_session');
-  if (s) window.location.href = 'dashboard.html';
+  if (s) window.location.href = '/dashboard.html';
 })();
 
 /* ── Mostrar logo en móvil ── */
@@ -10,68 +10,105 @@ if (window.innerWidth <= 860) {
   if (ml) ml.style.display = 'flex';
 }
 
-/* ── Toggle mostrar/ocultar contraseña ── */
-function togglePw() {
-  const inp  = document.getElementById('password');
-  const icon = document.getElementById('pwIcon');
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    icon.className = 'fa fa-eye-slash';
+
+/* ── SPINNER logo en móvil ── */
+const btnText = document.querySelector(".btn-text");
+const btnSpinner = document.querySelector(".btn-spinner");
+
+function setLoading(state) {
+  if (state) {
+    btnLogin.classList.add("loading");
+    btnLogin.disabled = true;
   } else {
-    inp.type = 'password';
-    icon.className = 'fa fa-eye';
+    btnLogin.classList.remove("loading");
+    btnLogin.disabled = false;
   }
 }
 
-/* ── Enviar con Enter ── */
-function onEnter(e) {
-  if (e.key === 'Enter') login();
-}
 
-/* ── Limpiar errores al escribir ── */
-function clearFieldError(input, errId) {
-  input.classList.remove('error');
-  document.getElementById(errId).classList.remove('show');
-  document.getElementById('alertError').classList.remove('show');
-}
 
-// IMPORTACIONES
-import { auth } from "./firebase-config.js";
-import { 
-  signInWithEmailAndPassword 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+//IMPORTS FIREBASE
+import { auth } from "/firebase-config.js";
+import { signInWithEmailAndPassword } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// FUNCIÓN LOGIN
+/* ── ELEMENTOS ── */
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const btnLogin = document.getElementById("btnLogin");
+const errPw = document.getElementById("err-pw");
+const togglePassword = document.getElementById("togglePassword");
+const pwIcon = document.getElementById("pwIcon");
+
+/* ── LOGIN ── */
 function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
 
-  // VALIDACIÓN BÁSICA
+  hideError();
+
   if (!email || !password) {
-    alert("Por favor completa todos los campos");
+    showError("Completa todos los campos");
     return;
   }
 
-  // LOGIN CON FIREBASE
+  // ✅ ACTIVAR LOADER
+  setLoading(true);
+
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
+    .then(() => {
+      sessionStorage.setItem('ns_session', 'active');
 
-      console.log("Usuario logueado:", user);
-
-      // Redireccionar (opcional)
-      window.location.href = "home.html";
+      window.location.replace("/dashboard.html");
     })
     .catch((error) => {
-      console.error("Error:", error.message);
+      console.log(error);
 
-      alert("Error: " + error.message);
+      if (error.code === "auth/wrong-password") {
+        showError("Contraseña incorrecta");
+      } else if (error.code === "auth/user-not-found") {
+        showError("Usuario no registrado");
+      } else if (error.code === "auth/invalid-email") {
+        showError("Correo inválido");
+      } else {
+        showError("Error al iniciar sesión");
+      }
+
+      // ❌ DESACTIVAR LOADER AL FALLAR
+      setLoading(false);
     });
 }
 
-// HACER LA FUNCIÓN GLOBAL (IMPORTANTE para HTML onclick)
-window.login = login;
-``
+/* ── MOSTRAR ERROR ── */
+function showError(msg) {
+  errPw.textContent = msg;
+  errPw.style.display = "block";
+  passwordInput.classList.add("error");
+}
 
+/* ── OCULTAR ERROR ── */
+function hideError() {
+  errPw.style.display = "none";
+  passwordInput.classList.remove("error");
+}
 
+/* ── BOTÓN LOGIN ── */
+btnLogin.addEventListener("click", login);
 
+/* ── ENTER PARA LOGIN ── */
+passwordInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") login();
+});
+
+/* ── UX PRO: ocultar error al escribir ── */
+passwordInput.addEventListener("input", hideError);
+
+/* ── TOGGLE PASSWORD (ojo) ── */
+togglePassword.addEventListener("click", () => {
+  const isHidden = passwordInput.type === "password";
+
+  passwordInput.type = isHidden ? "text" : "password";
+
+  // cambiar icono FontAwesome
+  pwIcon.className = isHidden ? "fa fa-eye-slash" : "fa fa-eye";
+});
