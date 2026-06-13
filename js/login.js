@@ -1,77 +1,88 @@
-/* ── Si ya hay sesión activa, ir directo al dashboard ── */
-(function () {
-  const s = sessionStorage.getItem('ns_session') || localStorage.getItem('ns_session');
-  if (s) window.location.href = 'dashboard.html';
-})();
+// 🔹 elementos
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const btnLogin = document.getElementById("btnLogin");
+const errPw = document.getElementById("err-pw");
 
-/* ── Mostrar logo en móvil ── */
-if (window.innerWidth <= 860) {
-  const ml = document.getElementById('mobileLogo');
-  if (ml) ml.style.display = 'flex';
-}
-
-/* ── Toggle mostrar/ocultar contraseña ── */
-function togglePw() {
-  const inp  = document.getElementById('password');
-  const icon = document.getElementById('pwIcon');
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    icon.className = 'fa fa-eye-slash';
+// 🔹 función loader
+function setLoading(state) {
+  if (state) {
+    btnLogin.classList.add("loading");
+    btnLogin.disabled = true;
   } else {
-    inp.type = 'password';
-    icon.className = 'fa fa-eye';
+    btnLogin.classList.remove("loading");
+    btnLogin.disabled = false;
   }
 }
 
-/* ── Enviar con Enter ── */
-function onEnter(e) {
-  if (e.key === 'Enter') login();
+// 🔹 mostrar error
+function showError(msg) {
+  errPw.textContent = msg;
+  errPw.style.display = "block";
+  passwordInput.classList.add("error");
 }
 
-/* ── Limpiar errores al escribir ── */
-function clearFieldError(input, errId) {
-  input.classList.remove('error');
-  document.getElementById(errId).classList.remove('show');
-  document.getElementById('alertError').classList.remove('show');
+// 🔹 ocultar error
+function hideError() {
+  errPw.style.display = "none";
+  passwordInput.classList.remove("error");
 }
 
-// IMPORTACIONES
-import { auth } from "./firebase-config.js";
-import { 
-  signInWithEmailAndPassword 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-// FUNCIÓN LOGIN
+// ✅ FUNCIÓN LOGIN MEJORADA
 function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
 
-  // VALIDACIÓN BÁSICA
+  // limpiar errores
+  hideError();
+
+  // validación
   if (!email || !password) {
-    alert("Por favor completa todos los campos");
+    showError("Completa todos los campos");
     return;
   }
 
-  // LOGIN CON FIREBASE
+  // activar loader
+  setLoading(true);
+
+  // LOGIN FIREBASE
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
-
       console.log("Usuario logueado:", user);
 
-      // Redireccionar (opcional)
-      window.location.href = "dashboard.html";
+      // ✅ redirección correcta
+      window.location.replace("/dashboard.html");
     })
     .catch((error) => {
-      console.error("Error:", error.message);
+      console.log(error);
 
-      alert("Error: " + error.message);
+      // ✅ mensajes específicos
+      if (error.code === "auth/wrong-password") {
+        showError("Contraseña incorrecta");
+      } 
+      else if (error.code === "auth/user-not-found") {
+        showError("Usuario no registrado");
+      } 
+      else if (error.code === "auth/invalid-email") {
+        showError("Correo inválido");
+      } 
+      else {
+        showError("Error al iniciar sesión");
+      }
+
+      // quitar loader si falla
+      setLoading(false);
     });
 }
 
-// HACER LA FUNCIÓN GLOBAL (IMPORTANTE para HTML onclick)
-window.login = login;
-``
+// ✅ evento botón
+btnLogin.addEventListener("click", login);
 
+// ✅ ENTER para login
+passwordInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") login();
+});
 
-
+// ✅ UX PRO: ocultar error al escribir
+passwordInput.addEventListener("input", hideError);
