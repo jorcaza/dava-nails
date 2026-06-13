@@ -1,7 +1,12 @@
 
 // Importar Firebase correctamente
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+import { 
+  getAuth,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 // Configuración de tu proyecto
 const firebaseConfig = {
@@ -13,8 +18,11 @@ const firebaseConfig = {
   appId: "1:92839130296:web:b03bbd0af96cc58186704d"
 };
 
-// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-
-// Inicializar auth
 export const auth = getAuth(app);
+
+// ? CLAVE: mantener sesión SIEMPRE
+setPersistence(auth, browserLocalPersistence);
+
+
+

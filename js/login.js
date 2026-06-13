@@ -1,15 +1,15 @@
 // 🔥 IMPORTS
-import { auth } from "./firebase-config.js";
+import { auth } from "/js/firebase-config.js";
 import { signInWithEmailAndPassword } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-//elementos
+// 🔹 elementos
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const btnLogin = document.getElementById("btnLogin");
 const errPw = document.getElementById("err-pw");
 
-//loader
+// 🔹 loader
 function setLoading(state) {
   if (state) {
     btnLogin.classList.add("loading");
@@ -31,7 +31,7 @@ function hideError() {
   errPw.style.display = "none";
 }
 
-// ✅ LOGIN
+// ✅ FUNCIÓN LOGIN
 function login() {
   const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
@@ -45,8 +45,10 @@ function login() {
 
   setLoading(true);
 
+  // ✅ AQUÍ VA TU CÓDIGO
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
+      // ✅ redirección correcta
       window.location.replace("/dashboard.html");
     })
     .catch((error) => {
@@ -69,10 +71,10 @@ function login() {
     });
 }
 
-// ✅ evento correcto (SIN onclick)
+// ✅ BOTÓN
 btnLogin.addEventListener("click", login);
 
-// ✅ enter
+// ✅ ENTER
 passwordInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") login();
 });

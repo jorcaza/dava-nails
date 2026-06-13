@@ -1,20 +1,25 @@
-import { auth } from "/firebase-config.js";
+import { auth } from "/js/firebase-config.js";
 import { onAuthStateChanged } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// ?? ocultar dashboard mientras valida
+// ocultar UI mientras valida
 document.body.style.display = "none";
 
+let initialized = false;
+
 onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log("? Usuario activo:", user.email);
+  if (!initialized) {
+    initialized = true;
 
-    // ? mostrar dashboard
-    document.body.style.display = "block";
-  } else {
-    console.warn("? No autenticado");
+    if (user) {
+      console.log("? Sesión restaurada:", user.email);
 
-    // ? redirigir si no hay sesión
-    window.location.replace("/index.html");
+      // mostrar dashboard
+      document.body.style.display = "block";
+    } else {
+      console.log("? Sin sesión");
+
+      window.location.replace("/index.html");
+    }
   }
 });
