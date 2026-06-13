@@ -49,18 +49,12 @@ function login() {
 
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
+      console.log("✅ login exitoso");
 
-      // ✅ ESPERAR CONFIRMACIÓN REAL DE FIREBASE
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          console.log("✅ Sesión confirmada:", user.email);
-
-          unsubscribe(); // detener listener
-
-          // ✅ redirección SEGURA
-          window.location.replace("dashboard.html");
-        }
-      });
+      // ✅ ESPERA para que Firebase guarde la sesión
+      setTimeout(() => {
+        window.location.replace("/dashboard.html");
+      }, 500);
 
     })
     .catch((error) => {
