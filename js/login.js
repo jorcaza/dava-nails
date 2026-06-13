@@ -1,8 +1,9 @@
 // 🔥 IMPORTS
-import { auth } from "/js/firebase-config.js";
-import { signInWithEmailAndPassword } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
+import { auth } from "js/firebase-config.js";
+import { 
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 // 🔹 elementos
 const emailInput = document.getElementById("email");
@@ -46,11 +47,21 @@ function login() {
 
   setLoading(true);
 
-  // ✅ AQUÍ VA TU CÓDIGO
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
-      // ✅ redirección correcta
-      window.location.replace("/dashboard.html");
+
+      // ✅ ESPERAR CONFIRMACIÓN REAL DE FIREBASE
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          console.log("✅ Sesión confirmada:", user.email);
+
+          unsubscribe(); // detener listener
+
+          // ✅ redirección SEGURA
+          window.location.replace("/dashboard.html");
+        }
+      });
+
     })
     .catch((error) => {
       console.log(error);
@@ -72,10 +83,10 @@ function login() {
     });
 }
 
-// ✅ BOTÓN
+// ✅ botón
 btnLogin.addEventListener("click", login);
 
-// ✅ ENTER
+// ✅ enter
 passwordInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") login();
 });
