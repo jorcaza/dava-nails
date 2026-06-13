@@ -1,31 +1,23 @@
-import { auth } from "./firebase-config.js";
+// 🔥 IMPORTS FIREBASE
+import { auth } from "/js/firebase-config.js";
 import { signOut } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* ── Cerrar sesión ── */
-
-
+/* ── LOGOUT ── */
 const logoutBtn = document.getElementById("logoutBtn");
 
 if (logoutBtn) {
   logoutBtn.addEventListener("click", () => {
     signOut(auth)
       .then(() => {
+        console.log("Sesión cerrada");
         window.location.replace("/index.html");
+      })
+      .catch((error) => {
+        console.error("Error cerrando sesión:", error);
       });
   });
 }
-
-
-
-function logout() {
-  auth.signOut().then(() => {
-    sessionStorage.removeItem('ns_session');
-    localStorage.removeItem('ns_session');
-    window.location.href = 'index.html';
-  });
-}
-
 
 /* ── Sidebar toggle (desktop) ── */
 const body = document.body;
@@ -33,50 +25,48 @@ const toggleBtn = document.getElementById('toggleBtn');
 const hamburger = document.getElementById('hamburger');
 const overlay = document.getElementById('overlay');
 
-toggleBtn.addEventListener('click', () => {
-  body.classList.toggle('collapsed');
-});
+if (toggleBtn) {
+  toggleBtn.addEventListener('click', () => {
+    body.classList.toggle('collapsed');
+  });
+}
 
 /* ── Sidebar drawer (mobile) ── */
-hamburger.addEventListener('click', () => {
-  body.classList.add('mobile-open');
-  overlay.classList.add('visible');
-});
+if (hamburger) {
+  hamburger.addEventListener('click', () => {
+    body.classList.add('mobile-open');
+    overlay.classList.add('visible');
+  });
+}
 
-overlay.addEventListener('click', closeMobile);
+if (overlay) {
+  overlay.addEventListener('click', closeMobile);
+}
 
 function closeMobile() {
   body.classList.remove('mobile-open');
   overlay.classList.remove('visible');
 }
 
+/* ── Cerrar sidebar al navegar (mobile) ── */
 document.querySelectorAll('.sidebar nav a').forEach(a => {
   a.addEventListener('click', () => {
     if (window.innerWidth <= 640) closeMobile();
   });
 });
 
-/*── VERSION ──*/
+/* ── INIT ── */
 document.addEventListener("DOMContentLoaded", () => {
-  const sidebar = document.getElementById("sidebar");
-  const toggleBtn = document.getElementById("toggleBtn");
   const openBtn = document.getElementById("openSidebarBtn");
   const versionEl = document.getElementById("appVersion");
 
-  // 🔥 SIDEBAR CONTROL
-  function setSidebar(state) {
-    document.body.classList.toggle("collapsed", state);
+  if (openBtn) {
+    openBtn.addEventListener("click", () => {
+      body.classList.remove("collapsed");
+    });
   }
 
-  toggleBtn.addEventListener("click", () => {
-    setSidebar(true);
-  });
-
-  openBtn.addEventListener("click", () => {
-    setSidebar(false);
-  });
-
-  // 🔥 VERSION (IMPORTANTE)
+  // versión
   if (versionEl && window.APP_VERSION) {
     versionEl.textContent = "Versión " + window.APP_VERSION;
   }
