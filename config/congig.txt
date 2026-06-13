@@ -1,0 +1,18 @@
+#firebase
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAgPVgK6BJbxmv7NI2hXN4NdlnyMtfNGKI",
+  authDomain: "dava-nails.firebaseapp.com",
+  projectId: "dava-nails",
+  storageBucket: "dava-nails.firebasestorage.app",
+  messagingSenderId: "92839130296",
+  appId: "1:92839130296:web:b03bbd0af96cc58186704d"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);

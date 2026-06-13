@@ -35,64 +35,71 @@ function clearFieldError(input, errId) {
   document.getElementById('alertError').classList.remove('show');
 }
 
-/* ── Credenciales válidas (reemplazar por fetch() al backend) ── */
-const USERS = [
-  { email: 'admin@nailstudio.co', password: 'nail2025', name: 'Admin' }
-];
+
 
 /* ── LOGIN ── */
 function login() {
-  const email    = document.getElementById('email').value.trim();
+  const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
   const remember = document.getElementById('remember').checked;
-  const btn      = document.getElementById('btnLogin');
-  const alertEl  = document.getElementById('alertError');
+
+  const btn = document.getElementById('btnLogin');
+  const alertEl = document.getElementById('alertError');
 
   let ok = true;
+
   if (!email || !/\S+@\S+\.\S+/.test(email)) {
     document.getElementById('email').classList.add('error');
     document.getElementById('err-email').classList.add('show');
     ok = false;
   }
+
   if (!password) {
     document.getElementById('password').classList.add('error');
     document.getElementById('err-pw').classList.add('show');
     ok = false;
   }
+
   if (!ok) return;
 
   btn.classList.add('loading');
   alertEl.classList.remove('show');
 
-  /* Simula llamada al servidor — reemplazar con fetch() */
-  setTimeout(() => {
-    const user = USERS.find(u =>
-      u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
+  //LOGIN REAL FIREBASE
+  auth.signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
 
-    if (user) {
+      const user = userCredential.user;
+
       const store = remember ? localStorage : sessionStorage;
+
       store.setItem('ns_session', JSON.stringify({
         email: user.email,
-        name: user.name,
-        loginAt: new Date().toISOString()
+        name: user.email.split('@')[0],
+        uid: user.uid
       }));
 
       btn.style.background = '#2e7d32';
-      btn.innerHTML = '<span class="btn-text"><i class="fa fa-check"></i> &nbsp;Accediendo…</span>';
+      btn.innerHTML = `<span class="btn-text"><i class="fa fa-check"></i> Accediendo?</span>`;
       btn.classList.remove('loading');
 
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 700);
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 600);
 
-    } else {
+    })
+    .catch((error) => {
+
       btn.classList.remove('loading');
-      document.getElementById('alertMsg').textContent = 'Correo o contraseña incorrectos. Intenta de nuevo.';
+
+      document.getElementById('alertMsg').textContent =
+        'Credenciales incorrectas o usuario no registrado';
+
       alertEl.classList.add('show');
+
       document.getElementById('email').classList.add('error');
       document.getElementById('password').classList.add('error');
-      const panel = document.querySelector('.panel-right');
-      panel.style.animation = 'shake .4s ease';
-      setTimeout(() => { panel.style.animation = ''; }, 400);
-    }
-  }, 820);
+
+    });
 }
+``

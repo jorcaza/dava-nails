@@ -14,11 +14,15 @@
 })();
 
 /* ── Cerrar sesión ── */
+
 function logout() {
-  sessionStorage.removeItem('ns_session');
-  localStorage.removeItem('ns_session');
-  window.location.href = 'index.html';
+  auth.signOut().then(() => {
+    sessionStorage.removeItem('ns_session');
+    localStorage.removeItem('ns_session');
+    window.location.href = 'index.html';
+  });
 }
+
 
 /* ── Sidebar toggle (desktop) ── */
 const body = document.body;
