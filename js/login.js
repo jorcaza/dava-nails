@@ -1,10 +1,15 @@
+// 🔥 IMPORTS
+import { auth } from "/firebase-config.js";
+import { signInWithEmailAndPassword } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
 // 🔹 elementos
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const btnLogin = document.getElementById("btnLogin");
 const errPw = document.getElementById("err-pw");
 
-// 🔹 función loader
+// 🔹 loader
 function setLoading(state) {
   if (state) {
     btnLogin.classList.add("loading");
@@ -19,45 +24,34 @@ function setLoading(state) {
 function showError(msg) {
   errPw.textContent = msg;
   errPw.style.display = "block";
-  passwordInput.classList.add("error");
 }
 
 // 🔹 ocultar error
 function hideError() {
   errPw.style.display = "none";
-  passwordInput.classList.remove("error");
 }
 
-// ✅ FUNCIÓN LOGIN MEJORADA
+// ✅ LOGIN
 function login() {
   const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
 
-  // limpiar errores
   hideError();
 
-  // validación
   if (!email || !password) {
     showError("Completa todos los campos");
     return;
   }
 
-  // activar loader
   setLoading(true);
 
-  // LOGIN FIREBASE
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      console.log("Usuario logueado:", user);
-
-      // ✅ redirección correcta
+    .then(() => {
       window.location.replace("/dashboard.html");
     })
     .catch((error) => {
       console.log(error);
 
-      // ✅ mensajes específicos
       if (error.code === "auth/wrong-password") {
         showError("Contraseña incorrecta");
       } 
@@ -71,18 +65,17 @@ function login() {
         showError("Error al iniciar sesión");
       }
 
-      // quitar loader si falla
       setLoading(false);
     });
 }
 
-// ✅ evento botón
+// ✅ evento correcto (SIN onclick)
 btnLogin.addEventListener("click", login);
 
-// ✅ ENTER para login
+// ✅ enter
 passwordInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") login();
 });
 
-// ✅ UX PRO: ocultar error al escribir
+// ✅ UX
 passwordInput.addEventListener("input", hideError);
