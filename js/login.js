@@ -3,6 +3,7 @@ import { auth } from "/js/firebase-config.js";
 import { signInWithEmailAndPassword } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+
 // 🔹 elementos
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");

@@ -1,19 +1,22 @@
-/* ── Proteger dashboard: redirige si no hay sesión ── */
-(function () {
-  const s = sessionStorage.getItem('ns_session') || localStorage.getItem('ns_session');
-  if (!s) { window.location.href = 'index.html'; return; }
-  try {
-    const u = JSON.parse(s);
-    const el = document.getElementById('sideAvatar');
-    if (el) el.textContent = u.name ? u.name.charAt(0).toUpperCase() : 'A';
-    const nm = document.getElementById('sideName');
-    if (nm) nm.textContent = u.name || 'Admin';
-    const em = document.getElementById('sideEmail');
-    if (em) em.textContent = u.email || '';
-  } catch (e) { }
-})();
+import { auth } from "./firebase-config.js";
+import { signOut } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 /* ── Cerrar sesión ── */
+
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth)
+      .then(() => {
+        window.location.replace("/index.html");
+      });
+  });
+}
+
+
 
 function logout() {
   auth.signOut().then(() => {
