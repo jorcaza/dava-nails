@@ -35,71 +35,41 @@ function clearFieldError(input, errId) {
   document.getElementById('alertError').classList.remove('show');
 }
 
+// IMPORTACIONES
+import { auth } from "./firebase-config.js";
+import { 
+  signInWithEmailAndPassword 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-
-/* ── LOGIN ── */
+// FUNCIÓN LOGIN
 function login() {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const remember = document.getElementById('remember').checked;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-  const btn = document.getElementById('btnLogin');
-  const alertEl = document.getElementById('alertError');
-
-  let ok = true;
-
-  if (!email || !/\S+@\S+\.\S+/.test(email)) {
-    document.getElementById('email').classList.add('error');
-    document.getElementById('err-email').classList.add('show');
-    ok = false;
+  // VALIDACIÓN BÁSICA
+  if (!email || !password) {
+    alert("Por favor completa todos los campos");
+    return;
   }
 
-  if (!password) {
-    document.getElementById('password').classList.add('error');
-    document.getElementById('err-pw').classList.add('show');
-    ok = false;
-  }
-
-  if (!ok) return;
-
-  btn.classList.add('loading');
-  alertEl.classList.remove('show');
-
-  //LOGIN REAL FIREBASE
-  auth.signInWithEmailAndPassword(email, password)
+  // LOGIN CON FIREBASE
+  signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-
       const user = userCredential.user;
 
-      const store = remember ? localStorage : sessionStorage;
+      console.log("Usuario logueado:", user);
 
-      store.setItem('ns_session', JSON.stringify({
-        email: user.email,
-        name: user.email.split('@')[0],
-        uid: user.uid
-      }));
-
-      btn.style.background = '#2e7d32';
-      btn.innerHTML = `<span class="btn-text"><i class="fa fa-check"></i> Accediendo?</span>`;
-      btn.classList.remove('loading');
-
-      setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 600);
-
+      // Redireccionar (opcional)
+      window.location.href = "home.html";
     })
     .catch((error) => {
+      console.error("Error:", error.message);
 
-      btn.classList.remove('loading');
-
-      document.getElementById('alertMsg').textContent =
-        'Credenciales incorrectas o usuario no registrado';
-
-      alertEl.classList.add('show');
-
-      document.getElementById('email').classList.add('error');
-      document.getElementById('password').classList.add('error');
-
+      alert("Error: " + error.message);
     });
 }
-``
+
+// HACER LA FUNCIÓN GLOBAL (IMPORTANTE para HTML onclick)
+window.login = login;
+
+
