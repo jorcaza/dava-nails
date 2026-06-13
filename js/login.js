@@ -1,5 +1,5 @@
 // 🔥 IMPORTS
-import { auth } from "js/firebase-config.js";
+import { auth } from "/js/firebase-config.js";
 import { 
   signInWithEmailAndPassword,
   onAuthStateChanged
@@ -58,7 +58,7 @@ function login() {
           unsubscribe(); // detener listener
 
           // ✅ redirección SEGURA
-          window.location.replace("/dashboard.html");
+          window.location.replace("dashboard.html");
         }
       });
 
