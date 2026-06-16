@@ -530,3 +530,22 @@ function obtenerServicio(select) {
   return select.closest(".t-row")
     .querySelector('[data-label="Servicio"]').innerText;
 }
+
+//menú flotante
+window.toggleMenu = function(btn) {
+
+  const menu = btn.closest(".menu-acciones");
+  const dropdown = menu.querySelector(".menu-options");
+
+  menu.classList.toggle("open");
+
+  const rect = dropdown.getBoundingClientRect();
+
+  if (rect.bottom > window.innerHeight) {
+    dropdown.style.top = "auto";
+    dropdown.style.bottom = "110%";
+  } else {
+    dropdown.style.top = "100%";
+    dropdown.style.bottom = "auto";
+  }
+};
