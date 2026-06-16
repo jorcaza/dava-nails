@@ -104,9 +104,13 @@ function crearFila(cita) {
       <div class="col estado ${cita.estado}" data-label="Estado">
         ${cita.estado}
       </div>
-
       <div class="col" data-label="Acción">
-        <button class="btn-wa">WhatsApp</button>
+        <a class="btn-wa"
+           href="#"
+           onclick="enviarWhatsApp('${cita.cliente}','${cita.hora}','${cita.servicioNombre}','${cita.manicuristaNombre}','${cita.telefono}')"
+           target="_blank">
+          <i class="fab fa-whatsapp"></i>
+        </a>
       </div>
 
     </div>
