@@ -1478,3 +1478,34 @@ white-space: nowrap;
 .menu-acciones.open .menu-options {
   display: block;
 }
+
+.table-wrap,
+.table-card {
+  overflow: visible;  /* ?? CLAVE */
+}
+
+.menu-acciones {
+  position: relative;   /* ?? base del floating */
+}
+
+/* menú desplegable */
+.menu-options {
+  position: absolute;
+
+  top: 100%;
+  right: 0;
+
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #eee;
+
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+
+  min-width: 160px;
+
+  display: none;
+
+  z-index: 9999;   /* ?? MUY IMPORTANTE */
+}
+
+

@@ -447,7 +447,9 @@ document.addEventListener("click", function(e) {
 
 });
 
-function accionWhatsApp(el) {
+
+
+window.accionWhatsApp = function(el) {
 
   const row = el.closest(".t-row");
 
