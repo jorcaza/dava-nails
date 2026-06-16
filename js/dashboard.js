@@ -109,7 +109,7 @@ function crearFila(cita) {
            href="#"
            onclick="enviarWhatsApp('${cita.cliente}','${cita.hora}','${cita.servicioNombre}','${cita.manicuristaNombre}','${cita.telefono}')"
            target="_blank">
-          <i class="fab fa-whatsapp"></i>
+          <i class="fab fa-whatsapp">WhatsApp</i>
         </a>
       </div>
 
