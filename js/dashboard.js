@@ -141,6 +141,10 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
             Cancelada
           </option>
 
+          option value="reprogramada" ${cita.estado === "reprogramada" ? "selected" : ""}>
+            reprogramada
+          </option>
+
         </select>
 
       </div>
@@ -400,11 +404,22 @@ window.cerrarModal = function() {
 
 window.guardarReprogramacion = async function() {
 
+  const btn = document.getElementById("btnGuardar");
+
+  // 🔒 bloquear botón
+  btn.disabled = true;
+  btn.textContent = "Guardando...";
+
   const fecha = document.getElementById("editFecha").value;
   const hora = document.getElementById("editHora").value;
 
   if (!fecha || !hora) {
     mostrarToast("Completa fecha y hora ❌", "error");
+
+    // 🔓 desbloquear
+    btn.disabled = false;
+    btn.textContent = "Guardar";
+
     return;
   }
 
@@ -423,10 +438,17 @@ window.guardarReprogramacion = async function() {
     cargarCitas();
 
   } catch (error) {
+
     console.error(error);
-    mostrarToast("Error ❌", "error");
+    mostrarToast("Error al guardar ❌", "error");
+
+    // 🔓 desbloquear si falla
+    btn.disabled = false;
+    btn.textContent = "Guardar";
+
   }
-}
+};
+``
 
 
 /*menú flotante*/
@@ -537,21 +559,36 @@ window.toggleMenu = function(btn) {
   const menu = btn.closest(".menu-acciones");
   const dropdown = menu.querySelector(".menu-options");
 
-  // toggle
+  // 🔥 cerrar otros menús abiertos
+  document.querySelectorAll(".menu-acciones").forEach(m => {
+    if (m !== menu) m.classList.remove("open");
+  });
+
+  // 🔥 toggle actual
   menu.classList.toggle("open");
+
 
   // ✅ SOLO desktop aplica lógica dinámica
   if (window.innerWidth > 768) {
 
+    // reset inicial
     dropdown.style.top = "100%";
     dropdown.style.bottom = "auto";
 
     const rect = dropdown.getBoundingClientRect();
 
+    // 🔴 si se sale por abajo → abrir hacia arriba
     if (rect.bottom > window.innerHeight) {
       dropdown.style.top = "auto";
       dropdown.style.bottom = "100%";
     }
 
+    // 🔴 si se sale por arriba → forzar abajo
+    if (rect.top < 0) {
+      dropdown.style.top = "100%";
+      dropdown.style.bottom = "auto";
+    }
+
   }
+
 };

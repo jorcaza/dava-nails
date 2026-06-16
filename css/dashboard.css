@@ -1318,6 +1318,13 @@ white-space: nowrap;
   color: #c62828;
 }
 
+
+.estado-reprogramada {
+  background: #fff4cc;
+  color: #b38b00;
+}
+
+
 .toast {
   position: fixed;
   bottom: 20px;
