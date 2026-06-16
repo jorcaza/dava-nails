@@ -1401,3 +1401,31 @@ white-space: nowrap;
 .btn-edit {
   background: #1976d2;
 }
+
+
+/* CONTENEDOR DE BOTONES */
+.acciones {
+  display: flex;
+  flex-direction: row;      /* ?? fuerza horizontal */
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+/* COLUMNA ACCIÓN */
+.col[data-label="Acción"] {
+  display: flex;
+  align-items: center;      /* ?? centra vertical */
+}
+
+/* BOTONES */
+.btn-wa {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+}
