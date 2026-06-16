@@ -1245,23 +1245,12 @@ white-space: nowrap;
 /*cambio de estao cita*/
 
 .estado-select {
-  appearance: none;  /* ?? quita estilo nativo */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  padding: 6px 28px 6px 12px;
+  padding: 5px 10px;
   border-radius: 999px;
-
   font-size: 12px;
-  font-weight: 600;
-
   border: none;
   cursor: pointer;
-
-  background-position: right 8px center;
-  background-repeat: no-repeat;
-
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23b38b00' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  font-weight: 600;
 }
 
 
