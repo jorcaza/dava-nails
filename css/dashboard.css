@@ -1314,3 +1314,43 @@ white-space: nowrap;
   color: #c62828;
 }
 
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+
+  background: #2e7d32;
+  color: white;
+
+  padding: 10px 14px;
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+
+  z-index: 9999;
+
+  animation: fadeIn 0.3s ease;
+}
+
+/* animación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast.ok {
+  background: #2e7d32;
+}
+
+.toast.error {
+  background: #c62828;
+}

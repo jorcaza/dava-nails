@@ -115,7 +115,7 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
 
       <div class="col estado" data-label="Estado">
 
-        <select class="estado-select estado-${cita.estado}"
+        <select class="estado-select estado-${cita.estado}" data-estado-anterior="${cita.estado}"
           onchange="cambiarEstado(this, '${cita.id}')">
 
           <option value="pendiente" ${cita.estado === "pendiente" ? "selected" : ""}>
@@ -195,19 +195,83 @@ from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 window.cambiarEstado = async function(select, id) {
 
   const nuevoEstado = select.value;
+  const estadoAnterior = select.dataset.estadoAnterior;
 
   try {
+
     await updateDoc(doc(db, "citas", id), {
-      estado: nuevoEstado,
-      fechaCambioEstado: serverTimestamp()
+      estado: nuevoEstado
     });
 
-    console.log("✅ Estado actualizado:", nuevoEstado);
-
-    // 🔥 actualizar color dinámico
+    // ✅ actualizar color
     select.className = "estado-select estado-" + nuevoEstado;
+
+    // ✅ REGLAS DE ENVÍO 🔥
+
+    if (estadoAnterior !== nuevoEstado) {
+
+      // ✅ SOLO SI PASA A CONFIRMADA
+      if (nuevoEstado === "confirmada") {
+        enviarConfirmacion(select);
+      }
+
+      // ✅ (opcional) SI SE CANCELA
+      if (nuevoEstado === "cancelada") {
+        enviarCancelacion(select);
+      }
+    }
+    // ✅ actualizar estado anterior
+    select.dataset.estadoAnterior = nuevoEstado;
+
+
+    
+    
+    // ✅ 🔥 MOSTRAR TOAST
+    mostrarToast("Guardado ✅", "ok");
 
   } catch (error) {
     console.error("❌ Error:", error);
+    mostrarToast("Error al guardar ❌", "error");
   }
+};
+
+
+function enviarRecordatorio(select) {
+
+  // 🔥 obtener datos desde la fila
+  const row = select.closest(".t-row");
+
+  const cliente = row.querySelector('[data-label="Cliente"] strong').innerText;
+  const telefono = row.querySelector('[data-label="Cliente"] small').innerText;
+  const hora = row.querySelector('[data-label="Hora"]').innerText;
+  const servicio = row.querySelector('[data-label="Servicio"]').innerText;
+
+  const mensaje =
+`✅ CONFIRMACIÓN DE CITA DAVANAILS
+
+Hola ${cliente} 👋
+
+Tu cita ha sido CONFIRMADA ✅
+
+📅 Hora: ${hora}
+💅 Servicio: ${servicio}
+
+Te esperamos 💖`;
+
+  const url = `https://wa.me/57${telefono}?text=${encodeURIComponent(mensaje)}`;
+
+  window.open(url, "_blank");
+}
+
+
+function mostrarToast(msg, tipo = "ok") {
+
+  const toast = document.createElement("div");
+  toast.textContent = msg;
+
+  toast.className = "toast " + tipo;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => toast.remove(), 2000);
 }
