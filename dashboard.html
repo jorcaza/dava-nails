@@ -240,23 +240,47 @@ code anterior
 <script>
 function enviarWhatsApp(cliente, hora, servicio, manicurista, telefono) {
 
-  const mensaje =
-`💅 CONFIRMACIÓN DE CITA DAVANAILS
+  const mensaje = `💅 CONFIRMACIÓN DE CITA DAVANAILS
 
-Hola ${cliente}
+Hola ${cliente} 👋
 
-Hora: ${hora}
-Servicio: ${servicio}
-Manicurista: ${manicurista}
+📅 Hora: ${hora}
+💅 Servicio: ${servicio}
+👩‍🎨 Manicurista: ${manicurista}
 
-Por favor responde:
-CONFIRMO
-CANCELO`;
+✅ Por favor responde:
+CONFIRMO o CANCELO`;
 
-  const url = `https://wa.me/57${telefono}?text=${encodeURIComponent(mensaje)}`;
+  const url = "https://api.whatsapp.com/send?phone=573205100176&text=" + encodeURIComponent(mensaje);
 
   window.open(url, "_blank");
 }
+
+
+
+function enviarWhatsApp() {
+  const mensaje = `💅 CONFIRMACIÓN DE CITA DAVANAILS
+
+📅 Hora: 3:00 PM
+💅 Servicio: Manicure Gel
+👩‍🎨 Manicurista: Laura
+
+✅ Por favor selecciona una opción:
+
+✅ Confirmar cita:
+https://wa.me/573001112233?text=💅 Confirmo mi cita en DavaNails
+
+❌ Cancelar cita:
+https://wa.me/573001112233?text=💅 Cancelo mi cita en DavaNails`;
+
+
+const url = "https://api.whatsapp.com/send?phone=573205100176&text=" + encodeURIComponent(mensaje);
+
+
+
+  window.open(url, "_blank");
+}
+
 </script>
 
 
