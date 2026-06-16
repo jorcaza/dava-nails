@@ -255,7 +255,7 @@ CANCELO ❌`;
 
   const url =
     `https://api.whatsapp.com/send?phone=57${telefono}&text=${encodeURIComponent(mensaje)}`;
-
+console.log(url); // aquí sí existe
   window.open(url, "_blank");
 }
 </script>
