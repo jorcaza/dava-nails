@@ -112,31 +112,38 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
         ${cita.manicuristaNombre || "—"}
       </div>
 
+<div class="col estado" data-label="Estado">
 
-      <div class="col estado" data-label="Estado">
+  <div class="estado-dropdown">
 
-        <select class="estado-select estado-${cita.estado}"
-          onchange="cambiarEstado(this, '${cita.id}')">
+    <div class="estado-selected estado-${cita.estado}" 
+         onclick="toggleDropdown(this)">
+      ${cita.estado}
+      <i class="fa-solid fa-chevron-down"></i>
+    </div>
 
-          <option value="pendiente" ${cita.estado === "pendiente" ? "selected" : ""}>
-            Pendiente
-          </option>
+    <div class="estado-options">
 
-          <option value="confirmada" ${cita.estado === "confirmada" ? "selected" : ""}>
-            Confirmada
-          </option>
-
-          <option value="completada" ${cita.estado === "completada" ? "selected" : ""}>
-            Completada
-          </option>
-
-          <option value="cancelada" ${cita.estado === "cancelada" ? "selected" : ""}>
-            Cancelada
-          </option>
-
-        </select>
-
+      <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'pendiente')">
+        Pendiente
       </div>
+
+      <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'confirmada')">
+        Confirmada
+      </div>
+
+      <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'completada')">
+        Completada
+      </div>
+
+      <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'cancelada')">
+        Cancelada
+      </div>
+
+    </div>
+  </div>
+
+</div>
 
       <div class="col" data-label="Acción">
         <a class="btn-wa"
@@ -188,23 +195,41 @@ cargarCitas();
 
 //cambiar erstao de citas
 
-import { doc, updateDoc }
+
+import { doc, updateDoc } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-window.cambiarEstado = async function(select, id) {
 
-  const nuevoEstado = select.value;
+window.cambiarEstadoDropdown = async function(el, id, estado) {
 
-  try {
-    await updateDoc(doc(db, "citas", id), {
-      estado: nuevoEstado
-    });
+  const dropdown = el.closest(".estado-dropdown");
+  const selected = dropdown.querySelector(".estado-selected");
 
-    console.log("✅ Estado actualizado:", nuevoEstado);
+  // ✅ actualizar UI
+  selected.textContent = estado;
 
-    // 🔥 actualizar color dinámico
-    select.className = "estado-select estado-" + nuevoEstado;
+  selected.className = "estado-selected estado-" + estado;
 
-  } catch (error) {
-    console.error("❌ Error:", error);
-  }
+  // ✅ cerrar dropdown
+  dropdown.classList.remove("open");
+
+  // ✅ guardar en Firebase
+  await updateDoc(doc(db, "citas", id), {
+    estado: estado
+  });
+
+  console.log("✅ Estado actualizado:", estado);
 }
+
+
+window.toggleDropdown = function(el) {
+  const parent = el.parentElement;
+  parent.classList.toggle("open");
+}
+
+document.addEventListener("click", function(e) {
+  document.querySelectorAll(".estado-dropdown").forEach(drop => {
+    if (!drop.contains(e.target)) {
+      drop.classList.remove("open");
+    }
+  });
+});
