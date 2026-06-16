@@ -188,8 +188,10 @@ cargarCitas();
 
 //cambiar erstao de citas
 
-import { doc, updateDoc }
+
+import { doc, updateDoc, serverTimestamp }
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 window.cambiarEstado = async function(select, id) {
 
   const nuevoEstado = select.value;
