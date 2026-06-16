@@ -1027,48 +1027,32 @@ body.collapsed .open-sidebar {
 
 
 /* círculo */
-.estado::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
+
 
 .estado.pendiente {
   background: #fff4cc;
   color: #b38b00;
 }
 
-.estado.pendiente::before {
-  background: #fbbc04;
-}
 
 .estado.confirmada {
   background: #e3f2fd;
   color: #1976d2;
 }
 
-.estado.confirmada::before {
-  background: #2196f3;
-}
 
 .estado.completada {
   background: #e8f5e9;
   color: #2e7d32;
 }
 
-.estado.completada::before {
-  background: #4caf50;
-}
+
 
 .estado.cancelada {
   background: #fdecea;
   color: #c62828;
 }
 
-.estado.cancelada::before {
-  background: #f44336;
-}
 
 
 .col {
