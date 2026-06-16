@@ -544,21 +544,16 @@ window.toggleMenu = function(btn) {
 
   menu.classList.toggle("open");
 
-  // reset posición
+  // reset
   dropdown.style.top = "100%";
   dropdown.style.bottom = "auto";
 
   const rect = dropdown.getBoundingClientRect();
 
-  // 🔥 si se sale por abajo → abrir hacia arriba
+  // 🔴 si no cabe abajo → abrir arriba
   if (rect.bottom > window.innerHeight) {
     dropdown.style.top = "auto";
     dropdown.style.bottom = "100%";
   }
-
-  // 🔥 si se sale por arriba → forzar abajo
-  if (rect.top < 0) {
-    dropdown.style.top = "100%";
-    dropdown.style.bottom = "auto";
-  }
 };
+
