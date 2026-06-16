@@ -149,33 +149,31 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
 
       </div>
 
-          <div class="col" data-label="Acción">
+        <div class="col" data-label="Acción">
 
-            <div class="menu-acciones">
+          <div class="acciones">
 
-              <button class="btn-menu" onclick="toggleMenu(this)">
-                <i class="fa fa-ellipsis-v"></i>
-              </button>
+            <!-- WhatsApp -->
+            <a class="btn-accion btn-wa" title="Enviar WhatsApp"
+              onclick="accionWhatsApp(this)">
+              <i class="fab fa-whatsapp"></i>
+            </a>
 
-                <div class="menu-options">
+            <!-- Editar -->
+            <a class="btn-accion btn-edit"
+              onclick="editarDesdeMenu(this)">
+              <i class="fa fa-pen"></i>
+            </a>
 
-                  <div class="accion-whatsapp" onclick="accionWhatsApp(this)">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                  </div>
-
-                  <div class="accion-editar" onclick="editarDesdeMenu(this)">
-                    <i class="fa fa-pen"></i> Editar
-                  </div>
-
-                  <div class="accion-cancelar" onclick="cancelarDesdeMenu(this)">
-                    <i class="fa fa-ban"></i> Cancelar
-                  </div>
-
-                </div>
-
-            </div>
+            <!-- Cancelar -->
+            <a class="btn-accion btn-cancel"
+              onclick="cancelarDesdeMenu(this)">
+              <i class="fa fa-ban"></i>
+            </a>
 
           </div>
+
+        </div>
 
     </div>
 <div id="modalEditar" class="modal">

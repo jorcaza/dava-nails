@@ -1479,8 +1479,6 @@ white-space: nowrap;
   background: #f5f5f5;
 }
 
-
-
 .menu-acciones {
   position: relative;   /* ?? base del floating */
 }
@@ -1564,4 +1562,51 @@ white-space: nowrap;
     width: 100%;              /* opcional: ancho completo */
   }
 
+}
+
+/* contenedor de acciones */
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* base botón */
+.btn-accion {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+  cursor: pointer;
+
+  color: white;
+  font-size: 15px;
+}
+
+/* colores */
+.btn-wa {
+  background: #25D366; /* verde */
+}
+
+.btn-edit {
+  background: #1976d2; /* azul */
+}
+
+.btn-cancel {
+  background: #c62828; /* rojo */
+}
+
+/* hover pro */
+.btn-accion:hover {
+  transform: translateY(-2px);
+}
+
+
+.btn-accion:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
