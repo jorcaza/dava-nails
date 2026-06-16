@@ -1451,19 +1451,17 @@ white-space: nowrap;
 
 /* dropdown */
 .menu-options {
-  position: absolute;
-  top: 110%;
-  right: 0;
+  position: fixed;     /* ?? CAMBIO CLAVE */
+  display: none;
 
   background: white;
   border-radius: 10px;
   border: 1px solid var(--border);
 
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 
-  display: none;
   min-width: 160px;
-  z-index: 10;
+  z-index: 9999;
 }
 
 /* items */
@@ -1481,10 +1479,6 @@ white-space: nowrap;
   background: #f5f5f5;
 }
 
-/* mostrar */
-.menu-acciones.open .menu-options {
-  display: block;
-}
 
 
 .menu-acciones {
