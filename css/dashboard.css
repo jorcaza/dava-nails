@@ -516,7 +516,7 @@ body.collapsed .logout-btn .nav-label {
 .t-row {
   display: grid;
   grid-template-columns: 2fr 1fr 2fr 1.5fr 1fr 1fr;
-  align-items: start;
+  align-items: stretch;
   padding: 13px 18px;
   border-bottom: 1px solid var(--border);
   transition: background .15s;
@@ -1071,35 +1071,42 @@ body.collapsed .open-sidebar {
 }
 
 
-
-
-
-
 .col {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  height: 100%; /* ?? importante */
 }
 
 
 .btn-wa {
-  display: inline-flex;   /* ?? importante */
-  width: fit-content;     /* ?? evita que se expanda */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  padding: 6px 10px;
-  font-size: 12px;
+  width: fit-content;       /* ?? NO se expande */
+  height: 32px;             /* ?? tamaño consistente */
 
-  border-radius: 8px;
+  padding: 0 10px;          /* ?? horizontal solamente */
+
   background: #25D366;
   color: white;
+
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+
   text-decoration: none;
-  margin-top: 2px;
+  border: none;
+
+  cursor: pointer;
+
+  transition: all .2s ease;
 }
+``
+
 
 .col[data-label="Acción"] {
-  display: flex;
-  align-items: flex-start;
+  justify-content: flex-start;
 }
 

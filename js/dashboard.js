@@ -86,7 +86,7 @@ function crearFila(cita) {
 
       <div class="col" data-label="Cliente">
         <strong>${cita.cliente}</strong><br>
-        
+        <small>${cita.telefono}</small>
       </div>
 
       <div class="col" data-label="Hora">
