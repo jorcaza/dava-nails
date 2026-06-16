@@ -154,41 +154,35 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
 
 
 async function cargarCitas() {
-  
-
-
 
   const snap = await getDocs(collection(db, "citas"));
   const container = document.getElementById("citasContainer");
 
   container.innerHTML = "";
 
-for (const docu of snap.docs) {
+  for (const docu of snap.docs) {
 
-  let cita = docu.data();
+    let cita = docu.data();
 
-  const fecha = cita.fechaHora.toDate();
-  cita.hora = fecha.toLocaleTimeString("es-CO", {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
+    // ✅ 🔥 AQUÍ VA EL FIX DEL ID
+    cita.id = docu.id;
 
-  // 🔥 SERVICIO
-  if (cita.servicio) {
-    const servicioSnap = await getDoc(cita.servicio);
-    cita.servicioNombre = servicioSnap.data().nombre;
+    // 🔥 SERVICIO
+    if (cita.servicio) {
+      const servicioSnap = await getDoc(cita.servicio);
+      cita.servicioNombre = servicioSnap.data().nombre;
+    }
+
+    // 🔥 MANICURISTA
+    if (cita.manicurista) {
+      const maniSnap = await getDoc(cita.manicurista);
+      cita.manicuristaNombre = maniSnap.data().nombre;
+    }
+
+    container.innerHTML += crearFila(cita);
   }
-
-  // 🔥 MANICURISTA
-  if (cita.manicurista) {
-    const maniSnap = await getDoc(cita.manicurista);
-    cita.manicuristaNombre = maniSnap.data().nombre;
-  }
-
-  container.innerHTML += crearFila(cita);
 }
 
-}
 
 cargarCitas();
 
