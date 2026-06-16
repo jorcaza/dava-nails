@@ -145,20 +145,33 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
 
       </div>
 
-      <div class="col" data-label="Acción">
-        <a class="btn-wa"
-           href="#"
-           onclick="enviarWhatsApp('${cita.cliente}','${cita.hora}','${cita.servicioNombre}','${cita.manicuristaNombre}','${cita.telefono}','${cita.fecha}')"
-           target="_blank">
-          <i class="fab fa-whatsapp"></i>
-        </a>
-        
-        <a class="btn-wa btn-edit"
-          href="#"
-          onclick="abrirModal('${cita.id}')">
-          <i class="fa fa-pen"></i>
-        </a>
-      </div>
+          <div class="col" data-label="Acción">
+
+            <div class="menu-acciones">
+
+              <button class="btn-menu" onclick="toggleMenu(this)">
+                <i class="fa fa-ellipsis-v"></i>
+              </button>
+
+              <div class="menu-options">
+
+                <div onclick="accionWhatsApp(this)">
+                  <i class="fab fa-whatsapp"></i> WhatsApp
+                </div>
+
+                <div onclick="editarDesdeMenu(this)">
+                  <i class="fa fa-pen"></i> Editar
+                </div>
+
+                <div onclick="cancelarDesdeMenu(this)">
+                  <i class="fa fa-ban"></i> Cancelar
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
 
     </div>
 <div id="modalEditar" class="modal">
@@ -250,9 +263,11 @@ window.cambiarEstado = async function(select, id) {
     // ✅ estados que envían mensaje
     const estadosConMensaje = ["confirmada", "cancelada", "reprogramada"];
 
+
     if (estadoAnterior !== nuevoEstado && estadosConMensaje.includes(nuevoEstado)) {
-      enviarWhatsApp(select, nuevoEstado);
+      preguntarEnvioWhatsApp(select, nuevoEstado);
     }
+
 
     // ✅ actualizar estado anterior
     select.dataset.estadoAnterior = nuevoEstado;
@@ -411,4 +426,105 @@ window.guardarReprogramacion = async function() {
     console.error(error);
     mostrarToast("Error ❌", "error");
   }
+}
+
+
+/*menú flotante*/
+window.toggleMenu = function(btn) {
+
+  const parent = btn.closest(".menu-acciones");
+  parent.classList.toggle("open");
+
+}
+
+document.addEventListener("click", function(e) {
+
+  document.querySelectorAll(".menu-acciones").forEach(menu => {
+    if (!menu.contains(e.target)) {
+      menu.classList.remove("open");
+    }
+  });
+
+});
+
+function accionWhatsApp(el) {
+
+  const row = el.closest(".t-row");
+
+  const cliente = row.querySelector('[data-label="Cliente"] strong').innerText;
+  const telefono = row.querySelector('[data-label="Cliente"] small').innerText;
+  const hora = row.querySelector('[data-label="Hora"]').innerText;
+  const servicio = row.querySelector('[data-label="Servicio"]').innerText;
+
+  enviarWhatsApp(cliente, hora, servicio, "", telefono, "", "confirmada");
+}
+
+
+function editarDesdeMenu(el) {
+
+  const row = el.closest(".t-row");
+  const id = row.dataset.id;
+
+  abrirModal(id); // ya lo tienes ✅
+}
+
+function cancelarDesdeMenu(el) {
+
+  const row = el.closest(".t-row");
+  const select = row.querySelector("select");
+
+  select.value = "cancelada";
+
+  cambiarEstado(select, row.dataset.id);
+}
+
+function preguntarEnvioWhatsApp(select, estado) {
+
+  let mensaje = "";
+
+  if (estado === "confirmada") {
+    mensaje = "¿Enviar confirmación por WhatsApp?";
+  }
+
+  if (estado === "cancelada") {
+    mensaje = "¿Enviar cancelación por WhatsApp?";
+  }
+
+  if (estado === "reprogramada") {
+    mensaje = "¿Enviar reprogramación por WhatsApp?";
+  }
+
+  const confirmar = confirm(mensaje);
+
+  if (confirmar) {
+    enviarWhatsApp(
+      obtenerCliente(select),
+      obtenerHora(select),
+      obtenerServicio(select),
+      "",
+      obtenerTelefono(select),
+      "",
+      estado
+    );
+  }
+}
+
+function obtenerCliente(select) {
+  return select.closest(".t-row")
+    .querySelector('[data-label="Cliente"] strong').innerText;
+}
+
+function obtenerTelefono(select) {
+  return select.closest(".t-row")
+    .querySelector('[data-label="Cliente"] small').innerText;
+}
+
+function obtenerHora(select) {
+  return select.closest(".t-row")
+    .querySelector('[data-label="Hora"]').innerText;
+}
+
+function obtenerServicio(select) {
+  return select.closest(".t-row")
+    .querySelector('[data-label="Servicio"]').innerText;
 }
