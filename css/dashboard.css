@@ -1548,3 +1548,23 @@ white-space: nowrap;
 .table-card {
   overflow: visible !important;   /* ?? CLAVE */
 }
+
+.menu-options {
+  position: absolute;
+  top: 100%;
+  right: 0;
+}
+
+/* ?? MOBILE */
+@media (max-width: 768px) {
+
+  .menu-options {
+    top: auto !important;
+    bottom: 100% !important;   /* ?? SIEMPRE arriba */
+    left: 0;                  /* alineado dentro */
+    right: auto;
+
+    width: 100%;              /* opcional: ancho completo */
+  }
+
+}

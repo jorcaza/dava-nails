@@ -537,23 +537,21 @@ window.toggleMenu = function(btn) {
   const menu = btn.closest(".menu-acciones");
   const dropdown = menu.querySelector(".menu-options");
 
-  // cerrar otros
-  document.querySelectorAll(".menu-acciones").forEach(m => {
-    if (m !== menu) m.classList.remove("open");
-  });
-
+  // toggle
   menu.classList.toggle("open");
 
-  // reset
-  dropdown.style.top = "100%";
-  dropdown.style.bottom = "auto";
+  // ✅ SOLO desktop aplica lógica dinámica
+  if (window.innerWidth > 768) {
 
-  const rect = dropdown.getBoundingClientRect();
+    dropdown.style.top = "100%";
+    dropdown.style.bottom = "auto";
 
-  // 🔴 si no cabe abajo → abrir arriba
-  if (rect.bottom > window.innerHeight) {
-    dropdown.style.top = "auto";
-    dropdown.style.bottom = "100%";
+    const rect = dropdown.getBoundingClientRect();
+
+    if (rect.bottom > window.innerHeight) {
+      dropdown.style.top = "auto";
+      dropdown.style.bottom = "100%";
+    }
+
   }
 };
-
