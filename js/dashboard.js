@@ -212,12 +212,12 @@ window.cambiarEstado = async function(select, id) {
 
       // ✅ SOLO SI PASA A CONFIRMADA
       if (nuevoEstado === "confirmada") {
-        enviarConfirmacion(select);
+        enviarWhatsApp(select, "confirmada";
       }
 
       // ✅ (opcional) SI SE CANCELA
       if (nuevoEstado === "cancelada") {
-        enviarCancelacion(select);
+        enviarWhatsApp(select, "cancelada");
       }
     }
     // ✅ actualizar estado anterior
@@ -236,9 +236,8 @@ window.cambiarEstado = async function(select, id) {
 };
 
 
-function enviarRecordatorio(select) {
+function enviarWhatsApp(select, tipo) {
 
-  // 🔥 obtener datos desde la fila
   const row = select.closest(".t-row");
 
   const cliente = row.querySelector('[data-label="Cliente"] strong').innerText;
@@ -246,23 +245,54 @@ function enviarRecordatorio(select) {
   const hora = row.querySelector('[data-label="Hora"]').innerText;
   const servicio = row.querySelector('[data-label="Servicio"]').innerText;
 
-  const mensaje =
+  let mensaje = "";
+
+  // ✅ LÓGICA DINÁMICA
+  if (tipo === "confirmada") {
+
+    mensaje =
 `✅ CONFIRMACIÓN DE CITA DAVANAILS
 
 Hola ${cliente} 👋
 
 Tu cita ha sido CONFIRMADA ✅
 
-📅 Hora: ${hora}
-💅 Servicio: ${servicio}
+📅 ${hora}
+💅 ${servicio}
 
 Te esperamos 💖`;
 
-  const url = `https://wa.me/57${telefono}?text=${encodeURIComponent(mensaje)}`;
+  }
 
-  window.open(url, "_blank");
+  if (tipo === "cancelada") {
+
+    mensaje =
+`❌ CITA CANCELADA
+
+Hola ${cliente}
+
+Tu cita ha sido cancelada.
+Si deseas reprogramar, contáctanos 💅`;
+
+  }
+
+  if (tipo === "recordatorio") {
+
+    mensaje =
+`⏰ RECORDATORIO DE CITA
+
+Hola ${cliente} 👋
+
+Te recordamos tu cita:
+
+📅 ${hora}
+💅 ${servicio}
+
+¡Te esperamos! 💖`;
+
+  }
+
 }
-
 
 function mostrarToast(msg, tipo = "ok") {
 
