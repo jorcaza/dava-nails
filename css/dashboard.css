@@ -1175,9 +1175,13 @@ white-space: nowrap;
    BOTÓN WHATSAPP ?
 ========================= */
 
+
 .col[data-label="Acción"] {
   display: flex;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start; /* o center si lo quieres centrado */
+  gap: 8px;
 }
 
 .btn-wa {
