@@ -516,7 +516,7 @@ body.collapsed .logout-btn .nav-label {
 .t-row {
   display: grid;
   
-  align-items: stretch;
+  align-items: flex-start;
   padding: 13px 18px;
   border-bottom: 1px solid var(--border);
   transition: background .15s;
@@ -928,7 +928,7 @@ body.collapsed .open-sidebar {
   /* columnas normales */
   .t-row .col {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     font-size: 14px;
   }
 
@@ -1059,7 +1059,7 @@ white-space: nowrap;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  height: 100%; /* ?? importante */
+  height: auto; /* ?? importante */
 }
 
 
@@ -1109,7 +1109,7 @@ white-space: nowrap;
 /* filas */
 .t-row {
   gap: 12px;
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 /* columnas */
@@ -1117,7 +1117,7 @@ white-space: nowrap;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  height: 100%;
+  height: auto;
 }
 
 /* =========================
