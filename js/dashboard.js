@@ -537,14 +537,27 @@ window.toggleMenu = function(btn) {
   const menu = btn.closest(".menu-acciones");
   const dropdown = menu.querySelector(".menu-options");
 
+  // cerrar otros
+  document.querySelectorAll(".menu-acciones").forEach(m => {
+    if (m !== menu) m.classList.remove("open");
+  });
+
   menu.classList.toggle("open");
+
+  // reset posición
+  dropdown.style.top = "100%";
+  dropdown.style.bottom = "auto";
 
   const rect = dropdown.getBoundingClientRect();
 
+  // 🔥 si se sale por abajo → abrir hacia arriba
   if (rect.bottom > window.innerHeight) {
     dropdown.style.top = "auto";
-    dropdown.style.bottom = "110%";
-  } else {
+    dropdown.style.bottom = "100%";
+  }
+
+  // 🔥 si se sale por arriba → forzar abajo
+  if (rect.top < 0) {
     dropdown.style.top = "100%";
     dropdown.style.bottom = "auto";
   }
