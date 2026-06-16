@@ -906,22 +906,79 @@ body.collapsed .open-sidebar {
 @media (max-width: 768px) {
 
   .t-row {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
     background: white;
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
 
+  /* Encabezado tipo m-card-top */
+  .t-row .cliente {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* columnas normales */
   .t-row .col {
     display: flex;
     justify-content: space-between;
     font-size: 14px;
   }
 
+  /* agregar label */
   .t-row .col::before {
     content: attr(data-label);
-    font-weight: bold;
+    font-weight: 500;
     color: #888;
   }
+
+  /* cliente sin label */
+  .t-row .cliente::before {
+    content: "";
+  }
+
+  /* estado como badge */
+  .estado {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    text-transform: capitalize;
+  }
+}
+
+/* CSS DESKTOP*/
+.t-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr 1fr 1fr;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+/* COLORES DE ESTADO*/
+.estado.pendiente {
+  background: #fff4cc;
+  color: #b38b00;
+}
+
+.estado.confirmada {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.estado.completada {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.estado.cancelada {
+  background: #fdecea;
+  color: #c62828;
 }
