@@ -1021,7 +1021,7 @@ body.collapsed .open-sidebar {
   font-size: 12px;
   font-weight: 600;
   text-transform: capitalize;
-
+white-space: nowrap;
   width: fit-content;
 }
 
@@ -1141,6 +1141,10 @@ body.collapsed .open-sidebar {
 
   width: fit-content;
   line-height: 1;
+  
+  overflow: hidden;
+  text-overflow: ellipsis;
+
 }
 
 
