@@ -113,26 +113,6 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
       </div>
 
 
-  <div class="col estado" data-label="Estado">
-
-    <div class="estado-dropdown">
-
-      <div class="estado-selected estado-${cita.estado}" 
-          onclick="toggleDropdown(this)">
-        ${cita.estado}
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-
-      <div class="estado-options">
-
-        <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'pendiente')">
-          Pendiente
-        </div>
-
-        <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'confirmada')">
-          Confirmada
-        </div>
-
 
 
       <div class="col" data-label="Acción">
