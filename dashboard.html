@@ -249,12 +249,13 @@ Hola ${cliente} 👋
 👩‍🎨 Manicurista: ${manicurista}
 
 ✅ Por favor responde:
-CONFIRMO o CANCELO`;
+• CONFIRMO ✔️
+• CANCELO ❌`;
 
-  const url = "https://api.whatsapp.com/send?phone=573205100176&text=" + (mensaje);
+  const url = "https://wa.me/" + telefono + "?text=" + encodeURIComponent(mensaje);
 
   window.open(url, "_blank");
-};
+}
 
 </script>
 

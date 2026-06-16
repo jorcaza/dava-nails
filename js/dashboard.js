@@ -101,7 +101,7 @@ function crearFila(cita) {
         ${cita.manicuristaNombre || "—"}
       </div>
 
-      <div class="col estado ${cita.estado}" data-label="Estado">
+      <div class="estado ${cita.estado}" data-label="Estado">
         ${cita.estado}
       </div>
       <div class="col" data-label="Acción">
