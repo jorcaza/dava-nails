@@ -370,8 +370,7 @@ window.cerrarModal = function() {
 }
 
 //guardar reprogramaci´pn import { doc, updateDoc }
-import { doc, updateDoc }
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 
 window.guardarReprogramacion = async function() {
 
