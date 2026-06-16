@@ -112,9 +112,32 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
         ${cita.manicuristaNombre || "—"}
       </div>
 
-      <div class="estado ${cita.estado}" data-label="Estado">
-        ${cita.estado}
+
+      <div class="col estado" data-label="Estado">
+
+        <select class="estado-select estado-${cita.estado}"
+          onchange="cambiarEstado(this, '${cita.id}')">
+
+          <option value="pendiente" ${cita.estado === "pendiente" ? "selected" : ""}>
+            Pendiente
+          </option>
+
+          <option value="confirmada" ${cita.estado === "confirmada" ? "selected" : ""}>
+            Confirmada
+          </option>
+
+          <option value="completada" ${cita.estado === "completada" ? "selected" : ""}>
+            Completada
+          </option>
+
+          <option value="cancelada" ${cita.estado === "cancelada" ? "selected" : ""}>
+            Cancelada
+          </option>
+
+        </select>
+
       </div>
+
       <div class="col" data-label="Acción">
         <a class="btn-wa"
            href="#"
@@ -168,3 +191,26 @@ for (const docu of snap.docs) {
 }
 
 cargarCitas();
+
+//cambiar erstao de citas
+
+import { doc, updateDoc }
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+window.cambiarEstado = async function(select, id) {
+
+  const nuevoEstado = select.value;
+
+  try {
+    await updateDoc(doc(db, "citas", id), {
+      estado: nuevoEstado
+    });
+
+    console.log("✅ Estado actualizado:", nuevoEstado);
+
+    // 🔥 actualizar color dinámico
+    select.className = "estado-select estado-" + nuevoEstado;
+
+  } catch (error) {
+    console.error("❌ Error:", error);
+  }
+}
