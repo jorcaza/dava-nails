@@ -243,15 +243,15 @@ function enviarWhatsApp(cliente, hora, servicio, manicurista, telefono) {
   const mensaje =
 `💅 CONFIRMACIÓN DE CITA DAVANAILS
 
-Hola ${cliente} 👋
+Hola ${cliente}
 
-📅 Hora: ${hora}
-💅 Servicio: ${servicio}
-👩‍🎨 Manicurista: ${manicurista}
+Hora: ${hora}
+Servicio: ${servicio}
+Manicurista: ${manicurista}
 
-✅ Por favor responde:
-CONFIRMO ✔️
-CANCELO ❌`;
+Por favor responde:
+CONFIRMO
+CANCELO`;
 
   const url = `https://wa.me/57${telefono}?text=${encodeURIComponent(mensaje)}`;
 
