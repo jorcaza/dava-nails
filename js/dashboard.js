@@ -212,7 +212,7 @@ window.cambiarEstado = async function(select, id) {
 
       // ✅ SOLO SI PASA A CONFIRMADA
       if (nuevoEstado === "confirmada") {
-        enviarWhatsApp(select, "confirmada";
+        enviarWhatsApp(select, "confirmada");
       }
 
       // ✅ (opcional) SI SE CANCELA
