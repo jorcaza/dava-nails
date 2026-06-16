@@ -1057,7 +1057,7 @@ white-space: nowrap;
 
 .col {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: flex-start;
   height: 100%; /* ?? importante */
 }
@@ -1115,7 +1115,7 @@ white-space: nowrap;
 /* columnas */
 .col {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: flex-start;
   height: 100%;
 }
@@ -1180,7 +1180,7 @@ white-space: nowrap;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start; /* o center si lo quieres centrado */
+  justify-content: center; /* o center si lo quieres centrado */
   gap: 8px;
 }
 
