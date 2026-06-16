@@ -1265,3 +1265,23 @@ white-space: nowrap;
 }
 
 
+/* COLORES DINÁMICOS */
+.estado-pendiente {
+  background: #fff4cc;
+  color: #b38b00;
+}
+
+.estado-confirmada {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.estado-completada {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.estado-cancelada {
+  background: #fdecea;
+  color: #c62828;
+}
