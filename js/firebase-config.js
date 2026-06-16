@@ -1,5 +1,4 @@
-
-// Importar Firebase correctamente
+// ? IMPORTAR FIREBASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
 import { 
@@ -8,7 +7,12 @@ import {
   browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// Configuración de tu proyecto
+// ?? IMPORTANTE (te falta esto)
+import { 
+  getFirestore 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ? CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAgPVgK6BJbxmv7NI2hXN4NdlnyMtfNGKI",
   authDomain: "dava-nails.firebaseapp.com",
@@ -18,10 +22,14 @@ const firebaseConfig = {
   appId: "1:92839130296:web:b03bbd0af96cc58186704d"
 };
 
+// ? INIT
 const app = initializeApp(firebaseConfig);
+
+// ? AUTH
 export const auth = getAuth(app);
 
-// ? CLAVE: mantener sesión SIEMPRE
+// ? FIRESTORE (esto faltaba ??)
+export const db = getFirestore(app);
+
+// ? PERSISTENCIA
 setPersistence(auth, browserLocalPersistence);
-
-
