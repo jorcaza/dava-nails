@@ -241,17 +241,17 @@ code anterior
 function enviarWhatsApp(cliente, hora, servicio, manicurista, telefono) {
 
   const mensaje =
-`💅 CONFIRMACIÓN DE CITA DAVANAILS
+`CONFIRMACIÓN DE CITA DAVANAILS
 
-Hola ${cliente} 👋
+Hola ${cliente}
 
-📅 Hora: ${hora}
-💅 Servicio: ${servicio}
-👩‍🎨 Manicurista: ${manicurista}
+Hora: ${hora}
+Servicio: ${servicio}
+Manicurista: ${manicurista}
 
 ✅ Por favor responde:
-CONFIRMO ✔️
-CANCELO ❌`;
+CONFIRMO
+CANCELO`;
 
   const url =
     `https://api.whatsapp.com/send?phone=57${telefono}&text=${encodeURIComponent(mensaje)}`;
