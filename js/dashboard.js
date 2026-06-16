@@ -105,6 +105,10 @@ function crearFila(cita) {
         ${cita.estado}
       </div>
 
+      <div class="col" data-label="Acción">
+        <button class="btn-wa">WhatsApp</button>
+      </div>
+
     </div>
   `;
 }
