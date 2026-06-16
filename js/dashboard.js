@@ -145,6 +145,10 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
            target="_blank">
           <i class="fab fa-whatsapp"></i>
         </a>
+        <button class="btn-edit"
+        onclick="editarCita('${cita.id}')">
+        ✏️
+      </button>
       </div>
 
     </div>
@@ -208,18 +212,14 @@ window.cambiarEstado = async function(select, id) {
 
     // ✅ REGLAS DE ENVÍO 🔥
 
-    if (estadoAnterior !== nuevoEstado) {
 
-      // ✅ SOLO SI PASA A CONFIRMADA
-      if (nuevoEstado === "confirmada") {
-        enviarWhatsApp(select, "confirmada");
-      }
+    // ✅ estados que envían mensaje
+    const estadosConMensaje = ["confirmada", "cancelada", "reprogramada"];
 
-      // ✅ (opcional) SI SE CANCELA
-      if (nuevoEstado === "cancelada") {
-        enviarWhatsApp(select, "cancelada");
-      }
+    if (estadoAnterior !== nuevoEstado && estadosConMensaje.includes(nuevoEstado)) {
+      enviarWhatsApp(select, nuevoEstado);
     }
+
     // ✅ actualizar estado anterior
     select.dataset.estadoAnterior = nuevoEstado;
 
@@ -247,9 +247,8 @@ function enviarWhatsApp(select, tipo) {
 
   let mensaje = "";
 
-  // ✅ LÓGICA DINÁMICA
+  // ✅ CONFIRMADA
   if (tipo === "confirmada") {
-
     mensaje =
 `✅ CONFIRMACIÓN DE CITA DAVANAILS
 
@@ -261,11 +260,10 @@ Tu cita ha sido CONFIRMADA ✅
 💅 ${servicio}
 
 Te esperamos 💖`;
-
   }
 
+  // ✅ CANCELADA
   if (tipo === "cancelada") {
-
     mensaje =
 `❌ CITA CANCELADA
 
@@ -273,25 +271,26 @@ Hola ${cliente}
 
 Tu cita ha sido cancelada.
 Si deseas reprogramar, contáctanos 💅`;
-
   }
 
-  if (tipo === "recordatorio") {
-
+  // ✅ 🔄 REPROGRAMADA
+  if (tipo === "reprogramada") {
     mensaje =
-`⏰ RECORDATORIO DE CITA
+`🔄 CITA REPROGRAMADA
 
 Hola ${cliente} 👋
 
-Te recordamos tu cita:
+Tu cita ha sido REPROGRAMADA.
 
-📅 ${hora}
-💅 ${servicio}
+📅 Nueva fecha y hora: ${hora}
+💅 Servicio: ${servicio}
 
-¡Te esperamos! 💖`;
-
+Por favor confirma si este horario te funciona ✅`;
   }
 
+  const url = `https://wa.me/57${telefono}?text=${encodeURIComponent(mensaje)}`;
+
+  window.open(url, "_blank");
 }
 
 function mostrarToast(msg, tipo = "ok") {
@@ -305,3 +304,31 @@ function mostrarToast(msg, tipo = "ok") {
 
   setTimeout(() => toast.remove(), 2000);
 }
+
+
+window.editarCita = async function(id) {
+
+  const nuevaFecha = prompt("Nueva fecha (YYYY-MM-DD):");
+  const nuevaHora = prompt("Nueva hora (HH:MM):");
+
+  if (!nuevaFecha || !nuevaHora) return;
+
+  const nuevaFechaHora = new Date(`${nuevaFecha}T${nuevaHora}:00`);
+
+  try {
+
+    await updateDoc(doc(db, "citas", id), {
+      fechaHora: nuevaFechaHora,
+      estado: "reprogramada"
+    });
+
+    mostrarToast("Cita reprogramada 🔄", "ok");
+
+    cargarCitas(); // refrescar tabla
+
+  } catch (error) {
+    console.error(error);
+    mostrarToast("Error al reprogramar ❌", "error");
+  }
+}
+``
