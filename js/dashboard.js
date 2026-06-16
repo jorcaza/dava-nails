@@ -112,38 +112,28 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
         ${cita.manicuristaNombre || "—"}
       </div>
 
-<div class="col estado" data-label="Estado">
 
-  <div class="estado-dropdown">
+  <div class="col estado" data-label="Estado">
 
-    <div class="estado-selected estado-${cita.estado}" 
-         onclick="toggleDropdown(this)">
-      ${cita.estado}
-      <i class="fa-solid fa-chevron-down"></i>
-    </div>
+    <div class="estado-dropdown">
 
-    <div class="estado-options">
-
-      <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'pendiente')">
-        Pendiente
+      <div class="estado-selected estado-${cita.estado}" 
+          onclick="toggleDropdown(this)">
+        ${cita.estado}
+        <i class="fa-solid fa-chevron-down"></i>
       </div>
 
-      <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'confirmada')">
-        Confirmada
-      </div>
+      <div class="estado-options">
 
-      <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'completada')">
-        Completada
-      </div>
+        <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'pendiente')">
+          Pendiente
+        </div>
 
-      <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'cancelada')">
-        Cancelada
-      </div>
+        <div onclick="cambiarEstadoDropdown(this, '${cita.id}', 'confirmada')">
+          Confirmada
+        </div>
 
-    </div>
-  </div>
 
-</div>
 
       <div class="col" data-label="Acción">
         <a class="btn-wa"
@@ -195,41 +185,23 @@ cargarCitas();
 
 //cambiar erstao de citas
 
-
-import { doc, updateDoc } 
+import { doc, updateDoc }
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+window.cambiarEstado = async function(select, id) {
 
-window.cambiarEstadoDropdown = async function(el, id, estado) {
+  const nuevoEstado = select.value;
 
-  const dropdown = el.closest(".estado-dropdown");
-  const selected = dropdown.querySelector(".estado-selected");
+  try {
+    await updateDoc(doc(db, "citas", id), {
+      estado: nuevoEstado
+    });
 
-  // ✅ actualizar UI
-  selected.textContent = estado;
+    console.log("✅ Estado actualizado:", nuevoEstado);
 
-  selected.className = "estado-selected estado-" + estado;
+    // 🔥 actualizar color dinámico
+    select.className = "estado-select estado-" + nuevoEstado;
 
-  // ✅ cerrar dropdown
-  dropdown.classList.remove("open");
-
-  // ✅ guardar en Firebase
-  await updateDoc(doc(db, "citas", id), {
-    estado: estado
-  });
-
-  console.log("✅ Estado actualizado:", estado);
+  } catch (error) {
+    console.error("❌ Error:", error);
+  }
 }
-
-
-window.toggleDropdown = function(el) {
-  const parent = el.parentElement;
-  parent.classList.toggle("open");
-}
-
-document.addEventListener("click", function(e) {
-  document.querySelectorAll(".estado-dropdown").forEach(drop => {
-    if (!drop.contains(e.target)) {
-      drop.classList.remove("open");
-    }
-  });
-});
