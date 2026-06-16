@@ -1486,23 +1486,19 @@ white-space: nowrap;
 }
 
 /* menú desplegable */
-.menu-options {
-  position: absolute;
 
-  top: 100%;
-  right: 0;
+.menu-options {
+  position: fixed;
+  display: none;
 
   background: white;
   border-radius: 10px;
   border: 1px solid #eee;
 
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 
   min-width: 160px;
-
-  display: none;
-
-  z-index: 9999;   /* ?? MUY IMPORTANTE */
+  z-index: 9999;
 }
 
 

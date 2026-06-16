@@ -565,43 +565,26 @@ window.toggleMenu = function(btn) {
     d.style.display = "none";
   });
 
-  const rect = btn.getBoundingClientRect();
-
-  // ✅ primero mostrar (pero invisible)
+  // ✅ mostrar primero
   dropdown.style.display = "block";
-  dropdown.style.visibility = "hidden";
   dropdown.style.position = "fixed";
 
-  // ✅ medir correctamente
-  const height = dropdown.offsetHeight;
-  const width = dropdown.offsetWidth;
+  // ✅ posición básica (SIN cálculos complejos)
+  const rect = btn.getBoundingClientRect();
 
-  let top;
+  let top = rect.bottom;
   let left = rect.left;
 
-  // ✅ MOBILE
-  if (window.innerWidth <= 768) {
-    top = rect.top - height;
-  } else {
-    top = rect.bottom;
-
-    if (top + height > window.innerHeight) {
-      top = rect.top - height;
-    }
+  // ✅ SI NO CABE ABAJO → SUBE
+  if (top + 200 > window.innerHeight) {
+    top = rect.top - 150;
   }
 
-  // ✅ evitar que se salga
-  if (left + width > window.innerWidth) {
-    left = window.innerWidth - width - 10;
+  // ✅ evita salir de pantalla
+  if (left + 160 > window.innerWidth) {
+    left = window.innerWidth - 170;
   }
 
-  if (left < 0) left = 10;
-
-  // ✅ aplicar posición final
   dropdown.style.top = top + "px";
   dropdown.style.left = left + "px";
-  dropdown.style.zIndex = 9999;
-
-  // ✅ hacerlo visible
-  dropdown.style.visibility = "visible";
 };
