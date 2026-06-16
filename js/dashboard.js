@@ -103,7 +103,8 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
     <div class="t-row">
 
       <div class="col" data-label="Cliente">
-        <strong>${cita.cliente} - <small>${cita.telefono}</small>     
+        <strong>${cita.cliente} - <small>${cita.telefono}</small></strong>
+     
       </div>
 
       <div class="col" data-label="Hora">
