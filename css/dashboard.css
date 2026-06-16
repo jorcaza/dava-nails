@@ -1393,3 +1393,7 @@ white-space: nowrap;
   display: flex;
   justify-content: space-between;
 }
+
+.btn-edit {
+  background: #1976d2;
+}

@@ -145,12 +145,12 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
            target="_blank">
           <i class="fab fa-whatsapp"></i>
         </a>
-
-        <button class="btn-edit"
+        
+        <a class="btn-wa btn-edit"
+          href="#"
           onclick="abrirModal('${cita.id}')">
-          ✏️
-        </button>
-
+          <i class="fa fa-pen"></i>
+        </a>
       </div>
 
     </div>
