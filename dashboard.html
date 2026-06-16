@@ -251,7 +251,7 @@ Hola ${cliente} 👋
 ✅ Por favor responde:
 CONFIRMO o CANCELO`;
 
-  const url = "https://api.whatsapp.com/send?phone=573205100176&text=" + encodeURIComponent(mensaje);
+  const url = "https://api.whatsapp.com/send?phone=573205100176&text=" + (mensaje);
 
   window.open(url, "_blank");
 };
