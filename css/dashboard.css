@@ -1071,7 +1071,21 @@ body.collapsed .open-sidebar {
 }
 
 
+
 .col[data-label="Acción"] {
   display: flex;
-  align-items: center;
+  justify-content: flex-start;
 }
+
+
+.col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+
+.btn-wa {
+  margin-top: 4px;
+}
+
