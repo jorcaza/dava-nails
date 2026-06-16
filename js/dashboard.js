@@ -81,6 +81,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function crearFila(cita) {
+
+const fecha = cita.fechaHora.toDate();
+
+cita.fecha = fecha.toLocaleDateString("es-CO", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric"
+});
+
+
+
   return `
     <div class="t-row">
 
@@ -90,7 +101,7 @@ function crearFila(cita) {
       </div>
 
       <div class="col" data-label="Hora">
-        ${cita.hora}
+        ${cita.fecha} - ${cita.hora}
       </div>
 
       <div class="col" data-label="Servicio">
@@ -107,7 +118,7 @@ function crearFila(cita) {
       <div class="col" data-label="Acción">
         <a class="btn-wa"
            href="#"
-           onclick="enviarWhatsApp('${cita.cliente}','${cita.hora}','${cita.servicioNombre}','${cita.manicuristaNombre}','${cita.telefono}')"
+           onclick="enviarWhatsApp('${cita.cliente}','${cita.hora}','${cita.servicioNombre}','${cita.manicuristaNombre}','${cita.telefono}','${cita.fecha}')"
            target="_blank">
           <i class="fab fa-whatsapp"></i>
         </a>
