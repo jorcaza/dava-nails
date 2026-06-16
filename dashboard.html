@@ -234,23 +234,21 @@ code anterior
 
 <script type="module" src="js/auth-guard.js"></script>
 <script type="module" src="js/dashboard.js"></script>
-<script src="js/version.js"></script>
+<script src="js/version.js"> </script>
 
 
 <script>
 function enviarWhatsApp(cliente, hora, servicio, manicurista, telefono) {
 
-  const mensaje = `💅 CONFIRMACIÓN DE CITA DAVANAILS
-
-Hola ${cliente}
-
-📅 Hora: ${hora}
-💅 Servicio: ${servicio}
-👩‍🎨 Manicurista: ${manicurista}
-
-✅ Responde:
-CONFIRMO
-CANCELO`;
+  const mensaje =
+"💅 CONFIRMACIÓN DE CITA DAVANAILS\n\n" +
+"Hola " + cliente + " 👋\n\n" +
+"📅 Hora: " + hora + "\n" +
+"💅 Servicio: " + servicio + "\n" +
+"👩‍🎨 Manicurista: " + manicurista + "\n\n" +
+"✅ Por favor responde:\n" +
+"CONFIRMO ✔️\n" +
+"CANCELO ❌";
 
   const url = `https://wa.me/57${telefono}?text=${encodeURIComponent(mensaje)}`;
 
