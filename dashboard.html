@@ -253,7 +253,8 @@ Hola ${cliente} 👋
 CONFIRMO ✔️
 CANCELO ❌`;
 
-  const url = `https://wa.me/57${telefono}?text=${encodeURIComponent(mensaje)}`;
+  const url =
+    `https://api.whatsapp.com/send?phone=57${telefono}&text=${encodeURIComponent(mensaje)}`;
 
   window.open(url, "_blank");
 }
