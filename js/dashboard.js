@@ -556,39 +556,52 @@ function obtenerServicio(select) {
 //menú flotante
 window.toggleMenu = function(btn) {
 
-  const menu = btn.closest(".menu-acciones");
-  const dropdown = menu.querySelector(".menu-options");
+  const dropdown = btn
+    .closest(".menu-acciones")
+    .querySelector(".menu-options");
 
-  // 🔥 cerrar otros menús abiertos
-  document.querySelectorAll(".menu-acciones").forEach(m => {
-    if (m !== menu) m.classList.remove("open");
+  // 🔴 cerrar todos
+  document.querySelectorAll(".menu-options").forEach(d => {
+    d.style.display = "none";
   });
 
-  // 🔥 toggle actual
-  menu.classList.toggle("open");
+  const rect = btn.getBoundingClientRect();
 
+  // ✅ primero mostrar (pero invisible)
+  dropdown.style.display = "block";
+  dropdown.style.visibility = "hidden";
+  dropdown.style.position = "fixed";
 
-  // ✅ SOLO desktop aplica lógica dinámica
-  if (window.innerWidth > 768) {
+  // ✅ medir correctamente
+  const height = dropdown.offsetHeight;
+  const width = dropdown.offsetWidth;
 
-    // reset inicial
-    dropdown.style.top = "100%";
-    dropdown.style.bottom = "auto";
+  let top;
+  let left = rect.left;
 
-    const rect = dropdown.getBoundingClientRect();
+  // ✅ MOBILE
+  if (window.innerWidth <= 768) {
+    top = rect.top - height;
+  } else {
+    top = rect.bottom;
 
-    // 🔴 si se sale por abajo → abrir hacia arriba
-    if (rect.bottom > window.innerHeight) {
-      dropdown.style.top = "auto";
-      dropdown.style.bottom = "100%";
+    if (top + height > window.innerHeight) {
+      top = rect.top - height;
     }
-
-    // 🔴 si se sale por arriba → forzar abajo
-    if (rect.top < 0) {
-      dropdown.style.top = "100%";
-      dropdown.style.bottom = "auto";
-    }
-
   }
 
+  // ✅ evitar que se salga
+  if (left + width > window.innerWidth) {
+    left = window.innerWidth - width - 10;
+  }
+
+  if (left < 0) left = 10;
+
+  // ✅ aplicar posición final
+  dropdown.style.top = top + "px";
+  dropdown.style.left = left + "px";
+  dropdown.style.zIndex = 9999;
+
+  // ✅ hacerlo visible
+  dropdown.style.visibility = "visible";
 };
