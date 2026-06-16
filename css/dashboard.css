@@ -1007,3 +1007,37 @@ body.collapsed .open-sidebar {
   color: var(--text-muted);
   font-size: 12px;
 }
+
+
+/*style sbutton status*/
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+/* círculo */
+.estado::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.estado.pendiente::before {
+  background: #fbbc04;
+}
+
+.estado.confirmada::before {
+  background: #2196f3;
+}
+
+.estado.completada::before {
+  background: #4caf50;
+}
+
+.estado.cancelada::before {
+  background: #f44336;
+}
