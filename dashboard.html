@@ -240,6 +240,24 @@ code anterior
 <script>
 function enviarWhatsApp(cliente, hora, servicio, manicurista, telefono) {
 
+  const mensaje = `💅 *CONFIRMACIÓN DE CITA DAVANAILS*
+
+Hola ${cliente} 👋
+
+📅 Hora: ${hora}
+💅 Servicio: ${servicio}
+👩‍🎨 Manicurista: ${manicurista}
+
+✅ Por favor responde:
+• CONFIRMO ✔️
+• CANCELO ❌`;
+
+  const url = `https://api.whatsapp.com/send/?phone=57${telefono}&text=${encodeURIComponent(mensaje)}`;
+
+  window.open(url, "_blank");
+}
+
+
   const mensaje = `💅 CONFIRMACIÓN DE CITA DAVANAILS
 
 Hola ${cliente} 👋
