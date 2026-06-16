@@ -153,21 +153,21 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
                 <i class="fa fa-ellipsis-v"></i>
               </button>
 
-              <div class="menu-options">
+                <div class="menu-options">
 
-                <div onclick="accionWhatsApp(this)">
-                  <i class="fab fa-whatsapp"></i> WhatsApp
+                  <div class="accion-whatsapp" onclick="accionWhatsApp(this)">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                  </div>
+
+                  <div class="accion-editar" onclick="editarDesdeMenu(this)">
+                    <i class="fa fa-pen"></i> Editar
+                  </div>
+
+                  <div class="accion-cancelar" onclick="cancelarDesdeMenu(this)">
+                    <i class="fa fa-ban"></i> Cancelar
+                  </div>
+
                 </div>
-
-                <div onclick="editarDesdeMenu(this)">
-                  <i class="fa fa-pen"></i> Editar
-                </div>
-
-                <div onclick="cancelarDesdeMenu(this)">
-                  <i class="fa fa-ban"></i> Cancelar
-                </div>
-
-              </div>
 
             </div>
 
@@ -462,7 +462,7 @@ window.accionWhatsApp = function(el) {
 }
 
 
-function editarDesdeMenu(el) {
+window.editarDesdeMenu = function (el) {
 
   const row = el.closest(".t-row");
   const id = row.dataset.id;
@@ -470,7 +470,7 @@ function editarDesdeMenu(el) {
   abrirModal(id); // ya lo tienes ✅
 }
 
-function cancelarDesdeMenu(el) {
+window.cancelarDesdeMenu = function(el) {
 
   const row = el.closest(".t-row");
   const select = row.querySelector("select");
