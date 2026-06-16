@@ -145,13 +145,36 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
            target="_blank">
           <i class="fab fa-whatsapp"></i>
         </a>
+
         <button class="btn-edit"
-        onclick="editarCita('${cita.id}')">
-        ✏️
-      </button>
+          onclick="abrirModal('${cita.id}')">
+          ✏️
+        </button>
+
       </div>
 
     </div>
+<div id="modalEditar" class="modal">
+
+  <div class="modal-content">
+    <h3>Reprogramar cita</h3>
+
+    <label>Fecha:</label>
+    <input type="date" id="editFecha">
+
+    <label>Hora:</label>
+    <input type="time" id="editHora">
+
+    <div class="modal-actions">
+      <button onclick="guardarReprogramacion()">Guardar</button>
+      <button onclick="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
+
+</div>
+``
+
+
   `;
 }
 
@@ -322,6 +345,7 @@ window.editarCita = async function(id) {
       estado: "reprogramada"
     });
 
+    enviarWhatsApp(select, "reprogramada");
     mostrarToast("Cita reprogramada 🔄", "ok");
 
     cargarCitas(); // refrescar tabla
@@ -331,4 +355,50 @@ window.editarCita = async function(id) {
     mostrarToast("Error al reprogramar ❌", "error");
   }
 }
-``
+
+/*modales*/
+let citaActualId = null;
+
+window.abrirModal = function(id) {
+  citaActualId = id;
+  document.getElementById("modalEditar").style.display = "flex";
+}
+
+
+window.cerrarModal = function() {
+  document.getElementById("modalEditar").style.display = "none";
+}
+
+//guardar reprogramaci´pn import { doc, updateDoc }
+import { doc, updateDoc }
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+window.guardarReprogramacion = async function() {
+
+  const fecha = document.getElementById("editFecha").value;
+  const hora = document.getElementById("editHora").value;
+
+  if (!fecha || !hora) {
+    mostrarToast("Completa fecha y hora ❌", "error");
+    return;
+  }
+
+  const nuevaFechaHora = new Date(`${fecha}T${hora}:00`);
+
+  try {
+
+    await updateDoc(doc(db, "citas", citaActualId), {
+      fechaHora: nuevaFechaHora,
+      estado: "reprogramada"
+    });
+
+    mostrarToast("Cita reprogramada 🔄", "ok");
+
+    cerrarModal();
+    cargarCitas();
+
+  } catch (error) {
+    console.error(error);
+    mostrarToast("Error ❌", "error");
+  }
+}
