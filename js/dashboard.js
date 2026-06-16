@@ -172,9 +172,6 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
   </div>
 
 </div>
-``
-
-
   `;
 }
 
