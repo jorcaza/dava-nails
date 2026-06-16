@@ -1072,10 +1072,7 @@ body.collapsed .open-sidebar {
 
 
 
-.col[data-label="Acción"] {
-  display: flex;
-  justify-content: flex-start;
-}
+
 
 
 .col {
@@ -1086,6 +1083,23 @@ body.collapsed .open-sidebar {
 
 
 .btn-wa {
-  margin-top: 4px;
+  display: inline-flex;   /* ?? importante */
+  width: fit-content;     /* ?? evita que se expanda */
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px 10px;
+  font-size: 12px;
+
+  border-radius: 8px;
+  background: #25D366;
+  color: white;
+  text-decoration: none;
+  margin-top: 2px;
+}
+
+.col[data-label="Acción"] {
+  display: flex;
+  align-items: flex-start;
 }
 
