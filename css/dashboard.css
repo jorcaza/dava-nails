@@ -1124,14 +1124,18 @@ white-space: nowrap;
    ESTADO (compacto ?)
 ========================= */
 
+
 .col.estado {
-  align-items: flex-start;
+  display: flex;
+  align-items: flex-start;   /* ?? clave */
+  height: auto;              /* ?? rompe el crecimiento */
 }
+
+
 
 .estado {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
 
   padding: 4px 10px;
   border-radius: 999px;
@@ -1139,12 +1143,7 @@ white-space: nowrap;
   font-size: 12px;
   font-weight: 600;
 
-  width: fit-content;
-  line-height: 1;
-  
-  overflow: hidden;
-  text-overflow: ellipsis;
-
+  white-space: nowrap;       /* ?? evita salto */
 }
 
 
