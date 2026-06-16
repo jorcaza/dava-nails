@@ -894,3 +894,34 @@ body.collapsed .open-sidebar {
   margin-top: 2px;
   opacity: 0.85;
 }
+
+
+.t-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+/* ? MOBILE */
+@media (max-width: 768px) {
+
+  .t-row {
+    grid-template-columns: 1fr;
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .t-row .col {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+
+  .t-row .col::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #888;
+  }
+}

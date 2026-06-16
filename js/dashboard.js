@@ -1,7 +1,13 @@
 // 🔥 IMPORTS FIREBASE
-import { auth } from "/js/firebase-config.js";
+import { auth,db } from "/js/firebase-config.js";
 import { signOut } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { collection, getDocs } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+import { getDoc } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 
 /* ── LOGOUT ── */
 const logoutBtn = document.getElementById("logoutBtn");
@@ -71,3 +77,75 @@ document.addEventListener("DOMContentLoaded", () => {
     versionEl.textContent = "Versión " + window.APP_VERSION;
   }
 });
+
+
+
+function crearFila(cita) {
+  return `
+    <div class="t-row">
+
+      <div class="col" data-label="Cliente">
+        <strong>${cita.cliente}</strong><br>
+        <small>${cita.telefono}</small>
+      </div>
+
+      <div class="col" data-label="Hora">
+        ${cita.hora}
+      </div>
+
+      <div class="col" data-label="Servicio">
+        ${cita.servicioNombre || "—"}
+      </div>
+
+      <div class="col" data-label="Manicurista">
+        ${cita.manicuristaNombre || "—"}
+      </div>
+
+      <div class="col" data-label="Estado">
+        ${cita.estado}
+      </div>
+
+    </div>
+  `;
+}
+
+
+
+async function cargarCitas() {
+  
+
+
+
+  const snap = await getDocs(collection(db, "citas"));
+  const container = document.getElementById("citasContainer");
+
+  container.innerHTML = "";
+
+for (const docu of snap.docs) {
+
+  let cita = docu.data();
+
+  const fecha = cita.fechaHora.toDate();
+  cita.hora = fecha.toLocaleTimeString("es-CO", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  // 🔥 SERVICIO
+  if (cita.servicio) {
+    const servicioSnap = await getDoc(cita.servicio);
+    cita.servicioNombre = servicioSnap.data().nombre;
+  }
+
+  // 🔥 MANICURISTA
+  if (cita.manicurista) {
+    const maniSnap = await getDoc(cita.manicurista);
+    cita.manicuristaNombre = maniSnap.data().nombre;
+  }
+
+  container.innerHTML += crearFila(cita);
+}
+
+}
+
+cargarCitas();
