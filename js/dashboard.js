@@ -2,7 +2,7 @@
 import { auth,db } from "/js/firebase-config.js";
 import { signOut } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { collection, getDocs } 
+import { collection, getDocs,query, orderBy } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import { getDoc } 
