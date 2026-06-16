@@ -196,7 +196,8 @@ window.cambiarEstado = async function(select, id) {
 
   try {
     await updateDoc(doc(db, "citas", id), {
-      estado: nuevoEstado
+      estado: nuevoEstado,
+      fechaCambioEstado: serverTimestamp()
     });
 
     console.log("✅ Estado actualizado:", nuevoEstado);
