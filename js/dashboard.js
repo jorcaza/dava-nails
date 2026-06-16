@@ -91,6 +91,13 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
 });
 
 
+cita.hora = fecha.toLocaleTimeString("es-CO", {
+  hour: "2-digit",
+  minute: "2-digit"
+});
+
+
+
 
   return `
     <div class="t-row">
@@ -179,7 +186,14 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
 
 async function cargarCitas() {
 
-  const snap = await getDocs(collection(db, "citas"));
+  
+  const q = query(
+    collection(db, "citas"),
+    orderBy("fechaHora", "asc") // 🔥 clave
+  );
+
+  const snap = await getDocs(q);
+
   const container = document.getElementById("citasContainer");
 
   container.innerHTML = "";
