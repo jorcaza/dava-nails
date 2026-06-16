@@ -1208,3 +1208,36 @@ white-space: nowrap;
   background: #1ebe5d;
   transform: translateY(-1px);
 }
+
+
+@media (max-width: 768px) {
+
+  .t-head {
+    display: none;
+  }
+
+  .t-row {
+    display: flex !important;   /* ?? fuerza flex */
+    flex-direction: column;
+
+    width: 100%;                /* ?? evita overflow */
+    max-width: 100%;
+
+    gap: 10px;
+
+    padding: 14px;
+    margin-bottom: 14px;
+
+    border-radius: 14px;
+    border: 1px solid var(--border);
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  /* ?? QUITA GRID COMPLETAMENTE */
+  .t-head,
+  .t-row {
+    grid-template-columns: unset !important;
+  }
+
+}
