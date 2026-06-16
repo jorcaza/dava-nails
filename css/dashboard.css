@@ -1057,8 +1057,8 @@ white-space: nowrap;
 
 .col {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  flex-direction: row;
+  justify-content: stretch;
   height: auto; /* ?? importante */
 }
 
@@ -1115,8 +1115,8 @@ white-space: nowrap;
 /* columnas */
 .col {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  flex-direction: row;
+  justify-content: stretch;
   height: auto;
 }
 
