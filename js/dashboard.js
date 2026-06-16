@@ -113,7 +113,30 @@ cita.fecha = fecha.toLocaleDateString("es-CO", {
       </div>
 
 
+      <div class="col estado" data-label="Estado">
 
+        <select class="estado-select estado-${cita.estado}"
+          onchange="cambiarEstado(this, '${cita.id}')">
+
+          <option value="pendiente" ${cita.estado === "pendiente" ? "selected" : ""}>
+            Pendiente
+          </option>
+
+          <option value="confirmada" ${cita.estado === "confirmada" ? "selected" : ""}>
+            Confirmada
+          </option>
+
+          <option value="completada" ${cita.estado === "completada" ? "selected" : ""}>
+            Completada
+          </option>
+
+          <option value="cancelada" ${cita.estado === "cancelada" ? "selected" : ""}>
+            Cancelada
+          </option>
+
+        </select>
+
+      </div>
 
       <div class="col" data-label="Acción">
         <a class="btn-wa"
