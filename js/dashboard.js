@@ -186,7 +186,9 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
       <input type="date" id="editFecha" oninput="validarFormulario()">
 
       <label>Hora:</label>
-      <input type="time" id="editHora" step="1800" oninput="validarFormulario()">
+      <select id="editHora" onchange="validarFormulario()">
+        <option value="">Selecciona hora</option>
+      </select>
 
       <div class="modal-actions">
         
@@ -404,6 +406,7 @@ window.abrirModal = function(id) {
 
   citaActualId = id;
 
+  generarHoras(); // 🔥 clave
   document.getElementById("editFecha").value = "";
   document.getElementById("editHora").value = "";
 
@@ -633,3 +636,33 @@ window.validarFormulario = function() {
   }
 
 };
+
+function esHoraValida(hora) {
+
+  const [h, m] = hora.split(":").map(Number);
+
+  return m === 0 || m === 30;
+}
+
+function generarHoras() {
+
+  const select = document.getElementById("editHora");
+
+  select.innerHTML = `<option value="">Selecciona hora</option>`;
+
+  for (let h = 8; h <= 19; h++) { // rango de 8am a 7pm
+
+    for (let m of [0, 30]) {
+
+      const hora = String(h).padStart(2, "0");
+      const minuto = String(m).padStart(2, "0");
+
+      const valor = `${hora}:${minuto}`;
+
+      select.innerHTML += `<option value="${valor}">
+        ${valor}
+      </option>`;
+    }
+
+  }
+}
