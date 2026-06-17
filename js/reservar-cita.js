@@ -1,67 +1,3 @@
-/* ================= STORAGE ================= */
-const STORAGE_KEY = 'ns_client';
-
-function loadClient() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) { return null; }
-}
-
-function saveClient(data) {
-  try {
-    const existing = loadClient() || {};
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...data }));
-  } catch (e) {}
-}
-
-function clearSavedData() {
-  localStorage.removeItem(STORAGE_KEY);
-}
-
-/* ================= INIT ================= */
-const hoy = new Date();
-const fechaInput = document.getElementById('fecha');
-fechaInput.min = hoy.toISOString().split('T')[0];
-
-/* ================= STATE ================= */
-const booking = {
-  servicio: '',
-  duracion: '',
-  precio: '',
-  manicurista: 'Sin preferencia',
-  fechaRaw: '',
-  hora: ''
-};
-
-/* ================= SELECTORES ================= */
-function selectSvc(el, name, dur, price) {
-  document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-
-  booking.servicio = name;
-  booking.duracion = dur;
-  booking.precio = price;
-}
-
-function selectMani(el, name) {
-  document.querySelectorAll('.mani-pill').forEach(p => p.classList.remove('selected'));
-  el.classList.add('selected');
-
-  booking.manicurista = name;
-
-  renderSlots();
-}
-
-function selectSlot(el) {
-  if (el.classList.contains('taken')) return;
-
-  document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
-  el.classList.add('selected');
-
-  booking.hora = el.textContent.trim();
-}
-
 /* ================= FIREBASE ================= */
 import {
   collection,
@@ -72,7 +8,86 @@ import {
 
 import { db } from "./firebase-config.js";
 
-/* ================= UTILIDADES ================= */
+/* ================= STATE ================= */
+const fechaInput = document.getElementById('fecha');
+
+const booking = {
+  servicio: '',
+  duracion: '',
+  precio: '',
+  manicurista: 'Sin preferencia',
+  fechaRaw: '',
+  hora: ''
+};
+
+/* ================= SERVICIOS DINÁMICOS ================= */
+async function cargarServicios() {
+
+  const container = document.querySelector(".service-grid");
+
+  const snap = await getDocs(collection(db, "servicios"));
+
+  container.innerHTML = "";
+
+  snap.forEach(doc => {
+
+    const s = doc.data();
+
+      const html = `
+        <label class="svc-card"
+          onclick="selectSvc(this,'${s.nombre}','${s.duracion} min','$${s.precio}')">
+
+          <input type="radio" name="servicio">
+
+          <div class="svc-check"><i class="fa fa-check"></i></div>
+
+          <div class="svc-icon">
+            <i class="fa-solid ${s.icono || "fa-hand-sparkles"}"></i>
+          </div>
+
+          <div class="svc-name">${s.nombre}</div>
+          <div class="svc-time">${s.duracion} min</div>
+          <div class="svc-price">$${s.precio}</div>
+
+        </label>
+      `;
+
+
+    container.innerHTML += html;
+
+  });
+}
+
+/* ================= FUNCIONES GLOBALES ================= */
+
+window.selectSvc = function(el, name, dur, price) {
+  document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+
+  booking.servicio = name;
+  booking.duracion = dur;
+  booking.precio = price;
+};
+
+window.selectMani = function(el, name) {
+  document.querySelectorAll('.mani-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+
+  booking.manicurista = name;
+
+  renderSlots();
+};
+
+window.selectSlot = function(el) {
+  if (el.classList.contains('taken')) return;
+
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+
+  booking.hora = el.textContent.trim();
+};
+
+/* ================= HORAS ================= */
 function getDuracionMinutos(str) {
   return parseInt(str.replace(" min", ""));
 }
@@ -89,12 +104,12 @@ function generarHorasBase() {
   return arr;
 }
 
-function formatHora(h) {
-  const d = new Date(`2000-01-01T${h}:00`);
+function formatHora(hora) {
+  const d = new Date(`2000-01-01T${hora}:00`);
   return d.toLocaleTimeString("es-CO", { hour: "numeric", minute: "2-digit" });
 }
 
-/* ================= FIRESTORE QUERY ================= */
+/* ================= FIRESTORE ================= */
 async function obtenerCitasFecha(fecha) {
 
   const inicio = new Date(fecha + "T00:00:00");
@@ -126,7 +141,7 @@ async function obtenerCitasFecha(fecha) {
   return citas;
 }
 
-/* ================= BLOQUEO DE SLOTS ================= */
+/* ================= BLOQUEO ================= */
 function obtenerSlotsOcupados(citas) {
 
   const ocupados = [];
@@ -152,7 +167,7 @@ function obtenerSlotsOcupados(citas) {
   return ocupados;
 }
 
-/* ================= RENDER UI ================= */
+/* ================= RENDER ================= */
 async function renderSlots() {
 
   if (!booking.fechaRaw) return;
@@ -162,7 +177,6 @@ async function renderSlots() {
   const horas = generarHorasBase();
   const citas = await obtenerCitasFecha(booking.fechaRaw);
 
-  // ? filtrar por manicurista
   const filtradas = citas.filter(c => {
     if (booking.manicurista === "Sin preferencia") return true;
     return c.manicurista === booking.manicurista;
@@ -175,7 +189,6 @@ async function renderSlots() {
   horas.forEach(h => {
 
     const div = document.createElement("div");
-
     div.className = "slot";
     div.textContent = formatHora(h);
 
@@ -197,7 +210,7 @@ fechaInput.addEventListener("change", () => {
   renderSlots();
 });
 
-/* ================= VALIDACIÓN FINAL ================= */
+/* ================= VALIDACIÓN ================= */
 async function validarDisponibilidad() {
 
   const citas = await obtenerCitasFecha(booking.fechaRaw);
@@ -246,3 +259,6 @@ window.confirmar = async function() {
 
   originalConfirm();
 };
+
+/* ================= INIT ================= */
+cargarServicios();
