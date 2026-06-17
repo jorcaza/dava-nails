@@ -160,9 +160,9 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
             </a>
 
             <!-- Editar -->
-            <a class="btn-accion btn-edit"
+            <a class="btn-accion btn-edit" title="Reprogramar cita"
               onclick="editarDesdeMenu(this)">
-              <i class="fa fa-pen"></i>
+              <i class="fa-solid fa-clock"></i>
             </a>
 
             <!-- Cancelar -->
@@ -186,7 +186,7 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
       <input type="date" id="editFecha" oninput="validarFormulario()">
 
       <label>Hora:</label>
-      <input type="time" id="editHora" oninput="validarFormulario()">
+      <input type="time" id="editHora" step="1800" oninput="validarFormulario()">
 
       <div class="modal-actions">
         
@@ -427,19 +427,25 @@ window.guardarReprogramacion = async function() {
 
   const btn = document.getElementById("btnGuardar");
 
-  // 🔒 evitar doble ejecución
   if (btn.disabled) return;
 
-  // 🔒 bloquear botón
   btn.disabled = true;
   btn.textContent = "Guardando...";
 
   const fecha = document.getElementById("editFecha").value;
   const hora = document.getElementById("editHora").value;
 
-  // ✅ validación (aunque el botón ya debería estar bloqueado antes)
   if (!fecha || !hora) {
     mostrarToast("Completa fecha y hora ❌", "error");
+
+    btn.disabled = false;
+    btn.textContent = "Guardar";
+    return;
+  }
+
+  // 🔥 VALIDACIÓN 30 MIN
+  if (!esHoraValida(hora)) {
+    mostrarToast("Solo se permiten bloques de 30 min ⏰", "error");
 
     btn.disabled = false;
     btn.textContent = "Guardar";
@@ -457,24 +463,19 @@ window.guardarReprogramacion = async function() {
 
     mostrarToast("Cita reprogramada 🔄", "ok");
 
-    // ✅ limpiar estado visual antes de cerrar
-    btn.textContent = "Guardar";
-    btn.disabled = true;
-
     cerrarModal();
     cargarCitas();
 
   } catch (error) {
 
     console.error(error);
-    mostrarToast("Error al guardar ❌", "error");
+    mostrarToast("Error ❌", "error");
 
-    // 🔓 reactivar botón SI falla
     btn.disabled = false;
     btn.textContent = "Guardar";
-
   }
 };
+
 
 
 
