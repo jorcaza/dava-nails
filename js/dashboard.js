@@ -2,11 +2,13 @@
 import { auth,db } from "/js/firebase-config.js";
 import { signOut } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { collection, getDocs,query, orderBy } 
+import { collection, getDocs,query, orderBy ,query,where} 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import { getDoc } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
 
 
 /* ── LOGOUT ── */
@@ -97,7 +99,7 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
 });
 
 
-
+//formulario html
 
   return `
     <div class="t-row" data-id="${cita.id}">
@@ -183,7 +185,8 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
       <h3>Reprogramar cita</h3>
 
       <label>Fecha:</label>
-      <input type="date" id="editFecha" oninput="validarFormulario()">
+      
+      <input type="date" id="editFecha" oninput="onChangeFecha()">
 
       <label>Hora:</label>
       <select id="editHora" onchange="validarFormulario()">
@@ -644,13 +647,18 @@ function esHoraValida(hora) {
   return m === 0 || m === 30;
 }
 
-function generarHoras() {
+async function generarHoras() {
 
+  const fecha = document.getElementById("editFecha").value;
   const select = document.getElementById("editHora");
+
+  if (!fecha) return;
+
+  const ocupadas = await obtenerHorasOcupadas(fecha);
 
   select.innerHTML = `<option value="">Selecciona hora</option>`;
 
-  for (let h = 8; h <= 19; h++) { // rango de 8am a 7pm
+  for (let h = 8; h <= 19; h++) {
 
     for (let m of [0, 30]) {
 
@@ -659,10 +667,52 @@ function generarHoras() {
 
       const valor = `${hora}:${minuto}`;
 
-      select.innerHTML += `<option value="${valor}">
-        ${valor}
-      </option>`;
-    }
+      // ✅ si está ocupada → deshabilitar
+      const disabled = ocupadas.includes(valor) ? "disabled" : "";
 
+      select.innerHTML += `
+        <option value="${valor}" ${disabled}>
+          ${valor} ${disabled ? "(ocupado)" : ""}
+        </option>
+      `;
+    }
   }
 }
+
+//obtener horas programadas
+import { collection, getDocs, query, where }
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+async function obtenerHorasOcupadas(fechaSeleccionada) {
+
+  const fechaInicio = new Date(fechaSeleccionada + "T00:00:00");
+  const fechaFin = new Date(fechaSeleccionada + "T23:59:59");
+
+  const q = query(
+    collection(db, "citas"),
+    where("fechaHora", ">=", fechaInicio),
+    where("fechaHora", "<=", fechaFin)
+  );
+
+  const snap = await getDocs(q);
+
+  const ocupadas = [];
+
+  snap.forEach(doc => {
+    const data = doc.data();
+
+    if (data.fechaHora) {
+      const fecha = data.fechaHora.toDate();
+
+      const hora = fecha.toTimeString().slice(0,5); // "HH:MM"
+      ocupadas.push(hora);
+    }
+  });
+
+  return ocupadas;
+}
+
+window.onChangeFecha = function() {
+  generarHoras();
+  validarFormulario();
+};
