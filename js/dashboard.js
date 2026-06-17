@@ -679,9 +679,7 @@ async function generarHoras() {
   }
 }
 
-//obtener horas programadas
-import { collection, getDocs, query, where }
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 
 async function obtenerHorasOcupadas(fechaSeleccionada) {
 
