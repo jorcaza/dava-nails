@@ -619,7 +619,7 @@ window.toggleMenu = function(btn) {
 
 
 
-indow.validarFormulario = function() {
+window.validarFormulario = function() {
 
   const fecha = document.getElementById("editFecha").value;
   const hora = document.getElementById("editHora").value;
