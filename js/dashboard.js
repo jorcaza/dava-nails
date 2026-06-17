@@ -176,22 +176,35 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
         </div>
 
     </div>
-<div id="modalEditar" class="modal">
+  <div id="modalEditar" class="modal">
 
-  <div class="modal-content">
-    <h3>Reprogramar cita</h3>
+    <div class="modal-content">
 
-    <label>Fecha:</label>
-    <input type="date" id="editFecha">
+      <h3>Reprogramar cita</h3>
 
-    <label>Hora:</label>
-    <input type="time" id="editHora">
+      <label>Fecha:</label>
+      <input type="date" id="editFecha" oninput="validarFormulario()">
 
-    <div class="modal-actions">
-      <button onclick="guardarReprogramacion()">Guardar</button>
-      <button onclick="cerrarModal()">Cancelar</button>
+      <label>Hora:</label>
+      <input type="time" id="editHora" oninput="validarFormulario()">
+
+      <div class="modal-actions">
+        
+        <button id="btnGuardar"
+                class="btn-primary"
+                onclick="guardarReprogramacion(this)"
+                disabled>
+          Guardar
+        </button>
+
+        <button class="btn-secondary"
+                onclick="cerrarModal()">
+          Cancelar
+        </button>
+
+      </div>
+
     </div>
-  </div>
 
 </div>
   `;
@@ -388,9 +401,19 @@ window.editarCita = async function(id) {
 let citaActualId = null;
 
 window.abrirModal = function(id) {
+
   citaActualId = id;
+
+  document.getElementById("editFecha").value = "";
+  document.getElementById("editHora").value = "";
+
+  // 🔒 botón deshabilitado
+  const btn = document.getElementById("btnGuardar");
+  btn.disabled = true;
+  btn.textContent = "Guardar";
+
   document.getElementById("modalEditar").style.display = "flex";
-}
+};
 
 
 window.cerrarModal = function() {
@@ -404,6 +427,9 @@ window.guardarReprogramacion = async function() {
 
   const btn = document.getElementById("btnGuardar");
 
+  // 🔒 evitar doble ejecución
+  if (btn.disabled) return;
+
   // 🔒 bloquear botón
   btn.disabled = true;
   btn.textContent = "Guardando...";
@@ -411,13 +437,12 @@ window.guardarReprogramacion = async function() {
   const fecha = document.getElementById("editFecha").value;
   const hora = document.getElementById("editHora").value;
 
+  // ✅ validación (aunque el botón ya debería estar bloqueado antes)
   if (!fecha || !hora) {
     mostrarToast("Completa fecha y hora ❌", "error");
 
-    // 🔓 desbloquear
     btn.disabled = false;
     btn.textContent = "Guardar";
-
     return;
   }
 
@@ -432,6 +457,10 @@ window.guardarReprogramacion = async function() {
 
     mostrarToast("Cita reprogramada 🔄", "ok");
 
+    // ✅ limpiar estado visual antes de cerrar
+    btn.textContent = "Guardar";
+    btn.disabled = true;
+
     cerrarModal();
     cargarCitas();
 
@@ -440,13 +469,14 @@ window.guardarReprogramacion = async function() {
     console.error(error);
     mostrarToast("Error al guardar ❌", "error");
 
-    // 🔓 desbloquear si falla
+    // 🔓 reactivar botón SI falla
     btn.disabled = false;
     btn.textContent = "Guardar";
 
   }
 };
-``
+
+
 
 
 /*menú flotante*/
@@ -585,4 +615,20 @@ window.toggleMenu = function(btn) {
 
   dropdown.style.top = top + "px";
   dropdown.style.left = left + "px";
+};
+
+
+
+indow.validarFormulario = function() {
+
+  const fecha = document.getElementById("editFecha").value;
+  const hora = document.getElementById("editHora").value;
+  const btn = document.getElementById("btnGuardar");
+
+  if (fecha && hora) {
+    btn.disabled = false; // ✅ activar
+  } else {
+    btn.disabled = true;  // 🔒 desactivar
+  }
+
 };
