@@ -3,13 +3,9 @@ import {
   collection,
   getDocs,
   query,
-  where
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-
-import {
-
-  serverTimestamp
+  where,
+  addDoc,           
+  serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -381,3 +377,22 @@ function convertirFechaHora(fecha, horaTexto) {
 
   return new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`);
 }
+
+window.clearErr = function(id, input) {
+
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+
+  if (input) input.classList.remove('error');
+
+};
+
+window.showErr = function(errId, inputId) {
+
+  const el = document.getElementById(errId);
+  if (el) el.classList.add('show');
+
+  const input = document.getElementById(inputId);
+  if (input) input.classList.add('error');
+
+};
