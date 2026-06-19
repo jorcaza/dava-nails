@@ -5,7 +5,8 @@ import {
   query,
   where,
   addDoc,           
-  serverTimestamp 
+  serverTimestamp ,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -16,12 +17,14 @@ const fechaInput = document.getElementById('fecha');
 
 const booking = {
   servicio: '',
+  servicioId: '',   
   duracion: '',
   precio: '',
   manicurista: 'Sin preferencia',
   fechaRaw: '',
   hora: ''
 };
+
 
 /* ================= SERVICIOS DINÁMICOS ================= */
 async function cargarServicios() {
@@ -38,7 +41,7 @@ async function cargarServicios() {
 
       const html = `
         <label class="svc-card"
-          onclick="selectSvc(this,'${s.nombre}','${s.duracion} min','$${s.precio}')">
+          onclick="selectSvc(this,'${s.nombre}','${s.duracion} min','$${s.precio}','${doc.id}')">
 
           <input type="radio" name="servicio">
 
@@ -63,11 +66,13 @@ async function cargarServicios() {
 
 /* ================= FUNCIONES GLOBALES ================= */
 
-window.selectSvc = function(el, name, dur, price) {
+window.selectSvc = function(el, name, dur, price, id) {
+
   document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
 
   booking.servicio = name;
+  booking.servicioId = id; 
   booking.duracion = dur;
   booking.precio = price;
 };
@@ -276,15 +281,21 @@ window.confirmar = async function () {
 
     // ? guardar en Firebase
     await addDoc(collection(db, "citas"), {
-      servicio: booking.servicio,
+
+      // ? reference real
+      servicio: doc(db, "servicios", booking.servicioId),
+
+      // ? nombre para UI rápida
+      servicioNombre: booking.servicio,
+
       duracion: booking.duracion,
       precio: booking.precio,
       manicuristaNombre: booking.manicurista,
 
       fechaHora: fechaHora,
       createdAt: serverTimestamp()
-    });
 
+    });
     // ? feedback
     console.log("? cita guardada correctamente");
     alert("Cita registrada ?");
