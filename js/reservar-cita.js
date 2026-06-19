@@ -6,6 +6,13 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+
+import {
+
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
 import { db } from "./firebase-config.js";
 
 /* ================= STATE ================= */
@@ -248,17 +255,129 @@ async function validarDisponibilidad() {
 /* ================= CONFIRMAR ================= */
 const originalConfirm = window.confirmar;
 
-window.confirmar = async function() {
+window.confirmar = async function () {
 
-  const ok = await validarDisponibilidad();
+  // ? 1. validar disponibilidad
+  const disponible = await validarDisponibilidad();
 
-  if (!ok) {
+  if (!disponible) {
     alert("Ese horario ya no está disponible ?");
     return;
   }
 
-  originalConfirm();
+  try {
+
+    // ? 2. convertir fecha + hora a Date real
+    const fechaHora = convertirFechaHora(
+      booking.fechaRaw,
+      booking.hora
+    );
+
+    // ? 3. guardar en Firebase
+    await addDoc(collection(db, "citas"), {
+
+      servicio: booking.servicio,
+      duracion: booking.duracion,
+      precio: booking.precio,
+      manicuristaNombre: booking.manicurista,
+
+      fechaHora: fechaHora,
+      createdAt: serverTimestamp()
+
+    });
+
+    console.log("? cita guardada");
+
+    // ? 4. continuar flujo original (pantalla éxito)
+    originalConfirm();
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Error al guardar la cita ?");
+
+  }
 };
 
 /* ================= INIT ================= */
 cargarServicios();
+
+
+/* ================= NAVEGACIÓN ENTRE PASOS ================= */
+
+window.goTo = function(step) {
+
+  // validaciones básicas
+  if (step === 2 && !booking.servicio) {
+    alert("Selecciona un servicio ?");
+    return;
+  }
+
+  if (step === 3 && (!booking.fechaRaw || !booking.hora)) {
+    alert("Selecciona fecha y hora ?");
+    return;
+  }
+
+  // ocultar todos los paneles
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.remove('active');
+  });
+
+  // mostrar el panel correspondiente
+  const panel = document.getElementById('panel' + step);
+  if (panel) panel.classList.add('active');
+
+  // scroll arriba
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.clearSavedData = function () {
+  localStorage.removeItem('ns_client');
+
+  const banner = document.getElementById('welcomeBanner');
+  if (banner) banner.classList.remove('show');
+};
+
+
+window.resetForm = function () {
+
+  // reset estado
+  booking.servicio = '';
+  booking.duracion = '';
+  booking.precio = '';
+  booking.manicurista = 'Sin preferencia';
+  booking.fechaRaw = '';
+  booking.hora = '';
+
+  // reset visual
+  document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.mani-pill').forEach(p => p.classList.remove('selected'));
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+
+  // volver al paso 1
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel1').classList.add('active');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.confirmar = window.confirmar || async function () {
+  alert("Cita confirmada ?");
+};
+
+function convertirFechaHora(fecha, horaTexto) {
+
+  // extraer números
+  const partes = horaTexto.match(/\d+/g).map(Number);
+
+  let h = partes[0];
+  let m = partes[1];
+
+  // detectar AM / PM
+  const esPM = horaTexto.toLowerCase().includes("p");
+
+  if (esPM && h < 12) h += 12;
+  if (!esPM && h === 12) h = 0;
+
+  return new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`);
+}
