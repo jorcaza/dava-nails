@@ -249,11 +249,16 @@ async function validarDisponibilidad() {
 }
 
 /* ================= CONFIRMAR ================= */
-const originalConfirm = window.confirmar;
 
 window.confirmar = async function () {
 
-  // ? 1. validar disponibilidad
+  // ? validar que haya fecha y hora
+  if (!booking.fechaRaw || !booking.hora) {
+    alert("Selecciona fecha y hora ?");
+    return;
+  }
+
+  // ? validar disponibilidad real
   const disponible = await validarDisponibilidad();
 
   if (!disponible) {
@@ -263,15 +268,14 @@ window.confirmar = async function () {
 
   try {
 
-    // ? 2. convertir fecha + hora a Date real
+    // ? convertir fecha + hora a Date real
     const fechaHora = convertirFechaHora(
       booking.fechaRaw,
       booking.hora
     );
 
-    // ? 3. guardar en Firebase
+    // ? guardar en Firebase
     await addDoc(collection(db, "citas"), {
-
       servicio: booking.servicio,
       duracion: booking.duracion,
       precio: booking.precio,
@@ -279,19 +283,21 @@ window.confirmar = async function () {
 
       fechaHora: fechaHora,
       createdAt: serverTimestamp()
-
     });
 
-    console.log("? cita guardada");
+    // ? feedback
+    console.log("? cita guardada correctamente");
+    alert("Cita registrada ?");
 
-    // ? 4. continuar flujo original (pantalla éxito)
-    originalConfirm();
+    // ? limpiar formulario
+    if (typeof resetForm === "function") {
+      resetForm();
+    }
 
   } catch (error) {
 
     console.error(error);
     alert("Error al guardar la cita ?");
-
   }
 };
 
