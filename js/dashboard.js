@@ -495,14 +495,28 @@ window.cambiarEstado = async function(select, id) {
 };
 
 
-function enviarWhatsApp(select, tipo){
+function enviarWhatsApp(selectOrCliente, tipoOrHora, servicio, manicuristaParam, telefono, fecha, tipoExplicit){
+  let cliente, hora, tipo, manicurista;
 
-  const row = select.closest(".t-row");
-
-  const cliente = row.querySelector('[data-label="Cliente"] strong').innerText;
-  const telefono = row.querySelector('[data-label="Cliente"] small').innerText;
-  const hora = row.querySelector('[data-label="Hora"]').innerText;
-  const servicio = row.querySelector('[data-label="Servicio"]').innerText;
+  // Si el primer parámetro es un string, es la firma explícita
+  if (typeof selectOrCliente === 'string') {
+    cliente = selectOrCliente;
+    hora = tipoOrHora;
+    servicio = servicio;
+    manicurista = manicuristaParam || '';
+    telefono = telefono;
+    tipo = tipoExplicit || '';
+  } else {
+    // Si es un elemento DOM, extraer datos de la fila
+    const select = selectOrCliente;
+    tipo = tipoOrHora;
+    const row = select.closest(".t-row");
+    cliente = row.querySelector('[data-label="Cliente"] strong').innerText;
+    telefono = row.querySelector('[data-label="Cliente"] small').innerText;
+    hora = row.querySelector('[data-label="Hora"]').innerText;
+    servicio = row.querySelector('[data-label="Servicio"]').innerText;
+    manicurista = row.querySelector('[data-label="Manicurista"]')?.innerText || '';
+  }
 
   let mensaje = "";
 
@@ -511,12 +525,13 @@ function enviarWhatsApp(select, tipo){
     mensaje =
 `✅ CONFIRMACIÓN DE CITA DAVANAILS
 
-Hola ${cliente} 👋
+Hola ${cliente}
 
 Tu cita ha sido CONFIRMADA ✅
 
-📅 ${hora}
-💅 ${servicio}
+📅 Hora: ${hora}
+💅 Servicio: ${servicio}
+👩‍🦰 Manicurista: ${manicurista}
 
 Te esperamos 💖`;
   }
@@ -537,12 +552,13 @@ Si deseas reprogramar, contáctanos 💅`;
     mensaje =
 `🔄 CITA REPROGRAMADA
 
-Hola ${cliente} 👋
+Hola ${cliente}
 
 Tu cita ha sido REPROGRAMADA.
 
-📅 Nueva fecha y hora: ${hora}
+📅 Hora: ${hora}
 💅 Servicio: ${servicio}
+👩‍🦰 Manicurista: ${manicurista}
 
 Por favor confirma si este horario te funciona ✅`;
   }
