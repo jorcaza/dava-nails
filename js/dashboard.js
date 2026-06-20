@@ -494,92 +494,87 @@ window.cambiarEstado = async function(select, id) {
   }
 };
 
-
 function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaParam, telefonoParam, fecha, tipoExplicit) {
   let cliente, hora, tipo, servicio, manicurista, telefono;
 
-  // ✅ 1. Determinar origen de datos
+  // ✅ 1. Origen datos
   if (typeof selectOrCliente === 'string') {
     cliente = selectOrCliente.trim();
-    hora = tipoOrHora?.trim() || "";
-    servicio = servicioParam?.trim() || "";
-    manicurista = manicuristaParam?.trim() || "";
+    hora = (tipoOrHora || "").trim();
+    servicio = (servicioParam || "").trim();
+    manicurista = (manicuristaParam || "").trim();
     telefono = telefonoParam || "";
     tipo = tipoExplicit || "";
   } else {
-    const select = selectOrCliente;
-    tipo = tipoOrHora;
-
-    const row = select.closest(".t-row");
+    const row = selectOrCliente.closest(".t-row");
 
     cliente = row.querySelector('[data-label="Cliente"] strong')?.textContent.trim() || "";
     telefono = row.querySelector('[data-label="Cliente"] small')?.textContent.trim() || "";
     hora = row.querySelector('[data-label="Hora"]')?.textContent.trim() || "";
     servicio = row.querySelector('[data-label="Servicio"]')?.textContent.trim() || "";
     manicurista = row.querySelector('[data-label="Manicurista"]')?.textContent.trim() || "Sin preferencia";
+
+    tipo = tipoOrHora;
   }
 
+  // ✅ 2. Mensaje limpio
   let mensaje = "";
 
-  // ✅ 2. Construcción de mensaje (formato limpio)
   if (tipo === "confirmada") {
     mensaje = [
-      "✅ CONFIRMACIÓN DE CITA DAVANAILS",
+      "CONFIRMACION DE CITA DAVANAILS",
       `Hola ${cliente}`,
       "",
-      "Tu cita ha sido CONFIRMADA ✅",
-      `📅 Fecha y hora: ${hora}`,
-      `💅 Servicio: ${servicio}`,
-      `👩‍🦰 Manicurista: ${manicurista}`,
+      "Tu cita ha sido CONFIRMADA",
+      `Fecha y hora: ${hora}`,
+      `Servicio: ${servicio}`,
+      `Manicurista: ${manicurista}`,
       "",
-      "Te esperamos 💖"
+      "Te esperamos"
     ].join("\n");
   }
 
   if (tipo === "cancelada") {
     mensaje = [
-      "❌ CITA CANCELADA",
+      "CITA CANCELADA",
       `Hola ${cliente}`,
       "",
       "Tu cita ha sido cancelada.",
-      "",
-      "Si deseas reprogramar, contáctanos 💅"
+      "Si deseas reprogramar, contáctanos"
     ].join("\n");
   }
 
   if (tipo === "reprogramada") {
     mensaje = [
-      "🔄 CITA REPROGRAMADA",
+      "CITA REPROGRAMADA",
       `Hola ${cliente}`,
       "",
       "Tu cita ha sido REPROGRAMADA.",
-      `📅 Nueva fecha y hora: ${hora}`,
-      `💅 Servicio: ${servicio}`,
-      `👩‍🦰 Manicurista: ${manicurista}`,
+      `Nueva fecha y hora: ${hora}`,
+      `Servicio: ${servicio}`,
+      `Manicurista: ${manicurista}`,
       "",
-      "Por favor confirma si este horario te funciona ✅"
+      "Por favor confirma si este horario te funciona"
     ].join("\n");
   }
 
-  // ✅ 3. Limpiar teléfono (solo números)
-  const telefonoLimpio = String(telefono || "").replace(/\D/g, "");
+  // ✅ ✅ 🔥 CLAVE: limpiar caracteres problemáticos
+  mensaje = mensaje
+    .normalize("NFKC")           // normaliza unicode
+    .replace(/\uFE0F/g, "")      // elimina emojis conflictivos
+    .replace(/[^\x20-\x7E\n]/g, "") // opcional: elimina caracteres raros
+    .trim();
 
-  // ✅ 4. Normalizar caracteres (evita �)
-  mensaje = mensaje.normalize("NFC");
+  // ✅ limpiar teléfono
+  const telefonoLimpio = String(telefono).replace(/\D/g, "");
 
-  // ✅ 5. Codificar correctamente (UNA sola vez)
-  const texto = encodeURIComponent(mensaje);
+  // ✅ encode UNA sola vez
+  const url = `https://api.whatsapp.com/send?phone=57${telefonoLimpio}&text=${encodeURIComponent(mensaje)}`;
 
-  // ✅ 6. Generar URL WhatsApp
-  const url = `https://wa.me/57${telefonoLimpio}?text=${texto}`;
-
-  // ✅ DEBUG (opcional)
   console.log("WA URL:", url);
 
-  // ✅ 7. Abrir
   window.open(url, "_blank");
 }
-
 function mostrarToast(msg, tipo = "ok") {
 
   const toast = document.createElement("div");
