@@ -23,13 +23,17 @@
   box-sizing: border-box;
 }
 
+html {
+  min-height: 100%;
+}
+
 body {
   background: var(--bg);
   font-family: 'DM Sans', sans-serif;
   color: var(--text-main);
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
-  overflow: hidden;
+  overflow: auto;
 }
 
 /* ── OVERLAY ── */
@@ -290,7 +294,7 @@ body.collapsed .logout-btn .nav-label {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   min-width: 0;
   min-height: 0;
 }
@@ -305,6 +309,9 @@ body.collapsed .logout-btn .nav-label {
   gap: 12px;
   flex-shrink: 0;
   flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
 .topbar-right {
@@ -441,6 +448,11 @@ body.collapsed .logout-btn .nav-label {
   background: #a31545;
 }
 
+.btn-new {
+  position: relative;
+  z-index: 10;
+}
+
 .btn-clear-filter:hover {
   background: var(--rose-light);
 }
@@ -545,10 +557,12 @@ body.collapsed .logout-btn .nav-label {
 /* ── TABLE ── */
 .table-wrap {
   flex: 1;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   -webkit-overflow-scrolling: touch;
   padding: 16px 24px 24px;
   min-height: 0;
+  overflow-y: auto;
 }
 
 .table-body-wrap {
@@ -556,15 +570,13 @@ body.collapsed .logout-btn .nav-label {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .table-body {
   display: grid;
   gap: 12px;
-  overflow-y: auto;
   min-height: 0;
-  max-height: calc(100vh - 320px);
 }
 
 .table-card {
@@ -868,11 +880,12 @@ body.collapsed .logout-btn .nav-label {
   }
 
   .overlay {
-    display: block;
+    display: none;
     pointer-events: none;
   }
 
   body.mobile-open .overlay {
+    display: block;
     pointer-events: auto;
   }
 
@@ -916,8 +929,8 @@ body.collapsed .logout-btn .nav-label {
 
   .table-wrap {
     padding: 12px 14px 20px;
-    max-height: calc(100vh - 170px);
-    overflow-y: auto;
+    max-height: none;
+    overflow: visible;
   }
 
   .topbar {
@@ -1673,13 +1686,13 @@ white-space: nowrap;
   }
 
   .table-wrap {
-    max-height: calc(100vh - 210px);
-    overflow-y: hidden;
     padding: 12px 14px 20px;
+    max-height: none;
+    overflow-y: auto;
   }
 
   .table-body {
-    max-height: calc(100vh - 260px);
+    max-height: none;
   }
 
   .table-card {
