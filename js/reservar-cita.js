@@ -101,7 +101,7 @@ window.selectSlot = function(el) {
   booking.hora = el.textContent.trim();
 };
 
-async function buscarClientes(text) {
+window.buscarClientes = async function (text) {
   const queryText = String(text || "").trim().toLowerCase();
   const resultsEl = document.getElementById('clientSearchResults');
 
