@@ -6,7 +6,8 @@ import {
   where,
   addDoc,           
   serverTimestamp ,
-  doc
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -311,6 +312,46 @@ async function obtenerOCrearClienteRef(nombre, apellido, telefono, email) {
   return cliente;
 }
 
+async function guardarClienteYRetornarRef(nombre, apellido, telefono, email) {
+  const telefonoLimpio = telefono.replace(/\D/g, "");
+
+  // si hay cliente seleccionado, actualizar sus datos
+  if (booking.cliente && booking.cliente.id) {
+    const clienteId = booking.cliente.id;
+    try {
+      await updateDoc(doc(db, 'clientes', clienteId), {
+        nombre: `${nombre} ${apellido}`.trim(),
+        telefono: telefonoLimpio,
+        email: email || "",
+        updatedAt: serverTimestamp()
+      });
+      return doc(db, 'clientes', clienteId);
+    } catch (e) {
+      console.warn('Error actualizando cliente:', e);
+    }
+  }
+
+  // si no hay cliente seleccionado, buscar por teléfono o crear
+  const q = query(
+    collection(db, "clientes"),
+    where("telefono", "==", telefonoLimpio)
+  );
+
+  const snap = await getDocs(q);
+  if (!snap.empty) {
+    return doc(db, 'clientes', snap.docs[0].id);
+  }
+
+  const clienteRef = await addDoc(collection(db, 'clientes'), {
+    nombre: `${nombre} ${apellido}`.trim(),
+    telefono: telefonoLimpio,
+    email: email || "",
+    createdAt: serverTimestamp()
+  });
+
+  return clienteRef;
+}
+
 /* ================= BLOQUEO ================= */
 function obtenerSlotsOcupados(citas) {
 
@@ -457,7 +498,10 @@ window.confirmar = async function () {
       booking.hora
     );
 
-    const clienteRef = await obtenerOCrearClienteRef(nombre, apellido, celular, email);
+    const clienteRef = await guardarClienteYRetornarRef(nombre, apellido, celular, email);
+    if (clienteRef && clienteRef.id) {
+      booking.cliente = { id: clienteRef.id, nombre: `${nombre} ${apellido}`.trim(), telefono: celular };
+    }
 
     let manicuristaRef = null;
     if (booking.manicurista && booking.manicurista !== "Sin preferencia") {

@@ -80,6 +80,127 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+/* ================= DASHBOARD FILTERS & METRICS ================= */
+let filterStart = null;
+let filterEnd = null;
+let statusFilter = localStorage.getItem('dsf_status') || 'all';
+let searchQuery = localStorage.getItem('dsf_search') || '';
+let debounceSearchTimer = null;
+
+function startOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0,0,0); }
+function endOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23,59,59); }
+
+function initFilters() {
+  const fd = document.getElementById('filterDate');
+  const ft = document.getElementById('filterTomorrow');
+  const sc = document.getElementById('searchCitas');
+
+  const today = new Date();
+  if (fd) {
+    const iso = today.toISOString().slice(0,10);
+    fd.value = localStorage.getItem('dsf_date') || iso;
+    fd.addEventListener('change', onFilterDateChange);
+  }
+
+  if (ft) {
+    const stored = localStorage.getItem('dsf_tomorrow') !== 'false';
+    ft.checked = stored;
+    ft.addEventListener('change', onFilterDateChange);
+  }
+
+  if (sc) {
+    sc.value = searchQuery || '';
+    sc.addEventListener('input', (e)=>{
+      clearTimeout(debounceSearchTimer);
+      debounceSearchTimer = setTimeout(()=>{
+        searchQuery = String(e.target.value || '').trim().toLowerCase();
+        localStorage.setItem('dsf_search', searchQuery);
+        cargarCitas();
+      }, 300);
+    });
+  }
+
+  // set initial date range (default: hoy + mañana)
+  applyDateFilter();
+  // attach KPI card listeners and visual state
+  const kpis = document.querySelectorAll('.kpi-strip .kpi-card');
+  if (kpis && kpis.length >= 4) {
+    const map = ['all','completada','pendiente','confirmada'];
+    kpis.forEach((c, i) => {
+      c.dataset.estado = map[i] || 'all';
+      c.addEventListener('click', ()=> setEstadoFilter(c.dataset.estado));
+    });
+  }
+}
+
+function onFilterDateChange() {
+  const fd = document.getElementById('filterDate');
+  const ft = document.getElementById('filterTomorrow');
+  localStorage.setItem('dsf_date', fd ? fd.value : '');
+  localStorage.setItem('dsf_tomorrow', ft ? ft.checked : true);
+  applyDateFilter();
+  cargarCitas();
+  actualizarKpis();
+}
+
+function applyDateFilter(){
+  const fd = document.getElementById('filterDate');
+  const ft = document.getElementById('filterTomorrow');
+  const dateStr = fd ? fd.value : null;
+  const includeTomorrow = ft ? ft.checked : true;
+  let d = dateStr ? new Date(dateStr) : new Date();
+  filterStart = startOfDay(d);
+  if (includeTomorrow) {
+    const tomo = new Date(d);
+    tomo.setDate(tomo.getDate()+1);
+    filterEnd = endOfDay(tomo);
+  } else {
+    filterEnd = endOfDay(d);
+  }
+}
+
+function setEstadoFilter(estado){
+  if (statusFilter === estado || (estado === 'all' && statusFilter === 'all')) {
+    statusFilter = 'all';
+  } else {
+    statusFilter = estado;
+  }
+  localStorage.setItem('dsf_status', statusFilter);
+  // update visual
+  document.querySelectorAll('.kpi-strip .kpi-card').forEach(c=>{
+    if (c.dataset.estado === statusFilter) c.classList.add('active'); else c.classList.remove('active');
+  });
+  cargarCitas();
+}
+
+async function actualizarKpis(){
+  if (!filterStart || !filterEnd) applyDateFilter();
+  const qk = query(
+    collection(db, 'citas'),
+    where('fechaHora', '>=', filterStart),
+    where('fechaHora', '<=', filterEnd)
+  );
+  const snap = await getDocs(qk);
+  let total = 0, comp=0, pend=0, conf=0;
+  snap.forEach(docu=>{
+    total++;
+    const e = (docu.data().estado || 'pendiente');
+    if (e === 'completada') comp++;
+    if (e === 'pendiente') pend++;
+    if (e === 'confirmada') conf++;
+  });
+  const elTotal = document.getElementById('kpi-total');
+  const elComp = document.getElementById('kpi-completadas');
+  const elPend = document.getElementById('kpi-pendientes');
+  const elConf = document.getElementById('kpi-confirmadas');
+  const badge = document.getElementById('badgeToday');
+  if (elTotal) elTotal.textContent = total;
+  if (elComp) elComp.textContent = comp;
+  if (elPend) elPend.textContent = pend;
+  if (elConf) elConf.textContent = conf;
+  if (badge) badge.textContent = `💅 ${total} citas`; 
+}
+
 
 
 function crearFila(cita) {
@@ -218,54 +339,57 @@ cita.hora = fecha.toLocaleTimeString("es-CO", {
 
 
 async function cargarCitas() {
+  // build time-filtered query
+  if (!filterStart || !filterEnd) applyDateFilter();
 
-  
   const q = query(
     collection(db, "citas"),
-    orderBy("fechaHora", "asc") // 🔥 clave
+    where("fechaHora", ">=", filterStart),
+    where("fechaHora", "<=", filterEnd),
+    orderBy("fechaHora", "asc")
   );
 
   const snap = await getDocs(q);
-
   const container = document.getElementById("citasContainer");
-
   container.innerHTML = "";
 
   for (const docu of snap.docs) {
-
     let cita = docu.data();
-
-    // ✅ 🔥 AQUÍ VA EL FIX DEL ID
     cita.id = docu.id;
     cita.estado = cita.estado || "pendiente";
 
-    // 🔥 SERVICIO
-      // 🔥 SERVICIO (FIX COMPLETO)
-      if (cita.servicio) {
-        try {
+    // filter by status if needed
+    if (statusFilter && statusFilter !== 'all' && cita.estado !== statusFilter) continue;
 
-          // ✅ caso correcto: reference
-          if (typeof cita.servicio === "object") {
-            const servicioSnap = await getDoc(cita.servicio);
+    // filter by searchQuery if present
+    if (searchQuery) {
+      const cliente = String(cita.cliente || "").toLowerCase();
+      const telefono = String(cita.telefono || "").toLowerCase();
+      if (!cliente.includes(searchQuery) && !telefono.includes(searchQuery)) continue;
+    }
 
-            if (servicioSnap.exists()) {
-              cita.servicioNombre = servicioSnap.data().nombre;
-            }
-
-          } else {
-            // ✅ fallback: si es string (citas viejas)
-            cita.servicioNombre = cita.servicio;
-          }
-
-        } catch (e) {
-          console.warn("Error cargando servicio:", e);
-          cita.servicioNombre = cita.servicioNombre || "—";
+    // resolve servicio name
+    if (cita.servicio) {
+      try {
+        if (typeof cita.servicio === "object") {
+          const servicioSnap = await getDoc(cita.servicio);
+          if (servicioSnap.exists()) cita.servicioNombre = servicioSnap.data().nombre;
+        } else {
+          cita.servicioNombre = cita.servicio;
         }
+      } catch(e){
+        console.warn("Error cargando servicio:", e);
+        cita.servicioNombre = cita.servicioNombre || "—";
       }
-    // 🔥 MANICURISTA
+    }
+
     if (cita.manicurista) {
-      const maniSnap = await getDoc(cita.manicurista);
-      cita.manicuristaNombre = maniSnap.data().nombre;
+      try{
+        const maniSnap = await getDoc(cita.manicurista);
+        cita.manicuristaNombre = maniSnap.data().nombre;
+      }catch(e){
+        console.warn('Error cargando manicurista', e);
+      }
     }
 
     container.innerHTML += crearFila(cita);
@@ -273,6 +397,9 @@ async function cargarCitas() {
 }
 
 
+// initialize filters, KPIs and load data
+initFilters();
+actualizarKpis();
 cargarCitas();
 
 //cambiar erstao de citas

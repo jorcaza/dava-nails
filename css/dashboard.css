@@ -410,6 +410,12 @@ body.collapsed .logout-btn .nav-label {
   animation-delay: .15s;
 }
 
+.kpi-card.active {
+  border-color: var(--rose);
+  box-shadow: 0 6px 20px rgba(194, 57, 109, .12);
+  transform: translateY(-4px);
+}
+
 .kpi-icon {
   width: 40px;
   height: 40px;
