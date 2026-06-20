@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes ? NailStudio</title>
+  <link rel="stylesheet" href="css/reservar-cita.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/clientes.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="dashboard.html"><i class="fa fa-spa"></i> NailStudio</a>
+  <div class="header-actions">
+    <button class="btn-back" onclick="window.location.href='dashboard.html'"><i class="fa fa-arrow-left"></i> Volver</button>
+  </div>
+</header>
+
+<div class="hero">
+  <span class="hero-eyebrow">Clientes</span>
+  <h1>Administrar clientes</h1>
+  <p>Lista, búsqueda, creación, edición y eliminación con Firestore.</p>
+</div>
+
+<div class="form-card clientes-page">
+  <div class="clientes-sidebar">
+    <div class="panel-title">Clientes guardados</div>
+    <div class="field">
+      <label>Buscar</label>
+      <div class="search-bar"><i class="fa fa-search"></i> <input id="searchClientes" placeholder="Nombre o teléfono" autocomplete="off"></div>
+    </div>
+    <div class="clientes-list" id="clientesList"></div>
+  </div>
+
+  <div class="clientes-detail">
+    <div class="panel-title form-title" id="formTitle">Crear cliente</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Nombre <span class="req">*</span></label>
+        <input type="text" id="nombre" placeholder="Ej: Ana" autocomplete="off">
+        <div class="field-error" id="err-nombre">Nombre es obligatorio.</div>
+      </div>
+      <div class="field">
+        <label>Apellido</label>
+        <input type="text" id="apellido" placeholder="Ej: Pérez" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Celular <span class="req">*</span></label>
+      <input type="tel" id="celular" placeholder="Ej: 3001234567" maxlength="10" autocomplete="off">
+      <div class="field-error" id="err-cel">Teléfono válido de 10 dígitos.</div>
+    </div>
+
+    <div class="field">
+      <label>Correo electrónico</label>
+      <input type="email" id="email" placeholder="Ej: ana@correo.com" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label>Notas</label>
+      <textarea id="notas" placeholder="Ej: alergias, preferencias..." rows="4"></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-next" id="saveBtn" onclick="guardarCliente()"><i class="fa fa-save"></i> Guardar cliente</button>
+      <button class="btn-back" type="button" onclick="resetForm()"><i class="fa fa-times"></i> Limpiar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/clientes.js"></script>
+</body>
+</html>
