@@ -92,8 +92,8 @@ function endOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()
 
 function initFilters() {
   const fd = document.getElementById('filterDate');
-  const ft = document.getElementById('filterTomorrow');
   const sc = document.getElementById('searchCitas');
+  const clearBtn = document.getElementById('clearFilterBtn');
 
   const today = new Date();
   if (fd) {
@@ -102,10 +102,8 @@ function initFilters() {
     fd.addEventListener('change', onFilterDateChange);
   }
 
-  if (ft) {
-    const stored = localStorage.getItem('dsf_tomorrow') !== 'false';
-    ft.checked = stored;
-    ft.addEventListener('change', onFilterDateChange);
+  if (clearBtn) {
+    clearBtn.addEventListener('click', resetFilter);
   }
 
   if (sc) {
@@ -122,6 +120,8 @@ function initFilters() {
 
   // set initial date range (default: hoy + mañana)
   applyDateFilter();
+  updateRangeLabel();
+  updateTopbarSubtitle();
   // attach KPI card listeners and visual state
   const kpis = document.querySelectorAll('.kpi-strip .kpi-card');
   if (kpis && kpis.length >= 4) {
@@ -129,38 +129,32 @@ function initFilters() {
     kpis.forEach((c, i) => {
       c.dataset.estado = map[i] || 'all';
       c.addEventListener('click', ()=> setEstadoFilter(c.dataset.estado));
+      if (c.dataset.estado === statusFilter) c.classList.add('active');
     });
   }
 }
 
 function onFilterDateChange() {
   const fd = document.getElementById('filterDate');
-  const ft = document.getElementById('filterTomorrow');
   localStorage.setItem('dsf_date', fd ? fd.value : '');
-  localStorage.setItem('dsf_tomorrow', ft ? ft.checked : true);
   applyDateFilter();
+  updateRangeLabel();
   cargarCitas();
   actualizarKpis();
 }
 
 function applyDateFilter(){
   const fd = document.getElementById('filterDate');
-  const ft = document.getElementById('filterTomorrow');
   const dateStr = fd ? fd.value : null;
-  const includeTomorrow = ft ? ft.checked : true;
   let d = dateStr ? new Date(dateStr) : new Date();
   filterStart = startOfDay(d);
-  if (includeTomorrow) {
-    const tomo = new Date(d);
-    tomo.setDate(tomo.getDate()+1);
-    filterEnd = endOfDay(tomo);
-  } else {
-    filterEnd = endOfDay(d);
-  }
+  const tomo = new Date(d);
+  tomo.setDate(tomo.getDate()+1);
+  filterEnd = endOfDay(tomo);
 }
 
 function setEstadoFilter(estado){
-  if (statusFilter === estado || (estado === 'all' && statusFilter === 'all')) {
+  if (statusFilter === estado) {
     statusFilter = 'all';
   } else {
     statusFilter = estado;
@@ -171,6 +165,43 @@ function setEstadoFilter(estado){
     if (c.dataset.estado === statusFilter) c.classList.add('active'); else c.classList.remove('active');
   });
   cargarCitas();
+}
+
+function resetFilter(){
+  const fd = document.getElementById('filterDate');
+  const today = new Date();
+  const iso = today.toISOString().slice(0,10);
+  if (fd) fd.value = iso;
+  localStorage.setItem('dsf_date', iso);
+  applyDateFilter();
+  updateRangeLabel();
+  cargarCitas();
+  actualizarKpis();
+}
+
+function formatRangeLabel(date) {
+  const opts = { day: '2-digit', month: 'short' };
+  const d1 = date.toLocaleDateString('es-CO', opts);
+  const next = new Date(date);
+  next.setDate(next.getDate()+1);
+  const d2 = next.toLocaleDateString('es-CO', opts);
+  return `Mostrando: ${d1} - ${d2}`;
+}
+
+function updateRangeLabel(){
+  const fd = document.getElementById('filterDate');
+  const rangeEl = document.getElementById('rangeLabel');
+  const dateStr = fd ? fd.value : null;
+  const date = dateStr ? new Date(dateStr) : new Date();
+  if (rangeEl) rangeEl.textContent = formatRangeLabel(date);
+}
+
+function updateTopbarSubtitle(){
+  const fd = document.getElementById('filterDate');
+  const subtitle = document.getElementById('topbarSubtitle');
+  const dateStr = fd ? fd.value : null;
+  const date = dateStr ? new Date(dateStr) : new Date();
+  if (subtitle) subtitle.textContent = formatRangeLabel(date);
 }
 
 async function actualizarKpis(){

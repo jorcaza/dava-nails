@@ -87,16 +87,22 @@
   <div class="topbar">
     <button class="hamburger" id="hamburger"><i class="fa fa-bars"></i></button>
     <div class="topbar-left">
-      <h1>Citas del día</h1>
-      <p>Domingo, 8 de junio de 2025</p>
+      <h1>Citas</h1>
+      <p id="topbarSubtitle">Mostrando: —</p>
     </div>
     <div class="topbar-right">
-      <span class="badge-today">💅 4 citas hoy</span>
+      <span class="badge-today" id="badgeToday">💅 0 citas</span>
       <button class="btn-new" onclick="window.location.href='reservar-cita.html'"><i class="fa fa-plus"></i><span class="btn-label"> Nueva cita</span></button>
-        <span class="badge-today" id="badgeToday">💅 0 citas hoy</span>
-        <input type="date" id="filterDate" style="margin-left:12px;" />
-        <label style="margin-left:8px;font-size:13px;color:#666"><input type="checkbox" id="filterTomorrow" checked /> + mañana</label>
     </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-control">
+      <label for="filterDate">Rango</label>
+      <input type="date" id="filterDate" class="filter-date" />
+      <button class="btn-clear-filter" id="clearFilterBtn">Limpiar filtro</button>
+    </div>
+    <div class="range-info" id="rangeLabel">Mostrando: —</div>
   </div>
 
   <!-- KPI -->
