@@ -399,6 +399,57 @@ body::before {
     display: block;
 }
 
+.client-search-results {
+    margin-top: 8px;
+    display: grid;
+    gap: 8px;
+}
+
+.client-result-item,
+.client-result-selected,
+.client-result-empty {
+    width: 100%;
+    text-align: left;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: var(--white);
+    color: var(--dark);
+    font-size: 13px;
+    display: block;
+}
+
+.client-result-item {
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+}
+
+.client-result-item:hover {
+    background: var(--blush);
+    border-color: var(--rose);
+}
+
+.client-result-item strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.client-result-item span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.client-result-selected {
+    border-color: var(--rose);
+    background: #fff1f4;
+}
+
+.client-result-empty {
+    border-color: #f5c4c4;
+    background: #fff5f5;
+    color: #a62c2c;
+}
+
 .field-row {
     display: grid;
     grid-template-columns: 1fr 1fr;

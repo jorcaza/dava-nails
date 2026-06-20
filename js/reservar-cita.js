@@ -101,6 +101,61 @@ window.selectSlot = function(el) {
   booking.hora = el.textContent.trim();
 };
 
+async function buscarClientes(text) {
+  const queryText = String(text || "").trim().toLowerCase();
+  const resultsEl = document.getElementById('clientSearchResults');
+
+  if (!resultsEl) return;
+
+  if (!queryText) {
+    resultsEl.innerHTML = "";
+    return;
+  }
+
+  const snap = await getDocs(collection(db, "clientes"));
+  const clientes = [];
+
+  snap.forEach(doc => {
+    const data = doc.data();
+    const nombre = String(data.nombre || "").toLowerCase();
+    const telefono = String(data.telefono || "").toLowerCase();
+
+    if (nombre.includes(queryText) || telefono.includes(queryText)) {
+      clientes.push({ id: doc.id, ...data });
+    }
+  });
+
+  if (!clientes.length) {
+    resultsEl.innerHTML = `<div class="client-result-empty">No existe un cliente con ese nombre o teléfono. Completa el formulario para crear uno nuevo.</div>`;
+    return;
+  }
+
+  resultsEl.innerHTML = clientes.map(cliente => `
+    <button type="button" class="client-result-item" onclick="seleccionarCliente('${cliente.id}', '${encodeURIComponent(cliente.nombre)}', '${encodeURIComponent(cliente.telefono)}', '${encodeURIComponent(cliente.email || "")}')">
+      <strong>${cliente.nombre}</strong>
+      <span>${cliente.telefono}</span>
+    </button>
+  `).join("");
+}
+
+window.seleccionarCliente = function(id, nombre, telefono, email) {
+  const nombreCompleto = decodeURIComponent(nombre);
+  const telefonoDec = decodeURIComponent(telefono);
+  const emailDec = decodeURIComponent(email);
+
+  const [nombreTxt, ...apellidoParts] = nombreCompleto.split(' ');
+  const apellidoTxt = apellidoParts.join(' ');
+
+  document.getElementById('nombre').value = nombreTxt || '';
+  document.getElementById('apellido').value = apellidoTxt || '';
+  document.getElementById('celular').value = telefonoDec || '';
+  document.getElementById('email').value = emailDec || '';
+
+  document.getElementById('clientSearchResults').innerHTML = `
+    <div class="client-result-selected">Cliente seleccionado: <strong>${nombreCompleto}</strong></div>
+  `;
+};
+
 /* ================= HORAS ================= */
 function getDuracionMinutos(str) {
   return parseInt(str.replace(" min", ""));

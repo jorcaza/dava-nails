@@ -47,44 +47,7 @@
     <div class="panel-title">¿Qué servicio deseas?</div>
     <div class="panel-subtitle">Selecciona el tratamiento y tu manicurista preferida.</div>
 
-    <div class="service-grid">
-      <label class="svc-card" onclick="selectSvc(this,'Manicure Gel','60 min','$45.000')">
-        <input type="radio" name="servicio" value="Manicure Gel">
-        <div class="svc-check"><i class="fa fa-check"></i></div>
-        <div class="svc-icon">💅</div><div class="svc-name">Manicure Gel</div>
-        <div class="svc-time">60 min</div><div class="svc-price">$45.000</div>
-      </label>
-      <label class="svc-card" onclick="selectSvc(this,'Pedicure Spa','75 min','$55.000')">
-        <input type="radio" name="servicio" value="Pedicure Spa">
-        <div class="svc-check"><i class="fa fa-check"></i></div>
-        <div class="svc-icon">🦶</div><div class="svc-name">Pedicure Spa</div>
-        <div class="svc-time">75 min</div><div class="svc-price">$55.000</div>
-      </label>
-      <label class="svc-card" onclick="selectSvc(this,'Acrílicas','90 min','$80.000')">
-        <input type="radio" name="servicio" value="Acrilicas">
-        <div class="svc-check"><i class="fa fa-check"></i></div>
-        <div class="svc-icon">✨</div><div class="svc-name">Acrílicas</div>
-        <div class="svc-time">90 min</div><div class="svc-price">$80.000</div>
-      </label>
-      <label class="svc-card" onclick="selectSvc(this,'Nail Art','45 min','$35.000')">
-        <input type="radio" name="servicio" value="NailArt">
-        <div class="svc-check"><i class="fa fa-check"></i></div>
-        <div class="svc-icon">🎨</div><div class="svc-name">Nail Art</div>
-        <div class="svc-time">45 min</div><div class="svc-price">$35.000</div>
-      </label>
-      <label class="svc-card" onclick="selectSvc(this,'Manicure Clásica','40 min','$28.000')">
-        <input type="radio" name="servicio" value="Clasica">
-        <div class="svc-check"><i class="fa fa-check"></i></div>
-        <div class="svc-icon">💎</div><div class="svc-name">Manicure Clásica</div>
-        <div class="svc-time">40 min</div><div class="svc-price">$28.000</div>
-      </label>
-      <label class="svc-card" onclick="selectSvc(this,'Retiro + Diseño','50 min','$38.000')">
-        <input type="radio" name="servicio" value="Retiro">
-        <div class="svc-check"><i class="fa fa-check"></i></div>
-        <div class="svc-icon">🌸</div><div class="svc-name">Retiro + Diseño</div>
-        <div class="svc-time">50 min</div><div class="svc-price">$38.000</div>
-      </label>
-    </div>
+    <div class="service-grid"></div>
     <div class="field-error show" id="err-svc" style="display:none;margin-bottom:10px;">Por favor selecciona un servicio.</div>
 
     <div class="field">
@@ -162,6 +125,12 @@
       <i class="fa fa-check-circle"></i> Datos cargados automáticamente
     </div>
 
+    <div class="field">
+      <label>Buscar cliente</label>
+      <input type="text" id="clienteSearch" placeholder="Nombre o tel�fono" oninput="buscarClientes(this.value)">
+      <div class="client-search-results" id="clientSearchResults"></div>
+      <div class="field-hint">Selecciona un cliente existente o ingresa sus datos para crear uno nuevo.</div>
+    </div>
     <div class="field-row">
       <div class="field">
         <label>Nombre <span class="req">*</span></label>
