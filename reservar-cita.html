@@ -127,10 +127,11 @@
 
     <div class="field">
       <label>Buscar cliente</label>
-      <input type="text" id="clienteSearch" placeholder="Nombre o telÈfono" oninput="buscarClientes(this.value)">
+      <input type="text" id="clienteSearch" placeholder="Nombre o telÈfono" oninput="debouncedBuscar(this.value)">
       <div class="client-search-results" id="clientSearchResults"></div>
       <div class="field-hint">Selecciona un cliente existente o ingresa sus datos para crear uno nuevo.</div>
     </div>
+    <div id="clientForm" style="display:none">
     <div class="field-row">
       <div class="field">
         <label>Nombre <span class="req">*</span></label>
@@ -179,6 +180,7 @@
     <div class="btn-row">
       <button class="btn-back" onclick="goTo(2)"><i class="fa fa-arrow-left"></i> Atr√°s</button>
       <button class="btn-next" onclick="confirmar()"><i class="fa fa-check"></i> Confirmar cita</button>
+    </div>
     </div>
   </div>
 

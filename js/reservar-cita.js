@@ -34,6 +34,15 @@ const booking = {
 };
 
 let selectedCliente = null;
+let lastQuery = '';
+let debounceTimer = null;
+
+window.debouncedBuscar = function(text) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    buscarClientes(text);
+  }, 350);
+};
 
 
 /* ================= SERVICIOS DINÁMICOS ================= */
@@ -111,16 +120,30 @@ window.buscarClientes = async function (text) {
 
   if (!resultsEl) return;
 
+  // hide the visible client form while typing/new search
+  const formEl = document.getElementById('clientForm');
+  if (formEl) formEl.style.display = 'none';
+
   if (selectedCliente) {
     selectedCliente = null;
+    booking.cliente = null;
   }
 
   if (!queryText) {
     resultsEl.innerHTML = "";
-    selectedCliente = null;
-    booking.cliente = null;
+    lastQuery = '';
     return;
   }
+
+  // clear form inputs to avoid mixing data while searching
+  if (nombreInput) nombreInput.value = '';
+  if (apellidoInput) apellidoInput.value = '';
+  if (celularInput) celularInput.value = '';
+  if (emailInput) emailInput.value = '';
+
+  // avoid repeating the same query
+  if (queryText === lastQuery) return;
+  lastQuery = queryText;
 
   const snap = await getDocs(collection(db, "clientes"));
   const clientes = [];
@@ -172,13 +195,14 @@ window.seleccionarCliente = function(id, nombre, telefono, email) {
   };
 
   booking.cliente = selectedCliente;
-
-  document.getElementById('clientSearchResults').innerHTML = `
-    <div class="client-result-selected">
-      Cliente seleccionado: <strong>${nombreCompleto}</strong>
-    </div>
-    <button type="button" class="client-create-btn" onclick="clearClienteSeleccionado()">Buscar otro cliente</button>
+  // show selected indicator and reveal the form for editing/confirmation
+  const resultsEl = document.getElementById('clientSearchResults');
+  if (resultsEl) resultsEl.innerHTML = `
+    <div class="client-result-selected">Cliente seleccionado: <strong>${nombreCompleto}</strong></div>
   `;
+
+  const formEl = document.getElementById('clientForm');
+  if (formEl) formEl.style.display = 'block';
 };
 
 window.clearClienteSeleccionado = function() {
@@ -195,6 +219,10 @@ window.crearNuevoCliente = function(query) {
 
   const decoded = decodeURIComponent(query || "");
   const onlyDigits = decoded.replace(/\D/g, "");
+
+  // reveal the form for the new client
+  const formEl = document.getElementById('clientForm');
+  if (formEl) formEl.style.display = 'block';
 
   if (/^\d{7,}$/.test(onlyDigits)) {
     celularInput.value = onlyDigits;
