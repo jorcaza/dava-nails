@@ -237,13 +237,31 @@ async function cargarCitas() {
 
     // ✅ 🔥 AQUÍ VA EL FIX DEL ID
     cita.id = docu.id;
+    cita.estado = cita.estado || "pendiente";
 
     // 🔥 SERVICIO
-    if (cita.servicio) {
-      const servicioSnap = await getDoc(cita.servicio);
-      cita.servicioNombre = servicioSnap.data().nombre;
-    }
+      // 🔥 SERVICIO (FIX COMPLETO)
+      if (cita.servicio) {
+        try {
 
+          // ✅ caso correcto: reference
+          if (typeof cita.servicio === "object") {
+            const servicioSnap = await getDoc(cita.servicio);
+
+            if (servicioSnap.exists()) {
+              cita.servicioNombre = servicioSnap.data().nombre;
+            }
+
+          } else {
+            // ✅ fallback: si es string (citas viejas)
+            cita.servicioNombre = cita.servicio;
+          }
+
+        } catch (e) {
+          console.warn("Error cargando servicio:", e);
+          cita.servicioNombre = cita.servicioNombre || "—";
+        }
+      }
     // 🔥 MANICURISTA
     if (cita.manicurista) {
       const maniSnap = await getDoc(cita.manicurista);

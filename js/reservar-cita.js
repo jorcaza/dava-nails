@@ -14,6 +14,12 @@ import { db } from "./firebase-config.js";
 
 /* ================= STATE ================= */
 const fechaInput = document.getElementById('fecha');
+const nombreInput = document.getElementById('nombre');
+const apellidoInput = document.getElementById('apellido');
+const celularInput = document.getElementById('celular');
+const emailInput = document.getElementById('email');
+const primeraInput = document.getElementById('primera');
+const notasInput = document.getElementById('notas');
 
 const booking = {
   servicio: '',
@@ -149,6 +155,30 @@ async function obtenerCitasFecha(fecha) {
   return citas;
 }
 
+async function obtenerOCrearClienteRef(nombre, apellido, telefono, email) {
+  const telefonoLimpio = telefono.replace(/\D/g, "");
+
+  const q = query(
+    collection(db, "clientes"),
+    where("telefono", "==", telefonoLimpio)
+  );
+
+  const snap = await getDocs(q);
+
+  if (!snap.empty) {
+    return doc(db, "clientes", snap.docs[0].id);
+  }
+
+  const cliente = await addDoc(collection(db, "clientes"), {
+    nombre: `${nombre} ${apellido}`.trim(),
+    telefono: telefonoLimpio,
+    email: email || "",
+    createdAt: serverTimestamp()
+  });
+
+  return cliente;
+}
+
 /* ================= BLOQUEO ================= */
 function obtenerSlotsOcupados(citas) {
 
@@ -273,28 +303,62 @@ window.confirmar = async function () {
 
   try {
 
+    // ? validar datos de cliente
+    const nombre = nombreInput?.value.trim() || "";
+    const apellido = apellidoInput?.value.trim() || "";
+    const celular = celularInput?.value.replace(/\D/g, "") || "";
+    const email = emailInput?.value.trim() || "";
+    const primera = primeraInput?.value || "si";
+    const notas = notasInput?.value.trim() || "";
+
+    if (!nombre || !apellido) {
+      alert("Ingresa nombre y apellido del cliente ?");
+      return;
+    }
+
+    if (!celular || celular.length !== 10) {
+      alert("Ingresa un número de celular válido de 10 dígitos ?");
+      return;
+    }
+
     // ? convertir fecha + hora a Date real
     const fechaHora = convertirFechaHora(
       booking.fechaRaw,
       booking.hora
     );
 
+    const clienteRef = await obtenerOCrearClienteRef(nombre, apellido, celular, email);
+
+    let manicuristaRef = null;
+    if (booking.manicurista && booking.manicurista !== "Sin preferencia") {
+      const mQuery = query(
+        collection(db, "clientes"),
+        where("nombre", "==", booking.manicurista)
+      );
+      const manicuristaSnap = await getDocs(mQuery);
+      if (!manicuristaSnap.empty) {
+        manicuristaRef = doc(db, "clientes", manicuristaSnap.docs[0].id);
+      }
+    }
+
     // ? guardar en Firebase
     await addDoc(collection(db, "citas"), {
-
-      // ? reference real
+      cliente: `${nombre} ${apellido}`.trim(),
+      clienteRef,
+      telefono: celular,
+      email,
+      primera: primera,
+      notas,
       servicio: doc(db, "servicios", booking.servicioId),
-
-      // ? nombre para UI rápida
       servicioNombre: booking.servicio,
-
       duracion: booking.duracion,
       precio: booking.precio,
+      manicurista: manicuristaRef,
       manicuristaNombre: booking.manicurista,
-
+      estado: "pendiente",
+      fechaCambioEstado: serverTimestamp(),
       fechaHora: fechaHora,
       createdAt: serverTimestamp()
-
     });
     // ? feedback
     console.log("? cita guardada correctamente");
