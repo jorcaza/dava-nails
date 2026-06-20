@@ -495,76 +495,88 @@ window.cambiarEstado = async function(select, id) {
 };
 
 
-function enviarWhatsApp(selectOrCliente, tipoOrHora, servicio, manicuristaParam, telefono, fecha, tipoExplicit){
-  let cliente, hora, tipo, manicurista;
+function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaParam, telefonoParam, fecha, tipoExplicit) {
+  let cliente, hora, tipo, servicio, manicurista, telefono;
 
-  // Si el primer parámetro es un string, es la firma explícita
+  // ✅ 1. Determinar origen de datos
   if (typeof selectOrCliente === 'string') {
-    cliente = selectOrCliente;
-    hora = tipoOrHora;
-    servicio = servicio;
-    manicurista = manicuristaParam || '';
-    telefono = telefono;
-    tipo = tipoExplicit || '';
+    cliente = selectOrCliente.trim();
+    hora = tipoOrHora?.trim() || "";
+    servicio = servicioParam?.trim() || "";
+    manicurista = manicuristaParam?.trim() || "";
+    telefono = telefonoParam || "";
+    tipo = tipoExplicit || "";
   } else {
-    // Si es un elemento DOM, extraer datos de la fila
     const select = selectOrCliente;
     tipo = tipoOrHora;
+
     const row = select.closest(".t-row");
-    cliente = row.querySelector('[data-label="Cliente"] strong').innerText;
-    telefono = row.querySelector('[data-label="Cliente"] small').innerText;
-    hora = row.querySelector('[data-label="Hora"]').innerText;
-    servicio = row.querySelector('[data-label="Servicio"]').innerText;
-    manicurista = row.querySelector('[data-label="Manicurista"]')?.innerText || '';
+
+    cliente = row.querySelector('[data-label="Cliente"] strong')?.textContent.trim() || "";
+    telefono = row.querySelector('[data-label="Cliente"] small')?.textContent.trim() || "";
+    hora = row.querySelector('[data-label="Hora"]')?.textContent.trim() || "";
+    servicio = row.querySelector('[data-label="Servicio"]')?.textContent.trim() || "";
+    manicurista = row.querySelector('[data-label="Manicurista"]')?.textContent.trim() || "Sin preferencia";
   }
 
   let mensaje = "";
 
-  // ✅ CONFIRMADA
+  // ✅ 2. Construcción de mensaje (formato limpio)
   if (tipo === "confirmada") {
-    mensaje =
-`✅ CONFIRMACIÓN DE CITA DAVANAILS
-
-Hola ${cliente}
-
-Tu cita ha sido CONFIRMADA ✅
-
-📅 Hora: ${hora}
-💅 Servicio: ${servicio}
-👩‍🦰 Manicurista: ${manicurista}
-
-Te esperamos 💖`;
+    mensaje = [
+      "✅ CONFIRMACIÓN DE CITA DAVANAILS",
+      `Hola ${cliente}`,
+      "",
+      "Tu cita ha sido CONFIRMADA ✅",
+      `📅 Fecha y hora: ${hora}`,
+      `💅 Servicio: ${servicio}`,
+      `👩‍🦰 Manicurista: ${manicurista}`,
+      "",
+      "Te esperamos 💖"
+    ].join("\n");
   }
 
-  // ✅ CANCELADA
   if (tipo === "cancelada") {
-    mensaje =
-`❌ CITA CANCELADA
-
-Hola ${cliente}
-
-Tu cita ha sido cancelada.
-Si deseas reprogramar, contáctanos 💅`;
+    mensaje = [
+      "❌ CITA CANCELADA",
+      `Hola ${cliente}`,
+      "",
+      "Tu cita ha sido cancelada.",
+      "",
+      "Si deseas reprogramar, contáctanos 💅"
+    ].join("\n");
   }
 
-  // ✅ 🔄 REPROGRAMADA
   if (tipo === "reprogramada") {
-    mensaje =
-`🔄 CITA REPROGRAMADA
-
-Hola ${cliente}
-
-Tu cita ha sido REPROGRAMADA.
-
-📅 Hora: ${hora}
-💅 Servicio: ${servicio}
-👩‍🦰 Manicurista: ${manicurista}
-
-Por favor confirma si este horario te funciona ✅`;
+    mensaje = [
+      "🔄 CITA REPROGRAMADA",
+      `Hola ${cliente}`,
+      "",
+      "Tu cita ha sido REPROGRAMADA.",
+      `📅 Nueva fecha y hora: ${hora}`,
+      `💅 Servicio: ${servicio}`,
+      `👩‍🦰 Manicurista: ${manicurista}`,
+      "",
+      "Por favor confirma si este horario te funciona ✅"
+    ].join("\n");
   }
 
-  const url = `https://wa.me/57${telefono}?text=${encodeURIComponent(mensaje)}`;
+  // ✅ 3. Limpiar teléfono (solo números)
+  const telefonoLimpio = String(telefono || "").replace(/\D/g, "");
 
+  // ✅ 4. Normalizar caracteres (evita �)
+  mensaje = mensaje.normalize("NFC");
+
+  // ✅ 5. Codificar correctamente (UNA sola vez)
+  const texto = encodeURIComponent(mensaje);
+
+  // ✅ 6. Generar URL WhatsApp
+  const url = `https://wa.me/57${telefonoLimpio}?text=${texto}`;
+
+  // ✅ DEBUG (opcional)
+  console.log("WA URL:", url);
+
+  // ✅ 7. Abrir
   window.open(url, "_blank");
 }
 
