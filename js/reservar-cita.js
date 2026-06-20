@@ -20,6 +20,7 @@ const celularInput = document.getElementById('celular');
 const emailInput = document.getElementById('email');
 const primeraInput = document.getElementById('primera');
 const notasInput = document.getElementById('notas');
+const clienteSearchInput = document.getElementById('clienteSearch');
 
 const booking = {
   servicio: '',
@@ -28,8 +29,11 @@ const booking = {
   precio: '',
   manicurista: 'Sin preferencia',
   fechaRaw: '',
-  hora: ''
+  hora: '',
+  cliente: null
 };
+
+let selectedCliente = null;
 
 
 /* ================= SERVICIOS DINÁMICOS ================= */
@@ -107,8 +111,14 @@ window.buscarClientes = async function (text) {
 
   if (!resultsEl) return;
 
+  if (selectedCliente) {
+    selectedCliente = null;
+  }
+
   if (!queryText) {
     resultsEl.innerHTML = "";
+    selectedCliente = null;
+    booking.cliente = null;
     return;
   }
 
@@ -126,7 +136,10 @@ window.buscarClientes = async function (text) {
   });
 
   if (!clientes.length) {
-    resultsEl.innerHTML = `<div class="client-result-empty">No existe un cliente con ese nombre o teléfono. Completa el formulario para crear uno nuevo.</div>`;
+    resultsEl.innerHTML = `
+      <div class="client-result-empty">No existe un cliente con ese nombre o teléfono.</div>
+      <button type="button" class="client-create-btn" onclick="crearNuevoCliente('${encodeURIComponent(queryText)}')">Crear nuevo cliente</button>
+    `;
     return;
   }
 
@@ -146,14 +159,50 @@ window.seleccionarCliente = function(id, nombre, telefono, email) {
   const [nombreTxt, ...apellidoParts] = nombreCompleto.split(' ');
   const apellidoTxt = apellidoParts.join(' ');
 
-  document.getElementById('nombre').value = nombreTxt || '';
-  document.getElementById('apellido').value = apellidoTxt || '';
-  document.getElementById('celular').value = telefonoDec || '';
-  document.getElementById('email').value = emailDec || '';
+  nombreInput.value = nombreTxt || '';
+  apellidoInput.value = apellidoTxt || '';
+  celularInput.value = telefonoDec || '';
+  emailInput.value = emailDec || '';
+
+  selectedCliente = {
+    id,
+    nombre: nombreCompleto,
+    telefono: telefonoDec,
+    email: emailDec
+  };
+
+  booking.cliente = selectedCliente;
 
   document.getElementById('clientSearchResults').innerHTML = `
-    <div class="client-result-selected">Cliente seleccionado: <strong>${nombreCompleto}</strong></div>
+    <div class="client-result-selected">
+      Cliente seleccionado: <strong>${nombreCompleto}</strong>
+    </div>
+    <button type="button" class="client-create-btn" onclick="clearClienteSeleccionado()">Buscar otro cliente</button>
   `;
+};
+
+window.clearClienteSeleccionado = function() {
+  selectedCliente = null;
+  booking.cliente = null;
+  const resultsEl = document.getElementById('clientSearchResults');
+  if (resultsEl) resultsEl.innerHTML = "";
+  if (clienteSearchInput) clienteSearchInput.value = "";
+};
+
+window.crearNuevoCliente = function(query) {
+  clearClienteSeleccionado();
+  booking.cliente = null;
+
+  const decoded = decodeURIComponent(query || "");
+  const onlyDigits = decoded.replace(/\D/g, "");
+
+  if (/^\d{7,}$/.test(onlyDigits)) {
+    celularInput.value = onlyDigits;
+    nombreInput.focus();
+  } else {
+    nombreInput.value = decoded;
+    apellidoInput.focus();
+  }
 };
 
 /* ================= HORAS ================= */
@@ -342,13 +391,13 @@ async function validarDisponibilidad() {
 
 window.confirmar = async function () {
 
-  // ? validar que haya fecha y hora
+  // validar que haya fecha y hora
   if (!booking.fechaRaw || !booking.hora) {
     alert("Selecciona fecha y hora ?");
     return;
   }
 
-  // ? validar disponibilidad real
+  // validar disponibilidad real
   const disponible = await validarDisponibilidad();
 
   if (!disponible) {
@@ -358,7 +407,6 @@ window.confirmar = async function () {
 
   try {
 
-    // ? validar datos de cliente
     const nombre = nombreInput?.value.trim() || "";
     const apellido = apellidoInput?.value.trim() || "";
     const celular = celularInput?.value.replace(/\D/g, "") || "";
@@ -376,7 +424,6 @@ window.confirmar = async function () {
       return;
     }
 
-    // ? convertir fecha + hora a Date real
     const fechaHora = convertirFechaHora(
       booking.fechaRaw,
       booking.hora
@@ -396,7 +443,6 @@ window.confirmar = async function () {
       }
     }
 
-    // ? guardar en Firebase
     await addDoc(collection(db, "citas"), {
       cliente: `${nombre} ${apellido}`.trim(),
       clienteRef,
@@ -415,17 +461,17 @@ window.confirmar = async function () {
       fechaHora: fechaHora,
       createdAt: serverTimestamp()
     });
-    // ? feedback
-    console.log("? cita guardada correctamente");
-    alert("Cita registrada ?");
 
-    // ? limpiar formulario
-    if (typeof resetForm === "function") {
-      resetForm();
-    }
+    mostrarSuccessScreen({
+      servicio: booking.servicio,
+      fecha: booking.fechaRaw,
+      hora: booking.hora,
+      manicurista: booking.manicurista,
+      cliente: `${nombre} ${apellido}`.trim(),
+      celular
+    });
 
   } catch (error) {
-
     console.error(error);
     alert("Error al guardar la cita ?");
   }
@@ -450,6 +496,9 @@ window.goTo = function(step) {
     return;
   }
 
+  const successPanel = document.getElementById('successPanel');
+  if (successPanel) successPanel.classList.remove('show');
+
   // ocultar todos los paneles
   document.querySelectorAll('.panel').forEach(p => {
     p.classList.remove('active');
@@ -459,7 +508,8 @@ window.goTo = function(step) {
   const panel = document.getElementById('panel' + step);
   if (panel) panel.classList.add('active');
 
-  // scroll arriba
+  if (step === 3) renderBookingSummary();
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
@@ -470,21 +520,39 @@ window.clearSavedData = function () {
   if (banner) banner.classList.remove('show');
 };
 
-
 window.resetForm = function () {
 
   // reset estado
   booking.servicio = '';
+  booking.servicioId = '';
   booking.duracion = '';
   booking.precio = '';
   booking.manicurista = 'Sin preferencia';
   booking.fechaRaw = '';
   booking.hora = '';
 
+  selectedCliente = null;
+
   // reset visual
   document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
   document.querySelectorAll('.mani-pill').forEach(p => p.classList.remove('selected'));
   document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+
+  // reset form inputs
+  if (nombreInput) nombreInput.value = '';
+  if (apellidoInput) apellidoInput.value = '';
+  if (celularInput) celularInput.value = '';
+  if (emailInput) emailInput.value = '';
+  if (clienteSearchInput) clienteSearchInput.value = '';
+  if (notasInput) notasInput.value = '';
+  if (primeraInput) primeraInput.value = 'si';
+  if (fechaInput) fechaInput.value = '';
+  const resultsEl = document.getElementById('clientSearchResults');
+  if (resultsEl) resultsEl.innerHTML = '';
+
+  // hide success screen if visible
+  const successPanel = document.getElementById('successPanel');
+  if (successPanel) successPanel.classList.remove('show');
 
   // volver al paso 1
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -513,6 +581,45 @@ function convertirFechaHora(fecha, horaTexto) {
 
   return new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`);
 }
+
+function renderBookingSummary() {
+  const svc = document.getElementById('r-svc');
+  const fecha = document.getElementById('r-fecha');
+  const hora = document.getElementById('r-hora');
+  const mani = document.getElementById('r-mani');
+
+  if (svc) svc.textContent = booking.servicio || '?';
+  if (fecha) fecha.textContent = booking.fechaRaw || '?';
+  if (hora) hora.textContent = booking.hora || '?';
+  if (mani) mani.textContent = booking.manicurista || '?';
+}
+
+function mostrarSuccessScreen(data) {
+  const successPanel = document.getElementById('successPanel');
+  const summarySvc = document.getElementById('c-svc');
+  const summaryFecha = document.getElementById('c-fecha');
+  const summaryMani = document.getElementById('c-mani');
+  const waLink = document.getElementById('waLink');
+
+  if (summarySvc) summarySvc.textContent = data.servicio || '?';
+  if (summaryFecha) summaryFecha.textContent = `${data.fecha} · ${data.hora}`;
+  if (summaryMani) summaryMani.textContent = data.manicurista || '?';
+
+  if (waLink) {
+    const mensaje = encodeURIComponent(`Hola, quiero confirmar mi cita para ${data.servicio} el ${data.fecha} a las ${data.hora}. Mi nombre es ${data.cliente}.`);
+    waLink.href = `https://wa.me/57${data.celular}?text=${mensaje}`;
+  }
+
+  if (successPanel) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    successPanel.classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+window.irInicio = function() {
+  window.location.href = 'dashboard.html';
+};
 
 window.clearErr = function(id, input) {
 

@@ -424,6 +424,24 @@ body::before {
     transition: background .2s, border-color .2s;
 }
 
+.client-create-btn {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--rose);
+    background: #fff0f4;
+    color: var(--rose-dark);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+    text-align: center;
+}
+
+.client-create-btn:hover {
+    background: #f9d9e2;
+}
+
 .client-result-item:hover {
     background: var(--blush);
     border-color: var(--rose);
