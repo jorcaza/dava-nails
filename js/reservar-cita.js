@@ -31,7 +31,8 @@ const booking = {
   manicurista: 'Sin preferencia',
   fechaRaw: '',
   hora: '',
-  cliente: null
+  cliente: null,
+  clienteRef: null
 };
 
 let selectedCliente = null;
@@ -196,6 +197,7 @@ window.seleccionarCliente = function(id, nombre, telefono, email) {
   };
 
   booking.cliente = selectedCliente;
+  booking.clienteRef = doc(db, 'clientes', id);
   // show selected indicator and reveal the form for editing/confirmation
   const resultsEl = document.getElementById('clientSearchResults');
   if (resultsEl) resultsEl.innerHTML = `
@@ -209,6 +211,7 @@ window.seleccionarCliente = function(id, nombre, telefono, email) {
 window.clearClienteSeleccionado = function() {
   selectedCliente = null;
   booking.cliente = null;
+  booking.clienteRef = null;
   const resultsEl = document.getElementById('clientSearchResults');
   if (resultsEl) resultsEl.innerHTML = "";
   if (clienteSearchInput) clienteSearchInput.value = "";
@@ -217,6 +220,7 @@ window.clearClienteSeleccionado = function() {
 window.crearNuevoCliente = function(query) {
   clearClienteSeleccionado();
   booking.cliente = null;
+  booking.clienteRef = null;
 
   const decoded = decodeURIComponent(query || "");
   const onlyDigits = decoded.replace(/\D/g, "");
@@ -288,50 +292,32 @@ async function obtenerCitasFecha(fecha) {
   return citas;
 }
 
-async function obtenerOCrearClienteRef(nombre, apellido, telefono, email) {
-  const telefonoLimpio = telefono.replace(/\D/g, "");
+function normalizePhone(value) {
+  return String(value || "").replace(/\D/g, "");
+}
 
-  const q = query(
-    collection(db, "clientes"),
-    where("telefono", "==", telefonoLimpio)
-  );
-
-  const snap = await getDocs(q);
-
-  if (!snap.empty) {
-    return doc(db, "clientes", snap.docs[0].id);
-  }
-
-  const cliente = await addDoc(collection(db, "clientes"), {
+async function guardarClienteYRetornarRef(nombre, apellido, telefono, email, notas) {
+  const telefonoLimpio = normalizePhone(telefono);
+  const clienteData = {
     nombre: `${nombre} ${apellido}`.trim(),
     telefono: telefonoLimpio,
     email: email || "",
-    createdAt: serverTimestamp()
-  });
+    notas: notas || "",
+    updatedAt: serverTimestamp()
+  };
 
-  return cliente;
-}
-
-async function guardarClienteYRetornarRef(nombre, apellido, telefono, email) {
-  const telefonoLimpio = telefono.replace(/\D/g, "");
-
-  // si hay cliente seleccionado, actualizar sus datos
+  // si hay cliente seleccionado, actualizar sus datos conservando createdAt
   if (booking.cliente && booking.cliente.id) {
     const clienteId = booking.cliente.id;
     try {
-      await updateDoc(doc(db, 'clientes', clienteId), {
-        nombre: `${nombre} ${apellido}`.trim(),
-        telefono: telefonoLimpio,
-        email: email || "",
-        updatedAt: serverTimestamp()
-      });
+      await updateDoc(doc(db, 'clientes', clienteId), clienteData);
       return doc(db, 'clientes', clienteId);
     } catch (e) {
       console.warn('Error actualizando cliente:', e);
     }
   }
 
-  // si no hay cliente seleccionado, buscar por teléfono o crear
+  // si no hay cliente seleccionado, buscar por teléfono
   const q = query(
     collection(db, "clientes"),
     where("telefono", "==", telefonoLimpio)
@@ -339,13 +325,17 @@ async function guardarClienteYRetornarRef(nombre, apellido, telefono, email) {
 
   const snap = await getDocs(q);
   if (!snap.empty) {
-    return doc(db, 'clientes', snap.docs[0].id);
+    const foundId = snap.docs[0].id;
+    try {
+      await updateDoc(doc(db, 'clientes', foundId), clienteData);
+    } catch (e) {
+      console.warn('Error actualizando cliente existente por teléfono:', e);
+    }
+    return doc(db, 'clientes', foundId);
   }
 
   const clienteRef = await addDoc(collection(db, 'clientes'), {
-    nombre: `${nombre} ${apellido}`.trim(),
-    telefono: telefonoLimpio,
-    email: email || "",
+    ...clienteData,
     createdAt: serverTimestamp()
   });
 
@@ -478,18 +468,23 @@ window.confirmar = async function () {
 
     const nombre = nombreInput?.value.trim() || "";
     const apellido = apellidoInput?.value.trim() || "";
-    const celular = celularInput?.value.replace(/\D/g, "") || "";
+    const celular = normalizePhone(celularInput?.value || "");
     const email = emailInput?.value.trim() || "";
     const primera = primeraInput?.value || "si";
     const notas = notasInput?.value.trim() || "";
 
-    if (!nombre || !apellido) {
-      alert("Ingresa nombre y apellido del cliente ?");
+    if (!nombre) {
+      showErr('err-nombre', nombreInput);
+      return;
+    }
+
+    if (!apellido) {
+      showErr('err-apellido', apellidoInput);
       return;
     }
 
     if (!celular || celular.length !== 10) {
-      alert("Ingresa un número de celular válido de 10 dígitos ?");
+      showErr('err-cel', celularInput);
       return;
     }
 
@@ -498,9 +493,10 @@ window.confirmar = async function () {
       booking.hora
     );
 
-    const clienteRef = await guardarClienteYRetornarRef(nombre, apellido, celular, email);
+    const clienteRef = await guardarClienteYRetornarRef(nombre, apellido, celular, email, notas);
     if (clienteRef && clienteRef.id) {
       booking.cliente = { id: clienteRef.id, nombre: `${nombre} ${apellido}`.trim(), telefono: celular };
+      booking.clienteRef = clienteRef;
     }
 
     let manicuristaRef = null;
