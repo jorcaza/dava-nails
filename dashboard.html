@@ -87,22 +87,20 @@
   <div class="topbar">
     <button class="hamburger" id="hamburger"><i class="fa fa-bars"></i></button>
     <div class="topbar-left">
-      <h1>Citas</h1>
-      <p id="topbarSubtitle">Mostrando: —</p>
+      <div class="title-group">
+        <h1>Citas</h1>
+        <p id="topbarSubtitle">Mostrando: —</p>
+      </div>
+      <span class="badge-today" id="badgeToday">💅 0 citas</span>
     </div>
     <div class="topbar-right">
-      <span class="badge-today" id="badgeToday">💅 0 citas</span>
+      <div class="header-filters">
+        <label for="filterDate">Rango</label>
+        <input type="date" id="filterDate" class="filter-date" />
+        <button class="btn-clear-filter" id="clearFilterBtn">Limpiar filtro</button>
+      </div>
       <button class="btn-new" onclick="window.location.href='reservar-cita.html'"><i class="fa fa-plus"></i><span class="btn-label"> Nueva cita</span></button>
     </div>
-  </div>
-
-  <div class="filter-bar">
-    <div class="filter-control">
-      <label for="filterDate">Rango</label>
-      <input type="date" id="filterDate" class="filter-date" />
-      <button class="btn-clear-filter" id="clearFilterBtn">Limpiar filtro</button>
-    </div>
-    <div class="range-info" id="rangeLabel">Mostrando: —</div>
   </div>
 
   <!-- KPI -->

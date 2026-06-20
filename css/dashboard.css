@@ -304,6 +304,51 @@ body.collapsed .logout-btn .nav-label {
   justify-content: space-between;
   gap: 12px;
   flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.header-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.header-filters label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.header-filters .filter-date {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text-main);
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.header-filters .btn-clear-filter {
+  border: 1px solid var(--rose);
+  background: transparent;
+  color: var(--rose);
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.header-filters .btn-clear-filter:hover {
+  background: var(--rose-light);
 }
 
 .hamburger {
@@ -327,6 +372,21 @@ body.collapsed .logout-btn .nav-label {
   color: var(--rose);
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
 .topbar-left h1 {
   font-family: 'Playfair Display', serif;
   font-size: 20px;
@@ -338,6 +398,10 @@ body.collapsed .logout-btn .nav-label {
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 2px;
+}
+
+.topbar-left .badge-today {
+  align-self: flex-start;
 }
 
 .topbar-right {
@@ -375,47 +439,6 @@ body.collapsed .logout-btn .nav-label {
 
 .btn-new:hover {
   background: #a31545;
-}
-
-.filter-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 14px 24px 0;
-  margin-bottom: 8px;
-}
-
-.filter-control {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.filter-control label {
-  font-size: 12px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.filter-date {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: #fff;
-  color: var(--text-main);
-  padding: 10px 12px;
-  font-size: 13px;
-}
-
-.btn-clear-filter {
-  border: 1px solid var(--rose);
-  background: transparent;
-  color: var(--rose);
-  border-radius: 12px;
-  padding: 10px 14px;
-  cursor: pointer;
-  transition: background .2s, color .2s;
 }
 
 .btn-clear-filter:hover {
@@ -522,7 +545,7 @@ body.collapsed .logout-btn .nav-label {
 /* ── TABLE ── */
 .table-wrap {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 16px 24px 24px;
   min-height: 0;
@@ -531,7 +554,9 @@ body.collapsed .logout-btn .nav-label {
 .table-body-wrap {
   display: flex;
   flex-direction: column;
+  flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .table-body {
@@ -899,8 +924,25 @@ body.collapsed .logout-btn .nav-label {
     padding: 12px 14px;
   }
 
+  .topbar-left {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .topbar-left h1 {
     font-size: 17px;
+  }
+
+  .topbar-left .badge-today {
+    margin-top: 4px;
+    padding: 5px 10px;
   }
 
   .btn-new .btn-label {
@@ -1631,9 +1673,13 @@ white-space: nowrap;
   }
 
   .table-wrap {
-    max-height: calc(100vh - 170px);
-    overflow-y: auto;
+    max-height: calc(100vh - 210px);
+    overflow-y: hidden;
     padding: 12px 14px 20px;
+  }
+
+  .table-body {
+    max-height: calc(100vh - 260px);
   }
 
   .table-card {

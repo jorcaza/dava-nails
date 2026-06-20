@@ -89,6 +89,18 @@ let debounceSearchTimer = null;
 
 function startOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0,0,0); }
 function endOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23,59,59); }
+function parseDateInput(value) {
+  if (!value) return new Date();
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day, 0, 0, 0, 0);
+}
+
+function formatDateForInput(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 function initFilters() {
   const fd = document.getElementById('filterDate');
@@ -97,7 +109,7 @@ function initFilters() {
 
   const today = new Date();
   if (fd) {
-    const iso = today.toISOString().slice(0,10);
+    const iso = formatDateForInput(today);
     fd.value = localStorage.getItem('dsf_date') || iso;
     fd.addEventListener('change', onFilterDateChange);
   }
@@ -139,6 +151,7 @@ function onFilterDateChange() {
   localStorage.setItem('dsf_date', fd ? fd.value : '');
   applyDateFilter();
   updateRangeLabel();
+  updateTopbarSubtitle();
   cargarCitas();
   actualizarKpis();
 }
@@ -146,7 +159,7 @@ function onFilterDateChange() {
 function applyDateFilter(){
   const fd = document.getElementById('filterDate');
   const dateStr = fd ? fd.value : null;
-  let d = dateStr ? new Date(dateStr) : new Date();
+  let d = dateStr ? parseDateInput(dateStr) : new Date();
   filterStart = startOfDay(d);
   const tomo = new Date(d);
   tomo.setDate(tomo.getDate()+1);
@@ -170,11 +183,12 @@ function setEstadoFilter(estado){
 function resetFilter(){
   const fd = document.getElementById('filterDate');
   const today = new Date();
-  const iso = today.toISOString().slice(0,10);
+  const iso = formatDateForInput(today);
   if (fd) fd.value = iso;
   localStorage.setItem('dsf_date', iso);
   applyDateFilter();
   updateRangeLabel();
+  updateTopbarSubtitle();
   cargarCitas();
   actualizarKpis();
 }
@@ -192,7 +206,7 @@ function updateRangeLabel(){
   const fd = document.getElementById('filterDate');
   const rangeEl = document.getElementById('rangeLabel');
   const dateStr = fd ? fd.value : null;
-  const date = dateStr ? new Date(dateStr) : new Date();
+  const date = dateStr ? parseDateInput(dateStr) : new Date();
   if (rangeEl) rangeEl.textContent = formatRangeLabel(date);
 }
 
@@ -200,7 +214,7 @@ function updateTopbarSubtitle(){
   const fd = document.getElementById('filterDate');
   const subtitle = document.getElementById('topbarSubtitle');
   const dateStr = fd ? fd.value : null;
-  const date = dateStr ? new Date(dateStr) : new Date();
+  const date = dateStr ? parseDateInput(dateStr) : new Date();
   if (subtitle) subtitle.textContent = formatRangeLabel(date);
 }
 
