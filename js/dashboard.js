@@ -495,7 +495,7 @@ window.cambiarEstado = async function(select, id) {
 };
 
 
-function enviarWhatsApp(select, tipo) {
+function enviarWhatsApp(select, tipo){
 
   const row = select.closest(".t-row");
 
