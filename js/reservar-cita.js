@@ -59,6 +59,7 @@ async function cargarServicios() {
   snap.forEach(doc => {
 
     const s = doc.data();
+      if (!s.activo) return; // ? solo activos
 
       const html = `
         <label class="svc-card"

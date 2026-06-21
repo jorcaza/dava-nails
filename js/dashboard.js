@@ -218,7 +218,7 @@ function updateTopbarSubtitle(){
   if (subtitle) subtitle.textContent = formatRangeLabel(date);
 }
 
-async function actualizarKpis(){
+window.actualizarKpis = async function(){
   if (!filterStart || !filterEnd) applyDateFilter();
   const qk = query(
     collection(db, 'citas'),
@@ -487,6 +487,7 @@ window.cambiarEstado = async function(select, id) {
     
     // ✅ 🔥 MOSTRAR TOAST
     mostrarToast("Guardado ✅", "ok");
+    actualizarKpis();
 
   } catch (error) {
     console.error("❌ Error:", error);
@@ -514,19 +515,24 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
     servicio = row.querySelector('[data-label="Servicio"]')?.textContent.trim() || "";
     manicurista = row.querySelector('[data-label="Manicurista"]')?.textContent.trim() || "Sin preferencia";
 
-    tipo = tipoOrHora;
-  }
+    let estadoReal = tipoOrHora;
+
+    // ✅ lógica de negocio
+    if (estadoReal === "pendiente") tipo = "confirmada";
+      else if (estadoReal === "confirmada") tipo = "recordatorio";
+      else tipo = estadoReal;
+    s}
 
   // ✅ 2. Mensaje limpio
   let mensaje = "";
-
+console.log('++++++++++++' + tipo);
   if (tipo === "confirmada") {
     mensaje = [
       "CONFIRMACION DE CITA DAVANAILS",
       `Hola ${cliente}`,
       "",
       "Tu cita ha sido CONFIRMADA",
-      `Fecha y hora: ${hora}`,
+      `📅 Fecha y hora: ${hora}`,
       `Servicio: ${servicio}`,
       `Manicurista: ${manicurista}`,
       "",
@@ -558,18 +564,33 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
     ].join("\n");
   }
 
+  if (tipo === "recordatorio") {
+  mensaje = [
+    "🔔 RECORDATORIO DE CITA DAVANAILS",
+    `Hola ${cliente}`,    
+    "",
+    "Te recordamos tu cita programada:",
+    `📅 Fecha y hora: ${hora}`,
+    `💅 Servicio: ${servicio}`,
+    `👩 Manicurista: ${manicurista}`,
+    "",
+    "¡Te esperamos! 🌸"
+  ].join("\n");
+}
+
+
   // ✅ ✅ 🔥 CLAVE: limpiar caracteres problemáticos
   mensaje = mensaje
     .normalize("NFKC")           // normaliza unicode
     .replace(/\uFE0F/g, "")      // elimina emojis conflictivos
     .replace(/[^\x20-\x7E\n]/g, "") // opcional: elimina caracteres raros
-    .trim();
+    .trim(); 
 
   // ✅ limpiar teléfono
   const telefonoLimpio = String(telefono).replace(/\D/g, "");
 
   // ✅ encode UNA sola vez
-  const url = `https://api.whatsapp.com/send?phone=57${telefonoLimpio}&text=${encodeURIComponent(mensaje)}`;
+const url = `https://api.whatsapp.com/send?phone=57${telefonoLimpio}&text=${encodeURIComponent(mensaje)}`;
 
   console.log("WA URL:", url);
 
@@ -728,8 +749,11 @@ window.accionWhatsApp = function(el) {
   const hora = row.querySelector('[data-label="Hora"]').innerText;
   const servicio = row.querySelector('[data-label="Servicio"]').innerText;
 
-  enviarWhatsApp(cliente, hora, servicio, "", telefono, "", "confirmada");
-}
+  // ✅ obtener estado real del select
+  const estado = row.querySelector("select").value;
+
+  enviarWhatsApp(cliente, hora, servicio, "", telefono, "", estado); // ✅ dinámico
+};
 
 
 window.editarDesdeMenu = function (el) {
@@ -927,3 +951,4 @@ window.onChangeFecha = function() {
   generarHoras();
   validarFormulario();
 };
+

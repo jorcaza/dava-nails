@@ -78,7 +78,7 @@ function renderClientes() {
     return `
       <div class="cliente-item ${selectedCliente && selectedCliente.id === cliente.id ? 'active' : ''}" onclick="window.seleccionarCliente('${cliente.id}')">
         <div class="cliente-meta">
-          <span class="cliente-name">${cliente.nombre || 'Sin nombre'}</span>
+          <span class="cliente-name">${(cliente.nombre || '') + ' ' + (cliente.apellido || '')}</span>
           <span class="cliente-phone">${cliente.telefono || '?'}</span>
           <span class="cliente-email">${cliente.email || 'Sin email'}</span>
         </div>
@@ -147,7 +147,7 @@ function validarFormulario() {
   return valido;
 }
 
-async function guardarCliente() {
+window.guardarCliente = async function () {
   if (!validarFormulario()) return;
   const nombre = String(nombreInput.value || '').trim();
   const apellido = String(apellidoInput.value || '').trim();
@@ -195,7 +195,7 @@ async function guardarCliente() {
   }
 }
 
-function resetForm() {
+window.resetForm = function () {
   selectedCliente = null;
   nombreInput.value = '';
   apellidoInput.value = '';

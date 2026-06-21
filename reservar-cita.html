@@ -12,8 +12,11 @@
 <body>
 
 <header class="site-header">
-  <a class="brand" href="#"><i class="fa fa-spa"></i> NailStudio</a>
+  <a class="brand" onclick="window.location.href='dashboard.html'"><i class="fa fa-spa"></i> NailStudio</a>
   <span class="header-tag">Reservas en línea</span>
+    <div class="header-actions">
+    <button class="btn-back" onclick="window.location.href='dashboard.html'"><i class="fa fa-arrow-left"></i> Volver</button>
+  </div>
 </header>
 
 <!-- Banner bienvenida cliente recurrente -->
@@ -53,11 +56,11 @@
     <div class="field">
       <label>Manicurista preferida</label>
       <div class="mani-grid">
-        <label class="mani-pill selected" onclick="selectMani(this,'Sin preferencia')">
-          <input type="radio" name="mani" value="Sin preferencia" checked>
-          <div class="mani-avatar ma-any">★</div> Sin preferencia
+        <label class="mani-pill selected" onclick="selectMani(this,'Stefany nava')">
+          <input type="radio" name="mani" value="Stefany nava" checked>
+          <div class="mani-avatar ma-any">★</div> Stefany nava
         </label>
-        <label class="mani-pill" onclick="selectMani(this,'Laura')">
+        <!--<label class="mani-pill" onclick="selectMani(this,'Laura')">
           <input type="radio" name="mani" value="Laura">
           <div class="mani-avatar ma-1">L</div> Laura
         </label>
@@ -68,7 +71,7 @@
         <label class="mani-pill" onclick="selectMani(this,'Daniela')">
           <input type="radio" name="mani" value="Daniela">
           <div class="mani-avatar ma-3">D</div> Daniela
-        </label>
+        </label>-->
       </div>
     </div>
 
@@ -127,7 +130,7 @@
 
     <div class="field">
       <label>Buscar cliente</label>
-      <input type="text" id="clienteSearch" placeholder="Nombre o tel�fono" oninput="debouncedBuscar(this.value)">
+      <input type="text" id="clienteSearch" placeholder="Nombre o tel�fono" oninput="debouncedBuscar(this.value)">
       <div class="client-search-results" id="clientSearchResults"></div>
       <div class="field-hint">Selecciona un cliente existente o ingresa sus datos para crear uno nuevo.</div>
     </div>

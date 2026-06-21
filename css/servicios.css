@@ -1,0 +1,25 @@
+.servicios-page {
+  display: flex;
+  gap: 20px;
+}
+
+.servicio-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.icon-results {
+  border: 1px solid #eee;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.icon-item {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.icon-item:hover {
+  background: #f3f3f3;
+}
