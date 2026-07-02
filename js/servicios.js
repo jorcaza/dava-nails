@@ -100,6 +100,11 @@ async function cargar() {
             <div class="svc-name">${s.nombre}</div>
             <div class="svc-time">${s.duracion} min</div>
             <div class="svc-price">$${Number(s.precio).toLocaleString("es-CO")}</div>
+            <div class="svc-actions">
+              <button class="btnDelete btn-secondary" type="button">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
             `;
 
       /* ? EDITAR */
@@ -118,17 +123,19 @@ async function cargar() {
       /* ? ELIMINAR */
       const btnDelete = div.querySelector(".btnDelete");
 
-      btnDelete.addEventListener("click", async (e) => {
+      if (btnDelete) {
+        btnDelete.addEventListener("click", async (e) => {
 
-        e.stopPropagation();
+          e.stopPropagation();
 
-        const ok = confirm("¿Eliminar servicio?");
-        if (!ok) return;
+          const ok = confirm("¿Eliminar servicio?");
+          if (!ok) return;
 
-        await deleteDoc(doc(db, "servicios", docu.id));
+          await deleteDoc(doc(db, "servicios", docu.id));
 
-        cargar();
-      });
+          cargar();
+        });
+      }
 
       list.appendChild(div);
     });
