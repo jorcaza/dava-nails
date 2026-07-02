@@ -245,6 +245,16 @@ body::before {
     font-size: 13px;
 }
 
+.prefill-info {
+    margin: 18px 0 12px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(58, 116, 212, 0.08);
+    border: 1px solid rgba(58, 116, 212, 0.18);
+    color: #1c3d72;
+    font-size: 0.95rem;
+}
+
 .step-label {
     font-size: 10px;
     font-weight: 600;

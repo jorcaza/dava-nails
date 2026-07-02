@@ -35,7 +35,8 @@ const booking = {
   hora: '',
   cliente: null,
   clienteRef: null,
-  editId: null
+  editId: null,
+  prefilledDateTime: false
 };
 
 let selectedCliente = null;
@@ -63,6 +64,7 @@ async function prefillFromQuery() {
           const horaRaw = fechaHora.toTimeString().slice(0,5);
           booking.fechaRaw = fechaIso;
           booking.hora = formatHora(horaRaw);
+          booking.prefilledDateTime = true;
           if (fechaInput) fechaInput.value = fechaIso;
         }
 
@@ -105,6 +107,10 @@ async function prefillFromQuery() {
     booking.hora = formatHora(hora);
   }
 
+  if (fecha && hora) {
+    booking.prefilledDateTime = true;
+  }
+
   if (booking.fechaRaw) {
     await renderSlots();
   }
@@ -119,9 +125,7 @@ async function prefillFromQuery() {
   highlightSelectedService();
   highlightSelectedManicurista();
 
-  if (booking.fechaRaw || booking.editId) {
-    goTo(2);
-  }
+  applyPrefilledDateTimeState();
 }
 
 function highlightSelectedService() {
@@ -148,6 +152,37 @@ function highlightSelectedManicurista() {
       if (input) input.checked = true;
     }
   });
+}
+
+function applyPrefilledDateTimeState() {
+  if (!booking.prefilledDateTime) return;
+
+  const panel2 = document.getElementById('panel2');
+  if (panel2) panel2.style.display = 'none';
+
+  const step2 = document.getElementById('s2');
+  if (step2) {
+    step2.classList.add('done');
+    step2.classList.remove('active');
+  }
+
+  const line1 = document.getElementById('line1');
+  if (line1) line1.classList.add('done');
+
+  const panel1 = document.getElementById('panel1');
+  if (panel1 && !document.getElementById('prefillInfoBox')) {
+    const infoBox = document.createElement('div');
+    infoBox.id = 'prefillInfoBox';
+    infoBox.className = 'prefill-info';
+    infoBox.textContent = `Fecha y hora predefinidas: ${booking.fechaRaw} · ${booking.hora}`;
+    panel1.insertBefore(infoBox, panel1.querySelector('.field'));
+  }
+
+  const btnContinue = document.getElementById('btnContinueService');
+  if (btnContinue) {
+    btnContinue.textContent = 'Siguiente: tus datos';
+    btnContinue.onclick = () => goTo(3);
+  }
 }
 
 window.debouncedBuscar = function(text) {
@@ -748,14 +783,25 @@ window.addEventListener('DOMContentLoaded', async () => {
 window.goTo = function(step) {
 
   // validaciones básicas
-  if (step === 2 && !booking.servicio) {
-    alert("Selecciona un servicio ?");
-    return;
+  if (step === 2) {
+    if (!booking.servicio) {
+      alert("Selecciona un servicio ?");
+      return;
+    }
+    if (booking.prefilledDateTime) {
+      step = 3;
+    }
   }
 
-  if (step === 3 && (!booking.fechaRaw || !booking.hora)) {
-    alert("Selecciona fecha y hora ?");
-    return;
+  if (step === 3) {
+    if (!booking.servicio) {
+      alert("Selecciona un servicio ?");
+      return;
+    }
+    if (!booking.fechaRaw || !booking.hora) {
+      alert("Selecciona fecha y hora ?");
+      return;
+    }
   }
 
   const successPanel = document.getElementById('successPanel');
