@@ -4,8 +4,9 @@ import {
   getDocs,
   query,
   where,
-  addDoc,           
-  serverTimestamp ,
+  orderBy,
+  addDoc,
+  serverTimestamp,
   doc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -49,21 +50,40 @@ window.debouncedBuscar = function(text) {
 
 /* ================= SERVICIOS DINÁMICOS ================= */
 async function cargarServicios() {
-
   const container = document.querySelector(".service-grid");
 
-  const snap = await getDocs(collection(db, "servicios"));
+  try {
+    const q = query(
+      collection(db, "servicios"),
+      orderBy("nombre")
+    );
 
-  container.innerHTML = "";
+    const snap = await getDocs(q);
+    container.innerHTML = "";
 
-  snap.forEach(doc => {
+    if (snap.empty) {
+      container.innerHTML = `<div class="empty-list">No hay servicios activos disponibles.</div>`;
+      return;
+    }
 
-    const s = doc.data();
-      if (!s.activo) return; // ? solo activos
+    const serviciosActivos = [];
 
+    snap.forEach(doc => {
+      const s = doc.data();
+      const activo = s.active ?? s.activo ?? false;
+      if (!activo) return;
+      serviciosActivos.push({ id: doc.id, ...s });
+    });
+
+    if (!serviciosActivos.length) {
+      container.innerHTML = `<div class="empty-list">No hay servicios activos disponibles.</div>`;
+      return;
+    }
+
+    serviciosActivos.forEach(s => {
       const html = `
         <label class="svc-card"
-          onclick="selectSvc(this,'${s.nombre}','${s.duracion} min','$${s.precio}','${doc.id}')">
+          onclick="selectSvc(this,'${s.nombre}','${s.duracion} min','$${s.precio}','${s.id}')">
 
           <input type="radio" name="servicio">
 
@@ -80,10 +100,12 @@ async function cargarServicios() {
         </label>
       `;
 
-
-    container.innerHTML += html;
-
-  });
+      container.innerHTML += html;
+    });
+  } catch (error) {
+    console.error("Error cargando servicios activos:", error);
+    container.innerHTML = `<div class="empty-list">No se pudieron cargar los servicios.</div>`;
+  }
 }
 
 /* ================= FUNCIONES GLOBALES ================= */

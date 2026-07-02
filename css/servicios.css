@@ -9,6 +9,27 @@
   cursor: pointer;
 }
 
+.field-search {
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+.field-search label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.field-search input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  color: #0f172a;
+}
+
 .icon-results {
   border: 1px solid #eee;
   max-height: 150px;
@@ -22,4 +43,121 @@
 
 .icon-item:hover {
   background: #f3f3f3;
+}
+
+.svc-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 18px;
+  padding: 18px;
+  background: #ffffff;
+  display: grid;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.svc-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
+}
+
+.svc-card.active {
+  border-color: #22c55e;
+}
+
+.svc-card.inactive {
+  border-color: #f87171;
+  opacity: 0.85;
+  background: #f8fafc;
+}
+
+.svc-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.svc-icon {
+  min-width: 48px;
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 1.2rem;
+}
+
+.svc-meta {
+  display: grid;
+  gap: 6px;
+}
+
+.svc-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.svc-status {
+  font-size: 0.92rem;
+  color: #64748b;
+}
+
+.svc-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  color: #334155;
+}
+
+.svc-detail {
+  font-size: 0.95rem;
+}
+
+.svc-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.svc-actions button {
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.svc-actions button:hover {
+  background: #f8fafc;
+}
+
+.btn-secondary {
+  border: 1px solid #94a3b8;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #f8fafc;
+  color: #0f172a;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.svc-card.inactive .svc-actions button {
+  border-color: #f87171;
+}
+
+.empty-list {
+  padding: 22px 18px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  text-align: center;
+  color: #475569;
+  background: #f8fafc;
 }

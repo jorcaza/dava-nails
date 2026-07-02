@@ -31,6 +31,12 @@
 
 <div class="form-card">
 
+  <!-- BUSCADOR DE SERVICIOS -->
+  <div class="field field-search">
+    <label>Buscar servicios</label>
+    <input id="servicioSearch" type="search" placeholder="Buscar por nombre...">
+  </div>
+
   <!-- LISTA (MISMO GRID QUE RESERVAS) -->
   <div class="service-grid" id="serviciosList"></div>
 
@@ -64,6 +70,9 @@
     <div class="btn-row">
       <button id="btnGuardar" class="btn-next">
         <i class="fa fa-save"></i> Guardar
+      </button>
+      <button id="btnNuevo" class="btn-secondary" type="button">
+        <i class="fa fa-plus"></i> Nuevo servicio
       </button>
     </div>
 
