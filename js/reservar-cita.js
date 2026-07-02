@@ -921,9 +921,13 @@ function mostrarSuccessScreen(data) {
     if (data.manicurista) parts.push(`?? Manicurista: ${data.manicurista}`);
     const header = `CONFIRMACIÓN DE CITA DAVANAILS`;
     const nombreLine = data.cliente ? `Hola ${data.cliente}` : '';
-    const body = [header, nombreLine, '', ...parts, '', 'Te esperamos ??'].filter(Boolean).join('\n');
-    const mensaje = encodeURIComponent(body);
-    waLink.href = `https://wa.me/57${data.celular}?text=${mensaje}`;
+    const body = [header, nombreLine, '', ...parts, '', 'Te esperamos ??'].filter(Boolean).join('\n').normalize('NFKC').trim();
+    const telefono = String(data.celular || '').replace(/\D/g, '');
+    if (body && telefono) {
+      waLink.href = `https://wa.me/57${telefono}?text=${encodeURIComponent(body)}`;
+    } else {
+      waLink.removeAttribute('href');
+    }
   }
 
   if (successPanel) {

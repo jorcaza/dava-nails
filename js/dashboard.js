@@ -296,6 +296,9 @@ function slotsFromCita(cita) {
 function crearEventoCalendario(cita) {
   const fecha = getFechaHora(cita);
   const horaLabel = fecha ? formatHourLabel(fecha) : "?";
+  const durMin = getDuracionMinutos(cita.duracion || '30');
+  const fechaFin = fecha ? new Date(fecha.getTime() + durMin * 60000) : null;
+  const horaFinLabel = fechaFin ? formatHourLabel(fechaFin) : "?";
   const servicio = cita.servicioNombre || "?";
   const manicurista = cita.manicuristaNombre || "?";
   const estado = cita.estado || "pendiente";
@@ -309,7 +312,7 @@ function crearEventoCalendario(cita) {
 
   const dataFecha = fecha ? formatDateReadable(fecha) : '';
   const dataHora = fecha ? formatTimeReadable(fecha) : '';
-  const bloques = Math.max(1, Math.ceil(getDuracionMinutos(cita.duracion || '30') / 30));
+  const bloques = Math.max(1, Math.ceil(durMin / 30));
 
   return `
     <article class="appointment-card status-${estado}" data-id="${escapeHtml(cita.id)}" data-fecha="${escapeHtml(dataFecha)}" data-hora="${escapeHtml(dataHora)}" data-duracion="${escapeHtml(String(cita.duracion || ''))}" style="--blocks:${bloques};" onclick="editarCitaDesdeCalendario('${escapeHtml(cita.id)}')">
@@ -322,7 +325,7 @@ function crearEventoCalendario(cita) {
       </div>
 
       <div class="appointment-meta">
-        <div class="meta-item"><i class="fa-regular fa-clock"></i><span>${escapeHtml(horaLabel)}</span></div>
+        <div class="meta-item"><i class="fa-regular fa-clock"></i><span>${escapeHtml(`${horaLabel} - ${horaFinLabel}`)}</span></div>
         <div class="meta-item"><i class="fa-solid fa-spa"></i><span>${escapeHtml(servicio)}</span></div>
         <div class="meta-item"><i class="fa-solid fa-user-check"></i><span>${escapeHtml(manicurista)}</span></div>
       </div>
@@ -460,14 +463,18 @@ async function cargarCitas() {
     let contenido = '';
 
     if (citasHora.length) {
-      // Render each cita: full card if starts in this hour, otherwise a continued block
-      contenido = citasHora.map(cita => {
-        if (cita._start >= hourStart && cita._start < hourEnd) {
-          return crearEventoCalendario(cita);
-        } else {
-          return `<div class="hour-continued" data-id="${escapeHtml(cita.id)}">Ocupa</div>`;
-        }
-      }).join("");
+      const citasInicio = citasHora.filter(cita => cita._start >= hourStart && cita._start < hourEnd);
+      if (citasInicio.length) {
+        contenido = citasInicio.map(crearEventoCalendario).join("");
+      } else {
+        contenido = citasHora.map(cita => {
+          const cliente = cita?.cliente || 'Cita';
+          const horaInicio = cita?._start ? formatHourLabel(cita._start) : '';
+          const horaFin = cita?._end ? formatHourLabel(cita._end) : '';
+          const rango = horaInicio && horaFin ? `${horaInicio} - ${horaFin}` : 'Ocupado';
+          return `<div class="hour-continued" data-id="${escapeHtml(cita?.id || '')}"><strong>${escapeHtml(cliente)}</strong><span>${escapeHtml(rango)}</span></div>`;
+        }).join("");
+      }
     } else {
       contenido = `<div class="hour-empty" onclick="irAReserva('${escapeHtml(selectedDateIso)}', '${hora}')">Espacio libre</div>`;
     }
@@ -584,113 +591,100 @@ window.cambiarEstado = async function(select, id) {
 };
 
 function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaParam, telefonoParam, fecha, tipoExplicit) {
-  let cliente, hora, tipo, servicio, manicurista, telefono;
+  let cliente = "";
+  let hora = "";
+  let tipo = "";
+  let servicio = "";
+  let manicurista = "";
+  let telefono = "";
+  let fechaTexto = "";
 
-  // ✅ 1. Origen datos
   if (typeof selectOrCliente === 'string') {
-    cliente = selectOrCliente.trim();
-    hora = (tipoOrHora || "").trim();
-    servicio = (servicioParam || "").trim();
-    manicurista = (manicuristaParam || "").trim();
-    telefono = telefonoParam || "";
-    tipo = tipoExplicit || "";
+    cliente = String(selectOrCliente || "").trim();
+    hora = String(tipoOrHora || "").trim();
+    servicio = String(servicioParam || "").trim();
+    manicurista = String(manicuristaParam || "").trim();
+    telefono = String(telefonoParam || "").trim();
+    tipo = String(tipoExplicit || "").trim();
+    fechaTexto = String(fecha || "").trim();
   } else {
-    const card = selectOrCliente.closest(".appointment-card");
-
+    const card = selectOrCliente?.closest?.('.appointment-card') || selectOrCliente;
     cliente = card?.querySelector('.appointment-client')?.textContent.trim() || "";
     telefono = card?.querySelector('.appointment-phone')?.textContent.trim() || "";
-    hora = card?.querySelector('.meta-item')?.textContent.trim() || "";
+    fechaTexto = card?.dataset?.fecha || "";
+    hora = card?.dataset?.hora || card?.querySelector('.meta-item')?.textContent.trim() || "";
     servicio = card?.querySelectorAll('.meta-item')[1]?.textContent.trim() || "";
     manicurista = card?.querySelectorAll('.meta-item')[2]?.textContent.trim() || "Sin preferencia";
 
-    let estadoReal = tipoOrHora;
-
+    const estadoReal = tipoOrHora;
     if (estadoReal === "pendiente") tipo = "confirmada";
     else if (estadoReal === "confirmada") tipo = "recordatorio";
     else tipo = estadoReal;
   }
 
-  // ✅ 2. Mensaje limpio
-  let mensaje = "";
-console.log('++++++++++++' + tipo);
+  const lines = [];
   if (tipo === "confirmada") {
-    const lines = [];
-    lines.push("CONFIRMACION DE CITA DAVANAILS");
+    lines.push("? CONFIRMACI�N DE CITA DAVANAILS");
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
     lines.push("Tu cita ha sido CONFIRMADA");
-    if (fecha) lines.push(`?? Fecha: ${fecha}`);
-    else if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.fecha) lines.push(`?? Fecha: ${selectOrCliente.dataset.fecha}`);
-    if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.hora) lines.push(`? Hora: ${selectOrCliente.dataset.hora}`);
-    else if (hora) lines.push(`? Hora: ${hora}`);
+    if (fechaTexto) lines.push(`?? Fecha: ${fechaTexto}`);
+    if (hora) lines.push(`? Hora: ${hora}`);
     if (servicio) lines.push(`?? Servicio: ${servicio}`);
-    if (manicurista) lines.push(`?? ${manicurista}`);
+    if (manicurista) lines.push(`?? Manicurista: ${manicurista}`);
     lines.push("");
     lines.push("Te esperamos ??");
-    mensaje = lines.join("\n");
-  }
-
-  if (tipo === "cancelada") {
-    mensaje = [
-      "CITA CANCELADA",
-      `Hola ${cliente}`,
-      "",
-      "Tu cita ha sido cancelada.",
-      "Si deseas reprogramar, contáctanos"
-    ].join("\n");
-  }
-
-  if (tipo === "reprogramada") {
-    const lines = [];
-    lines.push("CITA REPROGRAMADA");
+  } else if (tipo === "cancelada") {
+    lines.push("CITA CANCELADA");
+    if (cliente) lines.push(`Hola ${cliente}`);
+    lines.push("");
+    lines.push("Tu cita ha sido cancelada.");
+    lines.push("Si deseas reprogramar, cont�ctanos");
+  } else if (tipo === "reprogramada") {
+    lines.push("?? CITA REPROGRAMADA");
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
     lines.push("Tu cita ha sido REPROGRAMADA.");
-    if (fecha) lines.push(`?? Fecha: ${fecha}`);
-    else if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.fecha) lines.push(`?? Fecha: ${selectOrCliente.dataset.fecha}`);
-    if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.hora) lines.push(`? Hora: ${selectOrCliente.dataset.hora}`);
-    else if (hora) lines.push(`? Hora: ${hora}`);
+    if (fechaTexto) lines.push(`?? Fecha: ${fechaTexto}`);
+    if (hora) lines.push(`? Hora: ${hora}`);
     if (servicio) lines.push(`?? Servicio: ${servicio}`);
-    if (manicurista) lines.push(`?? ${manicurista}`);
+    if (manicurista) lines.push(`?? Manicurista: ${manicurista}`);
     lines.push("");
     lines.push("Por favor confirma si este horario te funciona");
-    mensaje = lines.join("\n");
+  } else if (tipo === "recordatorio") {
+    lines.push("?? RECORDATORIO DE CITA DAVANAILS");
+    if (cliente) lines.push(`Hola ${cliente}`);
+    lines.push("");
+    lines.push("Te recordamos tu cita programada:");
+    if (fechaTexto) lines.push(`?? Fecha: ${fechaTexto}`);
+    if (hora) lines.push(`? Hora: ${hora}`);
+    if (servicio) lines.push(`?? Servicio: ${servicio}`);
+    if (manicurista) lines.push(`?? Manicurista: ${manicurista}`);
+    lines.push("");
+    lines.push("�Te esperamos! ??");
   }
 
-  if (tipo === "recordatorio") {
-  const lines = [];
-  lines.push("?? RECORDATORIO DE CITA DAVANAILS");
-  if (cliente) lines.push(`Hola ${cliente}`);
-  lines.push("");
-  lines.push("Te recordamos tu cita programada:");
-  if (fecha) lines.push(`?? Fecha: ${fecha}`);
-  else if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.fecha) lines.push(`?? Fecha: ${selectOrCliente.dataset.fecha}`);
-  if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.hora) lines.push(`? Hora: ${selectOrCliente.dataset.hora}`);
-  else if (hora) lines.push(`? Hora: ${hora}`);
-  if (servicio) lines.push(`?? Servicio: ${servicio}`);
-  if (manicurista) lines.push(`?? ${manicurista}`);
-  lines.push("");
-  lines.push("�Te esperamos! ??");
-  mensaje = lines.join("\n");
-}
+  const mensaje = lines.join("\n").normalize("NFKC").replace(/\uFE0F/g, "").trim();
 
+  if (!mensaje) {
+    console.warn("No se pudo construir el mensaje de WhatsApp.");
+    return;
+  }
 
-  // ✅ ✅ 🔥 CLAVE: limpiar caracteres problemáticos
-  mensaje = mensaje
-    .normalize("NFKC")           // normaliza unicode
-    .replace(/\uFE0F/g, "")      // elimina emojis conflictivos
-    .replace(/[^\x20-\x7E\n]/g, "") // opcional: elimina caracteres raros
-    .trim(); 
-
-  // ✅ limpiar teléfono
   const telefonoLimpio = String(telefono).replace(/\D/g, "");
+  if (!telefonoLimpio) {
+    console.warn("No hay tel�fono para abrir WhatsApp.");
+    return;
+  }
 
-  // ✅ encode UNA sola vez
-const url = `https://api.whatsapp.com/send?phone=57${telefonoLimpio}&text=${encodeURIComponent(mensaje)}`;
-
+  const url = `https://wa.me/57${telefonoLimpio}?text=${encodeURIComponent(mensaje)}`;
   console.log("WA URL:", url);
 
-  window.open(url, "_blank");
+  try {
+    window.open(url, "_blank", "noopener,noreferrer");
+  } catch (error) {
+    window.location.href = url;
+  }
 }
 function mostrarToast(msg, tipo = "ok") {
 
@@ -1021,9 +1015,15 @@ async function obtenerHorasOcupadas(fechaSeleccionada) {
 
     if (data.fechaHora) {
       const fecha = data.fechaHora.toDate();
+      const durMin = getDuracionMinutos(data.duracion || '30');
+      const fin = new Date(fecha.getTime() + durMin * 60000);
+      let cursor = new Date(fecha);
 
-      const hora = fecha.toTimeString().slice(0,5); // "HH:MM"
-      ocupadas.push(hora);
+      while (cursor < fin) {
+        const hora = `${String(cursor.getHours()).padStart(2, "0")}:${String(cursor.getMinutes()).padStart(2, "0")}`;
+        ocupadas.push(hora);
+        cursor = new Date(cursor.getTime() + 30 * 60000);
+      }
     }
   });
 

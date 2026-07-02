@@ -2018,6 +2018,9 @@ white-space: nowrap;
   gap: 12px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  min-height: calc(var(--blocks, 1) * 56px);
+  grid-column: 1 / -1;
 }
 
 .appointment-card:hover {
@@ -2040,14 +2043,31 @@ white-space: nowrap;
 }
 
 .hour-continued {
-  background: rgba(58,116,212,0.06);
+  background: rgba(58,116,212,0.08);
   border-radius: 12px;
   padding: 10px;
   color: #1c3d72;
   min-height: 48px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
   font-size: 0.9rem;
+  border: 1px dashed rgba(58,116,212,0.24);
+}
+
+.hour-continued strong {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.hour-continued span {
+  font-size: 0.8rem;
+  color: #4b5f7a;
+}
+
+.appointment-card[data-duracion] {
+  border-left: 4px solid rgba(58,116,212,0.18);
 }
 
 .appointment-top {
