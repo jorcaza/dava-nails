@@ -159,11 +159,9 @@ function onFilterDateChange() {
 function applyDateFilter(){
   const fd = document.getElementById('filterDate');
   const dateStr = fd ? fd.value : null;
-  let d = dateStr ? parseDateInput(dateStr) : new Date();
+  const d = dateStr ? parseDateInput(dateStr) : new Date();
   filterStart = startOfDay(d);
-  const tomo = new Date(d);
-  tomo.setDate(tomo.getDate()+1);
-  filterEnd = endOfDay(tomo);
+  filterEnd = endOfDay(d);
 }
 
 function setEstadoFilter(estado){
@@ -194,12 +192,9 @@ function resetFilter(){
 }
 
 function formatRangeLabel(date) {
-  const opts = { day: '2-digit', month: 'short' };
-  const d1 = date.toLocaleDateString('es-CO', opts);
-  const next = new Date(date);
-  next.setDate(next.getDate()+1);
-  const d2 = next.toLocaleDateString('es-CO', opts);
-  return `Mostrando: ${d1} - ${d2}`;
+  const opts = { weekday: 'long', day: '2-digit', month: 'long' };
+  const label = date.toLocaleDateString('es-CO', opts);
+  return `Mostrando: ${label.charAt(0).toUpperCase()}${label.slice(1)}`;
 }
 
 function updateRangeLabel(){
@@ -248,143 +243,82 @@ window.actualizarKpis = async function(){
 
 
 
-function crearFila(cita) {
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
-const fecha = cita.fechaHora.toDate();
+function getFechaHora(cita) {
+  if (!cita.fechaHora) return null;
+  if (typeof cita.fechaHora.toDate === "function") return cita.fechaHora.toDate();
+  return new Date(cita.fechaHora);
+}
 
-cita.fecha = fecha.toLocaleDateString("es-CO", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric"
-});
+function formatHourLabel(fecha) {
+  return fecha.toLocaleTimeString("es-CO", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
 
-
-cita.hora = fecha.toLocaleTimeString("es-CO", {
-  hour: "2-digit",
-  minute: "2-digit"
-});
-
-
-//formulario html
+function crearEventoCalendario(cita) {
+  const fecha = getFechaHora(cita);
+  const horaLabel = fecha ? formatHourLabel(fecha) : "?";
+  const servicio = cita.servicioNombre || "?";
+  const manicurista = cita.manicuristaNombre || "?";
+  const estado = cita.estado || "pendiente";
+  const estadoLabel = {
+    pendiente: "Pendiente",
+    confirmada: "Confirmada",
+    completada: "Completada",
+    cancelada: "Cancelada",
+    reprogramada: "Reprogramada"
+  }[estado] || estado;
 
   return `
-    <div class="t-row" data-id="${cita.id}">
-
-      <div class="col" data-label="Cliente">
-        <strong>${cita.cliente} - <small>${cita.telefono}</small></strong>
-     
+    <article class="appointment-card status-${estado}" data-id="${escapeHtml(cita.id)}">
+      <div class="appointment-top">
+        <div>
+          <div class="appointment-client">${escapeHtml(cita.cliente || "Cliente")}</div>
+          <div class="appointment-phone">${escapeHtml(cita.telefono || "")}</div>
+        </div>
+        <span class="status-pill status-${estado}">${escapeHtml(estadoLabel)}</span>
       </div>
 
-      <div class="col" data-label="Hora">
-        ${cita.fecha} - ${cita.hora}
+      <div class="appointment-meta">
+        <div class="meta-item"><i class="fa-regular fa-clock"></i><span>${escapeHtml(horaLabel)}</span></div>
+        <div class="meta-item"><i class="fa-solid fa-spa"></i><span>${escapeHtml(servicio)}</span></div>
+        <div class="meta-item"><i class="fa-solid fa-user-check"></i><span>${escapeHtml(manicurista)}</span></div>
       </div>
 
-      <div class="col" data-label="Servicio">
-        ${cita.servicioNombre || "—"}
-      </div>
-
-      <div class="col" data-label="Manicurista">
-        ${cita.manicuristaNombre || "—"}
-      </div>
-
-
-      <div class="col estado" data-label="Estado">
-
-        <select class="estado-select estado-${cita.estado}" data-estado-anterior="${cita.estado}"
-          onchange="cambiarEstado(this, '${cita.id}')">
-
-          <option value="pendiente" ${cita.estado === "pendiente" ? "selected" : ""}>
-            Pendiente
-          </option>
-
-          <option value="confirmada" ${cita.estado === "confirmada" ? "selected" : ""}>
-            Confirmada
-          </option>
-
-          <option value="completada" ${cita.estado === "completada" ? "selected" : ""}>
-            Completada
-          </option>
-
-          <option value="cancelada" ${cita.estado === "cancelada" ? "selected" : ""}>
-            Cancelada
-          </option>
-
-          option value="reprogramada" ${cita.estado === "reprogramada" ? "selected" : ""}>
-            reprogramada
-          </option>
-
+      <div class="appointment-actions">
+        <select class="estado-select estado-${estado}" data-estado-anterior="${escapeHtml(estado)}" onchange="cambiarEstado(this, '${escapeHtml(cita.id)}')">
+          <option value="pendiente" ${estado === "pendiente" ? "selected" : ""}>Pendiente</option>
+          <option value="confirmada" ${estado === "confirmada" ? "selected" : ""}>Confirmada</option>
+          <option value="completada" ${estado === "completada" ? "selected" : ""}>Completada</option>
+          <option value="cancelada" ${estado === "cancelada" ? "selected" : ""}>Cancelada</option>
+          <option value="reprogramada" ${estado === "reprogramada" ? "selected" : ""}>Reprogramada</option>
         </select>
 
-      </div>
-
-        <div class="col" data-label="Acción">
-
-          <div class="acciones">
-
-            <!-- WhatsApp -->
-            <a class="btn-accion btn-wa" title="Enviar WhatsApp"
-              onclick="accionWhatsApp(this)">
-              <i class="fab fa-whatsapp"></i>
-            </a>
-
-            <!-- Editar -->
-            <a class="btn-accion btn-edit" title="Reprogramar cita"
-              onclick="editarDesdeMenu(this)">
-              <i class="fa-solid fa-clock"></i>
-            </a>
-
-            <!-- Cancelar -->
-            <a class="btn-accion btn-cancel"
-              onclick="cancelarDesdeMenu(this)">
-              <i class="fa fa-ban"></i>
-            </a>
-
-          </div>
-
+        <div class="acciones">
+          <a class="icon-btn btn-wa" title="Enviar WhatsApp" onclick="accionWhatsApp(this)"><i class="fab fa-whatsapp"></i></a>
+          <a class="icon-btn btn-edit" title="Reprogramar cita" onclick="editarDesdeMenu(this)"><i class="fa-solid fa-clock"></i></a>
+          <a class="icon-btn btn-cancel" title="Cancelar cita" onclick="cancelarDesdeMenu(this)"><i class="fa fa-ban"></i></a>
         </div>
-
-    </div>
-  <div id="modalEditar" class="modal">
-
-    <div class="modal-content">
-
-      <h3>Reprogramar cita</h3>
-
-      <label>Fecha:</label>
-      
-      <input type="date" id="editFecha" oninput="onChangeFecha()">
-
-      <label>Hora:</label>
-      <select id="editHora" onchange="validarFormulario()">
-        <option value="">Selecciona hora</option>
-      </select>
-
-      <div class="modal-actions">
-        
-        <button id="btnGuardar"
-                class="btn-primary"
-                onclick="guardarReprogramacion(this)"
-                disabled>
-          Guardar
-        </button>
-
-        <button class="btn-secondary"
-                onclick="cerrarModal()">
-          Cancelar
-        </button>
-
       </div>
-
-    </div>
-
-</div>
+    </article>
   `;
 }
 
-
+function crearFila(cita) {
+  return crearEventoCalendario(cita);
+}
 
 async function cargarCitas() {
-  // build time-filtered query
   if (!filterStart || !filterEnd) applyDateFilter();
 
   const q = query(
@@ -396,24 +330,23 @@ async function cargarCitas() {
 
   const snap = await getDocs(q);
   const container = document.getElementById("citasContainer");
-  container.innerHTML = "";
+  const calendarTitle = document.getElementById("calendarTitle");
+  const calendarSummary = document.getElementById("calendarSummary");
+  const citasProcesadas = [];
 
   for (const docu of snap.docs) {
     let cita = docu.data();
     cita.id = docu.id;
     cita.estado = cita.estado || "pendiente";
 
-    // filter by status if needed
     if (statusFilter && statusFilter !== 'all' && cita.estado !== statusFilter) continue;
 
-    // filter by searchQuery if present
     if (searchQuery) {
       const cliente = String(cita.cliente || "").toLowerCase();
       const telefono = String(cita.telefono || "").toLowerCase();
       if (!cliente.includes(searchQuery) && !telefono.includes(searchQuery)) continue;
     }
 
-    // resolve servicio name
     if (cita.servicio) {
       try {
         if (typeof cita.servicio === "object") {
@@ -422,23 +355,63 @@ async function cargarCitas() {
         } else {
           cita.servicioNombre = cita.servicio;
         }
-      } catch(e){
+      } catch (e) {
         console.warn("Error cargando servicio:", e);
-        cita.servicioNombre = cita.servicioNombre || "—";
+        cita.servicioNombre = cita.servicioNombre || "?";
       }
     }
 
     if (cita.manicurista) {
-      try{
+      try {
         const maniSnap = await getDoc(cita.manicurista);
         cita.manicuristaNombre = maniSnap.data().nombre;
-      }catch(e){
+      } catch (e) {
         console.warn('Error cargando manicurista', e);
       }
     }
 
-    container.innerHTML += crearFila(cita);
+    citasProcesadas.push(cita);
   }
+
+  const selectedDate = filterStart ? new Date(filterStart) : new Date();
+  const today = new Date();
+  const isToday = selectedDate.toDateString() === today.toDateString();
+  const currentHour = today.getHours();
+
+  if (calendarTitle) {
+    const titleLabel = selectedDate.toLocaleDateString("es-CO", { weekday: "long", day: "2-digit", month: "long" });
+    calendarTitle.textContent = titleLabel.charAt(0).toUpperCase() + titleLabel.slice(1);
+  }
+
+  if (calendarSummary) {
+    calendarSummary.textContent = `${citasProcesadas.length} cita${citasProcesadas.length === 1 ? "" : "s"}`;
+  }
+
+  const horas = [];
+  for (let h = 8; h <= 20; h++) {
+    horas.push(String(h).padStart(2, "0") + ":00");
+  }
+
+  container.innerHTML = horas.map(hora => {
+    const [horaNum] = hora.split(":").map(Number);
+    const citasHora = citasProcesadas.filter(cita => {
+      const fecha = getFechaHora(cita);
+      return fecha && fecha.getHours() === horaNum;
+    });
+
+    const contenido = citasHora.length
+      ? citasHora.map(crearEventoCalendario).join("")
+      : '<div class="hour-empty">Espacio libre</div>';
+
+    const isCurrentHour = isToday && currentHour === horaNum;
+
+    return `
+      <div class="hour-row ${isCurrentHour ? "current-hour" : ""}">
+        <div class="hour-label"><span>${hora}</span></div>
+        <div class="hour-column">${contenido}</div>
+      </div>
+    `;
+  }).join("");
 }
 
 
@@ -466,6 +439,26 @@ window.cambiarEstado = async function(select, id) {
 
     // ✅ actualizar color
     select.className = "estado-select estado-" + nuevoEstado;
+
+    const card = select.closest(".appointment-card");
+    if (card) {
+      card.className = card.className.replace(/\bstatus-[^\s]+/g, "").trim();
+      card.classList.add("status-" + nuevoEstado);
+
+      const pill = card.querySelector(".status-pill");
+      if (pill) {
+        pill.className = pill.className.replace(/\bstatus-[^\s]+/g, "").trim();
+        pill.classList.add("status-" + nuevoEstado);
+        const labels = {
+          pendiente: "Pendiente",
+          confirmada: "Confirmada",
+          completada: "Completada",
+          cancelada: "Cancelada",
+          reprogramada: "Reprogramada"
+        };
+        pill.textContent = labels[nuevoEstado] || nuevoEstado;
+      }
+    }
 
     // ✅ REGLAS DE ENVÍO 🔥
 
@@ -507,21 +500,20 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
     telefono = telefonoParam || "";
     tipo = tipoExplicit || "";
   } else {
-    const row = selectOrCliente.closest(".t-row");
+    const card = selectOrCliente.closest(".appointment-card");
 
-    cliente = row.querySelector('[data-label="Cliente"] strong')?.textContent.trim() || "";
-    telefono = row.querySelector('[data-label="Cliente"] small')?.textContent.trim() || "";
-    hora = row.querySelector('[data-label="Hora"]')?.textContent.trim() || "";
-    servicio = row.querySelector('[data-label="Servicio"]')?.textContent.trim() || "";
-    manicurista = row.querySelector('[data-label="Manicurista"]')?.textContent.trim() || "Sin preferencia";
+    cliente = card?.querySelector('.appointment-client')?.textContent.trim() || "";
+    telefono = card?.querySelector('.appointment-phone')?.textContent.trim() || "";
+    hora = card?.querySelector('.meta-item')?.textContent.trim() || "";
+    servicio = card?.querySelectorAll('.meta-item')[1]?.textContent.trim() || "";
+    manicurista = card?.querySelectorAll('.meta-item')[2]?.textContent.trim() || "Sin preferencia";
 
     let estadoReal = tipoOrHora;
 
-    // ✅ lógica de negocio
     if (estadoReal === "pendiente") tipo = "confirmada";
-      else if (estadoReal === "confirmada") tipo = "recordatorio";
-      else tipo = estadoReal;
-    s}
+    else if (estadoReal === "confirmada") tipo = "recordatorio";
+    else tipo = estadoReal;
+  }
 
   // ✅ 2. Mensaje limpio
   let mensaje = "";
@@ -741,38 +733,33 @@ document.addEventListener("click", function(e) {
 
 
 window.accionWhatsApp = function(el) {
+  const card = el.closest(".appointment-card");
+  const cliente = card?.querySelector('.appointment-client')?.innerText || "";
+  const telefono = card?.querySelector('.appointment-phone')?.innerText || "";
+  const hora = card?.querySelectorAll('.meta-item')[0]?.innerText || "";
+  const servicio = card?.querySelectorAll('.meta-item')[1]?.innerText || "";
+  const estado = card?.querySelector("select")?.value || "pendiente";
 
-  const row = el.closest(".t-row");
-
-  const cliente = row.querySelector('[data-label="Cliente"] strong').innerText;
-  const telefono = row.querySelector('[data-label="Cliente"] small').innerText;
-  const hora = row.querySelector('[data-label="Hora"]').innerText;
-  const servicio = row.querySelector('[data-label="Servicio"]').innerText;
-
-  // ✅ obtener estado real del select
-  const estado = row.querySelector("select").value;
-
-  enviarWhatsApp(cliente, hora, servicio, "", telefono, "", estado); // ✅ dinámico
+  enviarWhatsApp(cliente, hora, servicio, "", telefono, "", estado);
 };
 
 
 window.editarDesdeMenu = function (el) {
+  const card = el.closest(".appointment-card");
+  const id = card?.dataset.id;
 
-  const row = el.closest(".t-row");
-  const id = row.dataset.id;
-
-  abrirModal(id); // ya lo tienes ✅
-}
+  if (id) abrirModal(id);
+};
 
 window.cancelarDesdeMenu = function(el) {
+  const card = el.closest(".appointment-card");
+  const select = card?.querySelector("select");
 
-  const row = el.closest(".t-row");
-  const select = row.querySelector("select");
-
-  select.value = "cancelada";
-
-  cambiarEstado(select, row.dataset.id);
-}
+  if (select && card?.dataset.id) {
+    select.value = "cancelada";
+    cambiarEstado(select, card.dataset.id);
+  }
+};
 
 function preguntarEnvioWhatsApp(select, estado) {
 
@@ -806,23 +793,19 @@ function preguntarEnvioWhatsApp(select, estado) {
 }
 
 function obtenerCliente(select) {
-  return select.closest(".t-row")
-    .querySelector('[data-label="Cliente"] strong').innerText;
+  return select.closest(".appointment-card")?.querySelector('.appointment-client').innerText || "";
 }
 
 function obtenerTelefono(select) {
-  return select.closest(".t-row")
-    .querySelector('[data-label="Cliente"] small').innerText;
+  return select.closest(".appointment-card")?.querySelector('.appointment-phone').innerText || "";
 }
 
 function obtenerHora(select) {
-  return select.closest(".t-row")
-    .querySelector('[data-label="Hora"]').innerText;
+  return select.closest(".appointment-card")?.querySelectorAll('.meta-item')[0]?.innerText || "";
 }
 
 function obtenerServicio(select) {
-  return select.closest(".t-row")
-    .querySelector('[data-label="Servicio"]').innerText;
+  return select.closest(".appointment-card")?.querySelectorAll('.meta-item')[1]?.innerText || "";
 }
 
 //menú flotante

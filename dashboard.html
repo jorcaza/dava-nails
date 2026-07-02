@@ -123,25 +123,29 @@
     </div>
   </div>
 
-  <!-- TABLA -->
+  <!-- CALENDARIO DIARIO -->
   <div class="table-wrap">
     <div class="table-card">
       <div class="table-card-header">
-        <h2>Lista de citas</h2>
-          <div class="search-bar"><i class="fa fa-search"></i> <input id="searchCitas" placeholder="Buscar cliente o teléfono" style="border:none;outline:none;background:transparent;width:220px;" /></div>
+        <div>
+          <h2>Agenda diaria</h2>
+          <p class="calendar-subtitle">Citas organizadas por hora para el d�a seleccionado</p>
+        </div>
+        <div class="search-bar"><i class="fa fa-search"></i> <input id="searchCitas" placeholder="Buscar cliente o tel�fono" style="border:none;outline:none;background:transparent;width:220px;" /></div>
       </div>
 
-      <div class="t-head">
-        <span>Cliente</span>
-        <span>Hora</span>
-        <span>Servicio</span>
-        <span>Manicurista</span>
-        <span>Estado</span>
-        <span>Acción</span>
-      </div>
+      <div class="calendar-shell">
+        <div class="calendar-header">
+          <div>
+            <div class="calendar-eyebrow">Hoy</div>
+            <div class="calendar-title" id="calendarTitle">Agenda del d�a</div>
+          </div>
+          <div class="calendar-badge" id="calendarSummary">0 citas</div>
+        </div>
 
-      <div class="table-body-wrap">
-        <div class="table-body" id="citasContainer"></div>
+        <div class="calendar-scroll">
+          <div class="timeline" id="citasContainer"></div>
+        </div>
       </div>
 
 <!--
@@ -235,10 +239,25 @@ code anterior
       </div>
     -->
 
-    <div class="table-body" id="citasContainer"></div>
+    </div>
+  </div>
+</div>
 
+<div id="modalEditar" class="modal">
+  <div class="modal-content">
+    <h3>Reprogramar cita</h3>
 
+    <label>Fecha:</label>
+    <input type="date" id="editFecha" oninput="onChangeFecha()">
 
+    <label>Hora:</label>
+    <select id="editHora" onchange="validarFormulario()">
+      <option value="">Selecciona hora</option>
+    </select>
+
+    <div class="modal-actions">
+      <button id="btnGuardar" class="btn-primary" onclick="guardarReprogramacion(this)" disabled>Guardar</button>
+      <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -246,32 +265,6 @@ code anterior
 <script type="module" src="js/auth-guard.js"></script>
 <script type="module" src="js/dashboard.js"></script>
 <script src="js/version.js"> </script>
-
-
-<script>
-function enviarWhatsApp(cliente, hora, servicio, manicurista, telefono,fecha) {
-
-  const mensaje =
-`CONFIRMACIÓN DE CITA DAVANAILS
-
-Hola ${cliente}
-
-⏰ Hora: ${hora}
-📅 Fecha  : ${fecha}
-Servicio: ${servicio}
-Manicurista: ${manicurista}
-
-✅ Por favor responde:
-CONFIRMO
-CANCELO`;
-
-  const url =
-    `https://api.whatsapp.com/send?phone=57${telefono}&text=${encodeURIComponent(mensaje)}`;
-console.log(url); // aquí sí existe
-  window.open(url, "_blank");
-}
-</script>
-
 
 
 
