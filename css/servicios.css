@@ -145,8 +145,28 @@
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #94a3b8;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #f8fafc;
+  color: #0f172a;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
 .btn-secondary:hover {
   background: #e2e8f0;
+}
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .svc-card.inactive .svc-actions button {

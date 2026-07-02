@@ -159,8 +159,8 @@ function renderServicioCard(servicio) {
       </div>
 
       <div class="svc-actions">
-        <button type="button" class="btnEdit">Editar</button>
-        <button type="button" class="btnToggle">${actionLabel}</button>
+        <button type="button" class="btnEdit" data-service-id="${escapeHtml(servicio.id)}">Editar</button>
+        <button type="button" class="btnToggle" data-service-id="${escapeHtml(servicio.id)}">${actionLabel}</button>
       </div>
     </article>
   `;
@@ -168,17 +168,25 @@ function renderServicioCard(servicio) {
 
 function attachCardEvents() {
   list.querySelectorAll(".svc-card").forEach(card => {
-    const servicioId = card.dataset.id;
+    const servicioId = card.getAttribute("data-id");
     const servicio = serviciosCache.find(item => item.id === servicioId);
     const editBtn = card.querySelector(".btnEdit");
     const toggleBtn = card.querySelector(".btnToggle");
 
     if (editBtn) {
-      editBtn.addEventListener("click", () => cargarParaEditar(servicio));
+      editBtn.addEventListener("click", event => {
+        event.stopPropagation();
+        if (!servicio) return;
+        cargarParaEditar(servicio);
+      });
     }
 
     if (toggleBtn) {
-      toggleBtn.addEventListener("click", () => cambiarEstado(servicio));
+      toggleBtn.addEventListener("click", event => {
+        event.stopPropagation();
+        if (!servicio) return;
+        cambiarEstado(servicio);
+      });
     }
   });
 }
@@ -303,18 +311,16 @@ list.addEventListener("click", event => {
   const toggleButton = event.target.closest(".btnToggle");
 
   if (editButton) {
-    const card = editButton.closest(".svc-card");
-    const servicioId = card?.dataset.id;
+    const servicioId = editButton.dataset.serviceId;
     const servicio = serviciosCache.find(item => item.id === servicioId);
-    cargarParaEditar(servicio);
+    if (servicio) cargarParaEditar(servicio);
     return;
   }
 
   if (toggleButton) {
-    const card = toggleButton.closest(".svc-card");
-    const servicioId = card?.dataset.id;
+    const servicioId = toggleButton.dataset.serviceId;
     const servicio = serviciosCache.find(item => item.id === servicioId);
-    cambiarEstado(servicio);
+    if (servicio) cambiarEstado(servicio);
   }
 });
 
