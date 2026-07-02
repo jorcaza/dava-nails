@@ -166,31 +166,6 @@ function renderServicioCard(servicio) {
   `;
 }
 
-function attachCardEvents() {
-  list.querySelectorAll(".svc-card").forEach(card => {
-    const servicioId = card.getAttribute("data-id");
-    const servicio = serviciosCache.find(item => item.id === servicioId);
-    const editBtn = card.querySelector(".btnEdit");
-    const toggleBtn = card.querySelector(".btnToggle");
-
-    if (editBtn) {
-      editBtn.addEventListener("click", event => {
-        event.stopPropagation();
-        if (!servicio) return;
-        cargarParaEditar(servicio);
-      });
-    }
-
-    if (toggleBtn) {
-      toggleBtn.addEventListener("click", event => {
-        event.stopPropagation();
-        if (!servicio) return;
-        cambiarEstado(servicio);
-      });
-    }
-  });
-}
-
 function renderServicios() {
   const filtro = getFilterText();
   const serviciosFiltrados = serviciosCache.filter(servicio =>
@@ -205,7 +180,6 @@ function renderServicios() {
   }
 
   list.innerHTML = serviciosFiltrados.map(renderServicioCard).join("");
-  attachCardEvents();
 }
 
 /* ================= FIRESTORE ================= */
@@ -282,6 +256,24 @@ function cargarParaEditar(servicio) {
   nombre.focus();
 }
 
+window.editarServicio = function(id) {
+  const servicio = serviciosCache.find(item => item.id === id);
+  if (servicio) {
+    cargarParaEditar(servicio);
+  }
+};
+
+window.cambiarEstadoServicio = async function(id) {
+  const servicio = serviciosCache.find(item => item.id === id);
+  if (servicio) {
+    await cambiarEstado(servicio);
+  }
+};
+
+window.nuevoServicio = function() {
+  limpiar();
+};
+
 function limpiar() {
   editId = null;
   nombre.value = "";
@@ -301,26 +293,34 @@ btnGuardar.addEventListener("click", async event => {
 
 btnNuevo?.addEventListener("click", event => {
   event.preventDefault();
-  limpiar();
+  window.nuevoServicio();
 });
 
 servicioSearch?.addEventListener("input", debounce(renderServicios, 200));
 
-list.addEventListener("click", event => {
+list?.addEventListener("click", async event => {
   const editButton = event.target.closest(".btnEdit");
   const toggleButton = event.target.closest(".btnToggle");
 
   if (editButton) {
-    const servicioId = editButton.dataset.serviceId;
+    event.preventDefault();
+    event.stopPropagation();
+    const servicioId = editButton.getAttribute("data-service-id");
     const servicio = serviciosCache.find(item => item.id === servicioId);
-    if (servicio) cargarParaEditar(servicio);
+    if (servicio) {
+      cargarParaEditar(servicio);
+    }
     return;
   }
 
   if (toggleButton) {
-    const servicioId = toggleButton.dataset.serviceId;
+    event.preventDefault();
+    event.stopPropagation();
+    const servicioId = toggleButton.getAttribute("data-service-id");
     const servicio = serviciosCache.find(item => item.id === servicioId);
-    if (servicio) cambiarEstado(servicio);
+    if (servicio) {
+      await cambiarEstado(servicio);
+    }
   }
 });
 
