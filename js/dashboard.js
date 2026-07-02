@@ -261,6 +261,37 @@ function formatHourLabel(fecha) {
     minute: "2-digit"
   });
 }
+function formatDateReadable(date) {
+  return date.toLocaleDateString('es-ES');
+}
+
+function formatTimeReadable(date) {
+  return date.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' });
+}
+
+function getDuracionMinutos(str) {
+  if (!str) return 30;
+  return parseInt(String(str).replace(/[^0-9]/g, '')) || 30;
+}
+
+function slotsFromCita(cita) {
+  const slots = [];
+  const fecha = getFechaHora(cita);
+  if (!fecha) return slots;
+  const minutos = getDuracionMinutos(cita.duracion || cita.duracionMin || cita.duracionM || '') ;
+  const bloques = Math.ceil(minutos / 30);
+
+  let h = fecha.getHours();
+  let m = fecha.getMinutes();
+
+  for (let i = 0; i < bloques; i++) {
+    slots.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+    m += 30;
+    if (m >= 60) { m = 0; h++; }
+  }
+
+  return slots;
+}
 
 function crearEventoCalendario(cita) {
   const fecha = getFechaHora(cita);
@@ -276,8 +307,12 @@ function crearEventoCalendario(cita) {
     reprogramada: "Reprogramada"
   }[estado] || estado;
 
+  const dataFecha = fecha ? formatDateReadable(fecha) : '';
+  const dataHora = fecha ? formatTimeReadable(fecha) : '';
+  const bloques = Math.max(1, Math.ceil(getDuracionMinutos(cita.duracion || '30') / 30));
+
   return `
-    <article class="appointment-card status-${estado}" data-id="${escapeHtml(cita.id)}" onclick="editarCitaDesdeCalendario('${escapeHtml(cita.id)}')">
+    <article class="appointment-card status-${estado}" data-id="${escapeHtml(cita.id)}" data-fecha="${escapeHtml(dataFecha)}" data-hora="${escapeHtml(dataHora)}" data-duracion="${escapeHtml(String(cita.duracion || ''))}" style="--blocks:${bloques};" onclick="editarCitaDesdeCalendario('${escapeHtml(cita.id)}')">
       <div class="appointment-top">
         <div>
           <div class="appointment-client">${escapeHtml(cita.cliente || "Cliente")}</div>
@@ -348,7 +383,11 @@ async function cargarCitas() {
       try {
         if (typeof cita.servicio === "object") {
           const servicioSnap = await getDoc(cita.servicio);
-          if (servicioSnap.exists()) cita.servicioNombre = servicioSnap.data().nombre;
+          if (servicioSnap.exists()) {
+            const sdata = servicioSnap.data();
+            cita.servicioNombre = sdata.nombre;
+            if (sdata.duracion) cita.duracion = sdata.duracion;
+          }
         } else {
           cita.servicioNombre = cita.servicio;
         }
@@ -365,6 +404,20 @@ async function cargarCitas() {
       } catch (e) {
         console.warn('Error cargando manicurista', e);
       }
+    }
+
+    // calcular inicio, fin y slots ocupados por duracion
+    try {
+      const inicio = getFechaHora(cita);
+      cita._start = inicio;
+      const durMin = getDuracionMinutos(cita.duracion || cita.duracionMin || cita.duracionM || '30');
+      const fin = inicio ? new Date(inicio.getTime() + durMin * 60000) : null;
+      cita._end = fin;
+      cita._slots = inicio ? slotsFromCita(cita) : [];
+    } catch (e) {
+      cita._start = null;
+      cita._end = null;
+      cita._slots = [];
     }
 
     citasProcesadas.push(cita);
@@ -391,15 +444,33 @@ async function cargarCitas() {
 
   container.innerHTML = horas.map(hora => {
     const [horaNum] = hora.split(":").map(Number);
+    const hourStart = new Date(selectedDate);
+    hourStart.setHours(horaNum, 0, 0, 0);
+    const hourEnd = new Date(hourStart);
+    hourEnd.setHours(hourStart.getHours() + 1);
+
     const citasHora = citasProcesadas.filter(cita => {
-      const fecha = getFechaHora(cita);
-      return fecha && fecha.getHours() === horaNum;
+      // excluir canceladas
+      if ((cita.estado || 'pendiente') === 'cancelada') return false;
+      return cita._start && cita._end && cita._start < hourEnd && cita._end > hourStart;
     });
 
     const selectedDateIso = formatDateForInput(selectedDate);
-    const contenido = citasHora.length
-      ? citasHora.map(crearEventoCalendario).join("")
-      : `<div class="hour-empty" onclick="irAReserva('${escapeHtml(selectedDateIso)}', '${hora}')">Espacio libre</div>`;
+
+    let contenido = '';
+
+    if (citasHora.length) {
+      // Render each cita: full card if starts in this hour, otherwise a continued block
+      contenido = citasHora.map(cita => {
+        if (cita._start >= hourStart && cita._start < hourEnd) {
+          return crearEventoCalendario(cita);
+        } else {
+          return `<div class="hour-continued" data-id="${escapeHtml(cita.id)}">Ocupa</div>`;
+        }
+      }).join("");
+    } else {
+      contenido = `<div class="hour-empty" onclick="irAReserva('${escapeHtml(selectedDateIso)}', '${hora}')">Espacio libre</div>`;
+    }
 
     const isCurrentHour = isToday && currentHour === horaNum;
 
@@ -543,17 +614,20 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
   let mensaje = "";
 console.log('++++++++++++' + tipo);
   if (tipo === "confirmada") {
-    mensaje = [
-      "CONFIRMACION DE CITA DAVANAILS",
-      `Hola ${cliente}`,
-      "",
-      "Tu cita ha sido CONFIRMADA",
-      `📅 Fecha y hora: ${hora}`,
-      `Servicio: ${servicio}`,
-      `Manicurista: ${manicurista}`,
-      "",
-      "Te esperamos"
-    ].join("\n");
+    const lines = [];
+    lines.push("CONFIRMACION DE CITA DAVANAILS");
+    if (cliente) lines.push(`Hola ${cliente}`);
+    lines.push("");
+    lines.push("Tu cita ha sido CONFIRMADA");
+    if (fecha) lines.push(`?? Fecha: ${fecha}`);
+    else if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.fecha) lines.push(`?? Fecha: ${selectOrCliente.dataset.fecha}`);
+    if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.hora) lines.push(`? Hora: ${selectOrCliente.dataset.hora}`);
+    else if (hora) lines.push(`? Hora: ${hora}`);
+    if (servicio) lines.push(`?? Servicio: ${servicio}`);
+    if (manicurista) lines.push(`?? ${manicurista}`);
+    lines.push("");
+    lines.push("Te esperamos ??");
+    mensaje = lines.join("\n");
   }
 
   if (tipo === "cancelada") {
@@ -567,31 +641,37 @@ console.log('++++++++++++' + tipo);
   }
 
   if (tipo === "reprogramada") {
-    mensaje = [
-      "CITA REPROGRAMADA",
-      `Hola ${cliente}`,
-      "",
-      "Tu cita ha sido REPROGRAMADA.",
-      `Nueva fecha y hora: ${hora}`,
-      `Servicio: ${servicio}`,
-      `Manicurista: ${manicurista}`,
-      "",
-      "Por favor confirma si este horario te funciona"
-    ].join("\n");
+    const lines = [];
+    lines.push("CITA REPROGRAMADA");
+    if (cliente) lines.push(`Hola ${cliente}`);
+    lines.push("");
+    lines.push("Tu cita ha sido REPROGRAMADA.");
+    if (fecha) lines.push(`?? Fecha: ${fecha}`);
+    else if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.fecha) lines.push(`?? Fecha: ${selectOrCliente.dataset.fecha}`);
+    if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.hora) lines.push(`? Hora: ${selectOrCliente.dataset.hora}`);
+    else if (hora) lines.push(`? Hora: ${hora}`);
+    if (servicio) lines.push(`?? Servicio: ${servicio}`);
+    if (manicurista) lines.push(`?? ${manicurista}`);
+    lines.push("");
+    lines.push("Por favor confirma si este horario te funciona");
+    mensaje = lines.join("\n");
   }
 
   if (tipo === "recordatorio") {
-  mensaje = [
-    "🔔 RECORDATORIO DE CITA DAVANAILS",
-    `Hola ${cliente}`,    
-    "",
-    "Te recordamos tu cita programada:",
-    `📅 Fecha y hora: ${hora}`,
-    `💅 Servicio: ${servicio}`,
-    `👩 Manicurista: ${manicurista}`,
-    "",
-    "¡Te esperamos! 🌸"
-  ].join("\n");
+  const lines = [];
+  lines.push("?? RECORDATORIO DE CITA DAVANAILS");
+  if (cliente) lines.push(`Hola ${cliente}`);
+  lines.push("");
+  lines.push("Te recordamos tu cita programada:");
+  if (fecha) lines.push(`?? Fecha: ${fecha}`);
+  else if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.fecha) lines.push(`?? Fecha: ${selectOrCliente.dataset.fecha}`);
+  if (selectOrCliente && selectOrCliente.dataset && selectOrCliente.dataset.hora) lines.push(`? Hora: ${selectOrCliente.dataset.hora}`);
+  else if (hora) lines.push(`? Hora: ${hora}`);
+  if (servicio) lines.push(`?? Servicio: ${servicio}`);
+  if (manicurista) lines.push(`?? ${manicurista}`);
+  lines.push("");
+  lines.push("�Te esperamos! ??");
+  mensaje = lines.join("\n");
 }
 
 
@@ -641,7 +721,8 @@ window.editarCita = async function(id) {
       estado: "reprogramada"
     });
 
-    enviarWhatsApp(select, "reprogramada");
+    const cardEl = document.querySelector(`.appointment-card[data-id="${id}"]`);
+    enviarWhatsApp(cardEl, "reprogramada");
     mostrarToast("Cita reprogramada 🔄", "ok");
 
     cargarCitas(); // refrescar tabla
@@ -758,13 +839,8 @@ document.addEventListener("click", function(e) {
 
 window.accionWhatsApp = function(el) {
   const card = el.closest(".appointment-card");
-  const cliente = card?.querySelector('.appointment-client')?.innerText || "";
-  const telefono = card?.querySelector('.appointment-phone')?.innerText || "";
-  const hora = card?.querySelectorAll('.meta-item')[0]?.innerText || "";
-  const servicio = card?.querySelectorAll('.meta-item')[1]?.innerText || "";
   const estado = card?.querySelector("select")?.value || "pendiente";
-
-  enviarWhatsApp(cliente, hora, servicio, "", telefono, "", estado);
+  enviarWhatsApp(card, estado);
 };
 
 

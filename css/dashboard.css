@@ -2029,6 +2029,27 @@ white-space: nowrap;
   opacity: 0.75;
 }
 
+/* Multi-slot visual adjustments */
+.appointment-card {
+  /* height based on number of 30-min blocks; default 1 block */
+  min-height: calc(var(--blocks, 1) * 56px);
+}
+
+.appointment-card[data-duracion] {
+  border-left: 4px solid rgba(58,116,212,0.18);
+}
+
+.hour-continued {
+  background: rgba(58,116,212,0.06);
+  border-radius: 12px;
+  padding: 10px;
+  color: #1c3d72;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
 .appointment-top {
   display: flex;
   justify-content: space-between;

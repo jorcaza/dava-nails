@@ -914,7 +914,15 @@ function mostrarSuccessScreen(data) {
   if (summaryMani) summaryMani.textContent = data.manicurista || '?';
 
   if (waLink) {
-    const mensaje = encodeURIComponent(`Hola, quiero confirmar mi cita para ${data.servicio} el ${data.fecha} a las ${data.hora}. Mi nombre es ${data.cliente}.`);
+    const parts = [];
+    if (data.servicio) parts.push(`?? Servicio: ${data.servicio}`);
+    if (data.fecha) parts.push(`?? Fecha: ${data.fecha}`);
+    if (data.hora) parts.push(`? Hora: ${data.hora}`);
+    if (data.manicurista) parts.push(`?? Manicurista: ${data.manicurista}`);
+    const header = `CONFIRMACIÓN DE CITA DAVANAILS`;
+    const nombreLine = data.cliente ? `Hola ${data.cliente}` : '';
+    const body = [header, nombreLine, '', ...parts, '', 'Te esperamos ??'].filter(Boolean).join('\n');
+    const mensaje = encodeURIComponent(body);
     waLink.href = `https://wa.me/57${data.celular}?text=${mensaje}`;
   }
 
