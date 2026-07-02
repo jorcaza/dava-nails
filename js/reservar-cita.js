@@ -2,6 +2,7 @@
 import {
   collection,
   getDocs,
+  getDoc,
   query,
   where,
   orderBy,
@@ -33,12 +34,121 @@ const booking = {
   fechaRaw: '',
   hora: '',
   cliente: null,
-  clienteRef: null
+  clienteRef: null,
+  editId: null
 };
 
 let selectedCliente = null;
 let lastQuery = '';
 let debounceTimer = null;
+
+function getQueryParams() {
+  return new URLSearchParams(window.location.search);
+}
+
+async function prefillFromQuery() {
+  const params = getQueryParams();
+  const fecha = params.get('fecha');
+  const hora = params.get('hora');
+  const editId = params.get('editId');
+
+  if (editId) {
+    try {
+      const citaDoc = await getDoc(doc(db, 'citas', editId));
+      if (citaDoc.exists()) {
+        const data = citaDoc.data();
+        const fechaHora = data.fechaHora?.toDate();
+        if (fechaHora) {
+          const fechaIso = fechaHora.toISOString().slice(0, 10);
+          const horaRaw = fechaHora.toTimeString().slice(0,5);
+          booking.fechaRaw = fechaIso;
+          booking.hora = formatHora(horaRaw);
+          if (fechaInput) fechaInput.value = fechaIso;
+        }
+
+        if (data.servicio) {
+          booking.servicioId = data.servicio.id || data.servicio;
+          booking.servicio = data.servicioNombre || '';
+          booking.duracion = data.duracion || '';
+          booking.precio = data.precio || '';
+        }
+
+        if (data.manicuristaNombre) {
+          booking.manicurista = data.manicuristaNombre;
+        }
+
+        booking.editId = editId;
+
+        if (data.cliente) {
+          const nombreCompleto = String(data.cliente).trim();
+          const parts = nombreCompleto.split(' ');
+          const first = parts.shift() || '';
+          const last = parts.join(' ');
+          if (nombreInput) nombreInput.value = first;
+          if (apellidoInput) apellidoInput.value = last;
+        }
+
+        if (celularInput) celularInput.value = normalizePhone(data.telefono || '');
+        if (emailInput) emailInput.value = data.email || '';
+        if (primeraInput) primeraInput.value = data.primera || 'si';
+        if (notasInput) notasInput.value = data.notas || '';
+      }
+    } catch (error) {
+      console.warn('No se pudo cargar la cita para editar:', error);
+    }
+  } else if (fecha) {
+    booking.fechaRaw = fecha;
+    if (fechaInput) fechaInput.value = fecha;
+  }
+
+  if (hora && !booking.hora) {
+    booking.hora = formatHora(hora);
+  }
+
+  if (booking.fechaRaw) {
+    await renderSlots();
+  }
+
+  if (booking.hora) {
+    const slot = Array.from(document.querySelectorAll('.slot')).find(s => s.textContent.trim() === booking.hora);
+    if (slot) {
+      slot.classList.add('selected');
+    }
+  }
+
+  highlightSelectedService();
+  highlightSelectedManicurista();
+
+  if (booking.fechaRaw || booking.editId) {
+    goTo(2);
+  }
+}
+
+function highlightSelectedService() {
+  if (!booking.servicioId) return;
+  const cards = document.querySelectorAll('.svc-card');
+  cards.forEach(card => {
+    const onclickAttr = card.getAttribute('onclick') || '';
+    const match = onclickAttr.match(/selectSvc\(this,'[^']*','[^']*','[^']*','([^']*)'\)/);
+    if (match && match[1] === booking.servicioId) {
+      card.classList.add('selected');
+      const input = card.querySelector('input[type="radio"]');
+      if (input) input.checked = true;
+    }
+  });
+}
+
+function highlightSelectedManicurista() {
+  if (!booking.manicurista || booking.manicurista === 'Sin preferencia') return;
+  const pills = document.querySelectorAll('.mani-pill');
+  pills.forEach(pill => {
+    if (pill.textContent.trim() === booking.manicurista) {
+      pill.classList.add('selected');
+      const input = pill.querySelector('input[type="radio"]');
+      if (input) input.checked = true;
+    }
+  });
+}
 
 window.debouncedBuscar = function(text) {
   clearTimeout(debounceTimer);
@@ -306,6 +416,7 @@ async function obtenerCitasFecha(fecha) {
     const hora = fecha ? fecha.toTimeString().slice(0,5) : null;
 
     citas.push({
+      id: doc.id,
       hora,
       duracion: d.duracion || "30 min",
       manicurista: d.manicuristaNombre || "Sin preferencia"
@@ -313,6 +424,27 @@ async function obtenerCitasFecha(fecha) {
   });
 
   return citas;
+}
+
+function parseHoraSlot(horaTexto) {
+  const partes = horaTexto.match(/(\d+):(\d+)\s*(a\. m\.|p\. m\.)?/i);
+  if (!partes) return horaTexto;
+  let h = Number(partes[1]);
+  const m = Number(partes[2]);
+  const ampm = partes[3] ? partes[3].toLowerCase() : '';
+  if (ampm.includes('p') && h < 12) h += 12;
+  if (ampm.includes('a') && h === 12) h = 0;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function normalizeDuration(duracion) {
+  return String(duracion || '30 min').replace(/[^0-9]/g, '');
+}
+
+function normalizeSlotsForEdit() {
+  if (!booking.editId || !booking.hora || !booking.duracion) return [];
+  const raw = parseHoraSlot(booking.hora);
+  return obtenerSlotsOcupados([{ hora: raw, duracion: booking.duracion }]);
 }
 
 function normalizePhone(value) {
@@ -406,7 +538,11 @@ async function renderSlots() {
     return c.manicurista === booking.manicurista;
   });
 
-  const ocupados = obtenerSlotsOcupados(filtradas);
+  let ocupados = obtenerSlotsOcupados(filtradas);
+  if (booking.editId && booking.hora && booking.duracion) {
+    const currentSlots = normalizeSlotsForEdit();
+    ocupados = ocupados.filter(slot => !currentSlots.includes(slot));
+  }
 
   container.innerHTML = "";
 
@@ -420,6 +556,10 @@ async function renderSlots() {
       div.classList.add("taken");
     } else {
       div.onclick = () => selectSlot(div);
+    }
+
+    if (booking.hora && div.textContent.trim() === booking.hora) {
+      div.classList.add('selected');
     }
 
     container.appendChild(div);
@@ -444,7 +584,12 @@ async function validarDisponibilidad() {
     return c.manicurista === booking.manicurista;
   });
 
-  const ocupados = obtenerSlotsOcupados(filtradas);
+  let ocupados = obtenerSlotsOcupados(filtradas);
+
+  if (booking.editId && booking.hora && booking.duracion) {
+    const currentSlots = normalizeSlotsForEdit();
+    ocupados = ocupados.filter(slot => !currentSlots.includes(slot));
+  }
 
   const [h, m] = booking.hora.match(/\d+/g).map(Number);
 
@@ -534,24 +679,43 @@ window.confirmar = async function () {
       }
     }
 
-    await addDoc(collection(db, "citas"), {
-      cliente: `${nombre} ${apellido}`.trim(),
-      clienteRef,
-      telefono: celular,
-      email,
-      primera: primera,
-      notas,
-      servicio: doc(db, "servicios", booking.servicioId),
-      servicioNombre: booking.servicio,
-      duracion: booking.duracion,
-      precio: booking.precio,
-      manicurista: manicuristaRef,
-      manicuristaNombre: booking.manicurista,
-      estado: "pendiente",
-      fechaCambioEstado: serverTimestamp(),
-      fechaHora: fechaHora,
-      createdAt: serverTimestamp()
-    });
+    if (booking.editId) {
+      await updateDoc(doc(db, 'citas', booking.editId), {
+        cliente: `${nombre} ${apellido}`.trim(),
+        clienteRef,
+        telefono: celular,
+        email,
+        primera: primera,
+        notas,
+        servicio: doc(db, "servicios", booking.servicioId),
+        servicioNombre: booking.servicio,
+        duracion: booking.duracion,
+        precio: booking.precio,
+        manicurista: manicuristaRef,
+        manicuristaNombre: booking.manicurista,
+        fechaCambioEstado: serverTimestamp(),
+        fechaHora: fechaHora
+      });
+    } else {
+      await addDoc(collection(db, "citas"), {
+        cliente: `${nombre} ${apellido}`.trim(),
+        clienteRef,
+        telefono: celular,
+        email,
+        primera: primera,
+        notas,
+        servicio: doc(db, "servicios", booking.servicioId),
+        servicioNombre: booking.servicio,
+        duracion: booking.duracion,
+        precio: booking.precio,
+        manicurista: manicuristaRef,
+        manicuristaNombre: booking.manicurista,
+        estado: "pendiente",
+        fechaCambioEstado: serverTimestamp(),
+        fechaHora: fechaHora,
+        createdAt: serverTimestamp()
+      });
+    }
 
     mostrarSuccessScreen({
       servicio: booking.servicio,
@@ -569,7 +733,14 @@ window.confirmar = async function () {
 };
 
 /* ================= INIT ================= */
-cargarServicios();
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await cargarServicios();
+    await prefillFromQuery();
+  } catch (error) {
+    console.error('Error iniciando la reserva:', error);
+  }
+});
 
 
 /* ================= NAVEGACIÓN ENTRE PASOS ================= */

@@ -280,7 +280,7 @@ function crearEventoCalendario(cita) {
   }[estado] || estado;
 
   return `
-    <article class="appointment-card status-${estado}" data-id="${escapeHtml(cita.id)}">
+    <article class="appointment-card status-${estado}" data-id="${escapeHtml(cita.id)}" onclick="editarCitaDesdeCalendario('${escapeHtml(cita.id)}')">
       <div class="appointment-top">
         <div>
           <div class="appointment-client">${escapeHtml(cita.cliente || "Cliente")}</div>
@@ -296,7 +296,7 @@ function crearEventoCalendario(cita) {
       </div>
 
       <div class="appointment-actions">
-        <select class="estado-select estado-${estado}" data-estado-anterior="${escapeHtml(estado)}" onchange="cambiarEstado(this, '${escapeHtml(cita.id)}')">
+        <select class="estado-select estado-${estado}" data-estado-anterior="${escapeHtml(estado)}" onclick="event.stopPropagation()" onchange="cambiarEstado(this, '${escapeHtml(cita.id)}')">
           <option value="pendiente" ${estado === "pendiente" ? "selected" : ""}>Pendiente</option>
           <option value="confirmada" ${estado === "confirmada" ? "selected" : ""}>Confirmada</option>
           <option value="completada" ${estado === "completada" ? "selected" : ""}>Completada</option>
@@ -304,10 +304,10 @@ function crearEventoCalendario(cita) {
           <option value="reprogramada" ${estado === "reprogramada" ? "selected" : ""}>Reprogramada</option>
         </select>
 
-        <div class="acciones">
-          <a class="icon-btn btn-wa" title="Enviar WhatsApp" onclick="accionWhatsApp(this)"><i class="fab fa-whatsapp"></i></a>
-          <a class="icon-btn btn-edit" title="Reprogramar cita" onclick="editarDesdeMenu(this)"><i class="fa-solid fa-clock"></i></a>
-          <a class="icon-btn btn-cancel" title="Cancelar cita" onclick="cancelarDesdeMenu(this)"><i class="fa fa-ban"></i></a>
+        <div class="acciones" onclick="event.stopPropagation()">
+          <a class="icon-btn btn-wa" title="Enviar WhatsApp" onclick="event.stopPropagation(); accionWhatsApp(this)"><i class="fab fa-whatsapp"></i></a>
+          <a class="icon-btn btn-edit" title="Reprogramar cita" onclick="event.stopPropagation(); editarDesdeMenu(this)"><i class="fa-solid fa-clock"></i></a>
+          <a class="icon-btn btn-cancel" title="Cancelar cita" onclick="event.stopPropagation(); cancelarDesdeMenu(this)"><i class="fa fa-ban"></i></a>
         </div>
       </div>
     </article>
@@ -399,9 +399,10 @@ async function cargarCitas() {
       return fecha && fecha.getHours() === horaNum;
     });
 
+    const selectedDateIso = formatDateForInput(selectedDate);
     const contenido = citasHora.length
       ? citasHora.map(crearEventoCalendario).join("")
-      : '<div class="hour-empty">Espacio libre</div>';
+      : `<div class="hour-empty" onclick="irAReserva('${escapeHtml(selectedDateIso)}', '${hora}')">Espacio libre</div>`;
 
     const isCurrentHour = isToday && currentHour === horaNum;
 
@@ -420,11 +421,25 @@ initFilters();
 actualizarKpis();
 cargarCitas();
 
-//cambiar erstao de citas
+window.getReservaUrl = function(fecha, hora, editId) {
+  const params = new URLSearchParams();
+  params.set('fecha', fecha);
+  params.set('hora', hora);
+  if (editId) params.set('editId', editId);
+  return `reservar-cita.html?${params.toString()}`;
+};
 
+window.irAReserva = function(fecha, hora, editId) {
+  window.location.href = window.getReservaUrl(fecha, hora, editId);
+};
 
-import { doc, updateDoc, serverTimestamp }
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+window.editarCitaDesdeCalendario = function(id) {
+  const fecha = document.getElementById('filterDate')?.value || '';
+  const hora = '';
+  if (!id) return;
+  window.location.href = `reservar-cita.html?editId=${encodeURIComponent(id)}`;
+};
+
 
 window.cambiarEstado = async function(select, id) {
 
