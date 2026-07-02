@@ -2,10 +2,7 @@
 import { auth,db } from "/js/firebase-config.js";
 import { signOut } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { collection, getDocs,query, orderBy ,where} 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-import { getDoc } 
+import { collection, getDocs, query, orderBy, where, getDoc, updateDoc, doc } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -448,9 +445,19 @@ window.cambiarEstado = async function(select, id) {
 
   try {
 
-    await updateDoc(doc(db, "citas", id), {
-      estado: nuevoEstado
-    });
+    // si se cancela, adem�s liberamos el slot quitando la fecha/hora
+    if (nuevoEstado === 'cancelada') {
+      await updateDoc(doc(db, "citas", id), {
+        estado: nuevoEstado,
+        fechaHora: null,
+        fecha: null,
+        hora: null
+      });
+    } else {
+      await updateDoc(doc(db, "citas", id), {
+        estado: nuevoEstado
+      });
+    }
 
     // ✅ actualizar color
     select.className = "estado-select estado-" + nuevoEstado;
@@ -496,6 +503,8 @@ window.cambiarEstado = async function(select, id) {
     // ✅ 🔥 MOSTRAR TOAST
     mostrarToast("Guardado ✅", "ok");
     actualizarKpis();
+    // refrescar lista para que la UI muestre cambios inmediatamente
+    if (typeof cargarCitas === 'function') cargarCitas();
 
   } catch (error) {
     console.error("❌ Error:", error);
