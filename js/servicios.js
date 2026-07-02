@@ -270,15 +270,19 @@ function cargarParaEditar(servicio) {
   duracion.value = servicio.duracion || "";
   icono.value = servicio.icono || "";
   preview.innerHTML = `<i class="fa-solid ${escapeHtml(servicio.icono || "fa-star")}"></i>`;
+
+  nombre.focus();
 }
 
 function limpiar() {
+  editId = null;
   nombre.value = "";
   precio.value = "";
   duracion.value = "";
   icono.value = "";
   preview.innerHTML = "";
-  editId = null;
+  servicioSearch.value = "";
+  renderServicios();
 }
 
 /* ================= EVENTS ================= */
@@ -293,6 +297,26 @@ btnNuevo?.addEventListener("click", event => {
 });
 
 servicioSearch?.addEventListener("input", debounce(renderServicios, 200));
+
+list.addEventListener("click", event => {
+  const editButton = event.target.closest(".btnEdit");
+  const toggleButton = event.target.closest(".btnToggle");
+
+  if (editButton) {
+    const card = editButton.closest(".svc-card");
+    const servicioId = card?.dataset.id;
+    const servicio = serviciosCache.find(item => item.id === servicioId);
+    cargarParaEditar(servicio);
+    return;
+  }
+
+  if (toggleButton) {
+    const card = toggleButton.closest(".svc-card");
+    const servicioId = card?.dataset.id;
+    const servicio = serviciosCache.find(item => item.id === servicioId);
+    cambiarEstado(servicio);
+  }
+});
 
 /* ================= INIT ================= */
 async function init() {
