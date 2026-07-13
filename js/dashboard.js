@@ -1,9 +1,9 @@
 // 🔥 IMPORTS FIREBASE
-import { auth,db } from "/js/firebase-config.js";
-import { signOut } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { collection, getDocs, query, orderBy, where, getDoc, updateDoc, doc } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { auth, db } from "/js/firebase-config.js";
+import { signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { collection, getDocs, query, orderBy, where, getDoc, updateDoc, doc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
 
@@ -84,8 +84,8 @@ let statusFilter = localStorage.getItem('dsf_status') || 'all';
 let searchQuery = localStorage.getItem('dsf_search') || '';
 let debounceSearchTimer = null;
 
-function startOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0,0,0); }
-function endOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23,59,59); }
+function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0); }
+function endOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59); }
 function parseDateInput(value) {
   if (!value) return new Date();
   const [year, month, day] = value.split('-').map(Number);
@@ -117,9 +117,9 @@ function initFilters() {
 
   if (sc) {
     sc.value = searchQuery || '';
-    sc.addEventListener('input', (e)=>{
+    sc.addEventListener('input', (e) => {
       clearTimeout(debounceSearchTimer);
-      debounceSearchTimer = setTimeout(()=>{
+      debounceSearchTimer = setTimeout(() => {
         searchQuery = String(e.target.value || '').trim().toLowerCase();
         localStorage.setItem('dsf_search', searchQuery);
         cargarCitas();
@@ -134,10 +134,10 @@ function initFilters() {
   // attach KPI card listeners and visual state
   const kpis = document.querySelectorAll('.kpi-strip .kpi-card');
   if (kpis && kpis.length >= 4) {
-    const map = ['all','completada','pendiente','confirmada'];
+    const map = ['all', 'completada', 'pendiente', 'confirmada'];
     kpis.forEach((c, i) => {
       c.dataset.estado = map[i] || 'all';
-      c.addEventListener('click', ()=> setEstadoFilter(c.dataset.estado));
+      c.addEventListener('click', () => setEstadoFilter(c.dataset.estado));
       if (c.dataset.estado === statusFilter) c.classList.add('active');
     });
   }
@@ -153,7 +153,7 @@ function onFilterDateChange() {
   actualizarKpis();
 }
 
-function applyDateFilter(){
+function applyDateFilter() {
   const fd = document.getElementById('filterDate');
   const dateStr = fd ? fd.value : null;
   const d = dateStr ? parseDateInput(dateStr) : new Date();
@@ -161,7 +161,7 @@ function applyDateFilter(){
   filterEnd = endOfDay(d);
 }
 
-function setEstadoFilter(estado){
+function setEstadoFilter(estado) {
   if (statusFilter === estado) {
     statusFilter = 'all';
   } else {
@@ -169,13 +169,13 @@ function setEstadoFilter(estado){
   }
   localStorage.setItem('dsf_status', statusFilter);
   // update visual
-  document.querySelectorAll('.kpi-strip .kpi-card').forEach(c=>{
+  document.querySelectorAll('.kpi-strip .kpi-card').forEach(c => {
     if (c.dataset.estado === statusFilter) c.classList.add('active'); else c.classList.remove('active');
   });
   cargarCitas();
 }
 
-function resetFilter(){
+function resetFilter() {
   const fd = document.getElementById('filterDate');
   const today = new Date();
   const iso = formatDateForInput(today);
@@ -194,7 +194,7 @@ function formatRangeLabel(date) {
   return `Mostrando: ${label.charAt(0).toUpperCase()}${label.slice(1)}`;
 }
 
-function updateRangeLabel(){
+function updateRangeLabel() {
   const fd = document.getElementById('filterDate');
   const rangeEl = document.getElementById('rangeLabel');
   const dateStr = fd ? fd.value : null;
@@ -202,7 +202,7 @@ function updateRangeLabel(){
   if (rangeEl) rangeEl.textContent = formatRangeLabel(date);
 }
 
-function updateTopbarSubtitle(){
+function updateTopbarSubtitle() {
   const fd = document.getElementById('filterDate');
   const subtitle = document.getElementById('topbarSubtitle');
   const dateStr = fd ? fd.value : null;
@@ -210,7 +210,7 @@ function updateTopbarSubtitle(){
   if (subtitle) subtitle.textContent = formatRangeLabel(date);
 }
 
-window.actualizarKpis = async function(){
+window.actualizarKpis = async function () {
   if (!filterStart || !filterEnd) applyDateFilter();
   const qk = query(
     collection(db, 'citas'),
@@ -218,8 +218,8 @@ window.actualizarKpis = async function(){
     where('fechaHora', '<=', filterEnd)
   );
   const snap = await getDocs(qk);
-  let total = 0, comp=0, pend=0, conf=0;
-  snap.forEach(docu=>{
+  let total = 0, comp = 0, pend = 0, conf = 0;
+  snap.forEach(docu => {
     total++;
     const e = (docu.data().estado || 'pendiente');
     if (e === 'completada') comp++;
@@ -235,7 +235,7 @@ window.actualizarKpis = async function(){
   if (elComp) elComp.textContent = comp;
   if (elPend) elPend.textContent = pend;
   if (elConf) elConf.textContent = conf;
-  if (badge) badge.textContent = `💅 ${total} citas`; 
+  if (badge) badge.textContent = `💅 ${total} citas`;
 }
 
 
@@ -278,14 +278,14 @@ function slotsFromCita(cita) {
   const slots = [];
   const fecha = getFechaHora(cita);
   if (!fecha) return slots;
-  const minutos = getDuracionMinutos(cita.duracion || cita.duracionMin || cita.duracionM || '') ;
+  const minutos = getDuracionMinutos(cita.duracion || cita.duracionMin || cita.duracionM || '');
   const bloques = Math.ceil(minutos / 30);
 
   let h = fecha.getHours();
   let m = fecha.getMinutes();
 
   for (let i = 0; i < bloques; i++) {
-    slots.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+    slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
     m += 30;
     if (m >= 60) { m = 0; h++; }
   }
@@ -462,6 +462,7 @@ async function cargarCitas() {
 
     let contenido = '';
 
+    /*vlidación de slots completo, bloqueado*/
     if (citasHora.length) {
       const citasInicio = citasHora.filter(cita => cita._start >= hourStart && cita._start < hourEnd);
       if (citasInicio.length) {
@@ -496,7 +497,7 @@ initFilters();
 actualizarKpis();
 cargarCitas();
 
-window.getReservaUrl = function(fecha, hora, editId) {
+window.getReservaUrl = function (fecha, hora, editId) {
   const params = new URLSearchParams();
   params.set('fecha', fecha);
   params.set('hora', hora);
@@ -504,11 +505,11 @@ window.getReservaUrl = function(fecha, hora, editId) {
   return `reservar-cita.html?${params.toString()}`;
 };
 
-window.irAReserva = function(fecha, hora, editId) {
+window.irAReserva = function (fecha, hora, editId) {
   window.location.href = window.getReservaUrl(fecha, hora, editId);
 };
 
-window.editarCitaDesdeCalendario = function(id) {
+window.editarCitaDesdeCalendario = function (id) {
   const fecha = document.getElementById('filterDate')?.value || '';
   const hora = '';
   if (!id) return;
@@ -516,14 +517,14 @@ window.editarCitaDesdeCalendario = function(id) {
 };
 
 
-window.cambiarEstado = async function(select, id) {
+window.cambiarEstado = async function (select, id) {
 
   const nuevoEstado = select.value;
   const estadoAnterior = select.dataset.estadoAnterior;
 
   try {
 
-    // si se cancela, adem�s liberamos el slot quitando la fecha/hora
+    // si se cancela, adem�s liberamos el slot quitando la fecha/hora
     if (nuevoEstado === 'cancelada') {
       await updateDoc(doc(db, "citas", id), {
         estado: nuevoEstado,
@@ -576,8 +577,8 @@ window.cambiarEstado = async function(select, id) {
     select.dataset.estadoAnterior = nuevoEstado;
 
 
-    
-    
+
+
     // ✅ 🔥 MOSTRAR TOAST
     mostrarToast("Guardado ✅", "ok");
     actualizarKpis();
@@ -624,7 +625,7 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
 
   const lines = [];
   if (tipo === "confirmada") {
-    lines.push("? CONFIRMACI�N DE CITA DAVANAILS");
+    lines.push("? CONFIRMACI�N DE CITA DAVANAILS");
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
     lines.push("Tu cita ha sido CONFIRMADA");
@@ -639,7 +640,7 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
     lines.push("Tu cita ha sido cancelada.");
-    lines.push("Si deseas reprogramar, cont�ctanos");
+    lines.push("Si deseas reprogramar, cont�ctanos");
   } else if (tipo === "reprogramada") {
     lines.push("?? CITA REPROGRAMADA");
     if (cliente) lines.push(`Hola ${cliente}`);
@@ -661,7 +662,7 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
     if (servicio) lines.push(`?? Servicio: ${servicio}`);
     if (manicurista) lines.push(`?? Manicurista: ${manicurista}`);
     lines.push("");
-    lines.push("�Te esperamos! ??");
+    lines.push("�Te esperamos! ??");
   }
 
   const mensaje = lines.join("\n").normalize("NFKC").replace(/\uFE0F/g, "").trim();
@@ -673,7 +674,7 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
 
   const telefonoLimpio = String(telefono).replace(/\D/g, "");
   if (!telefonoLimpio) {
-    console.warn("No hay tel�fono para abrir WhatsApp.");
+    console.warn("No hay tel�fono para abrir WhatsApp.");
     return;
   }
 
@@ -699,7 +700,7 @@ function mostrarToast(msg, tipo = "ok") {
 }
 
 
-window.editarCita = async function(id) {
+window.editarCita = async function (id) {
 
   const nuevaFecha = prompt("Nueva fecha (YYYY-MM-DD):");
   const nuevaHora = prompt("Nueva hora (HH:MM):");
@@ -730,7 +731,7 @@ window.editarCita = async function(id) {
 /*modales*/
 let citaActualId = null;
 
-window.abrirModal = function(id) {
+window.abrirModal = function (id) {
 
   citaActualId = id;
 
@@ -747,14 +748,14 @@ window.abrirModal = function(id) {
 };
 
 
-window.cerrarModal = function() {
+window.cerrarModal = function () {
   document.getElementById("modalEditar").style.display = "none";
 }
 
 //guardar reprogramaci´pn import { doc, updateDoc }
 
 
-window.guardarReprogramacion = async function() {
+window.guardarReprogramacion = async function () {
 
   const btn = document.getElementById("btnGuardar");
 
@@ -812,14 +813,14 @@ window.guardarReprogramacion = async function() {
 
 
 /*menú flotante*/
-window.toggleMenu = function(btn) {
+window.toggleMenu = function (btn) {
 
   const parent = btn.closest(".menu-acciones");
   parent.classList.toggle("open");
 
 }
 
-document.addEventListener("click", function(e) {
+document.addEventListener("click", function (e) {
 
   document.querySelectorAll(".menu-acciones").forEach(menu => {
     if (!menu.contains(e.target)) {
@@ -831,7 +832,7 @@ document.addEventListener("click", function(e) {
 
 
 
-window.accionWhatsApp = function(el) {
+window.accionWhatsApp = function (el) {
   const card = el.closest(".appointment-card");
   const estado = card?.querySelector("select")?.value || "pendiente";
   enviarWhatsApp(card, estado);
@@ -845,7 +846,7 @@ window.editarDesdeMenu = function (el) {
   if (id) abrirModal(id);
 };
 
-window.cancelarDesdeMenu = function(el) {
+window.cancelarDesdeMenu = function (el) {
   const card = el.closest(".appointment-card");
   const select = card?.querySelector("select");
 
@@ -903,7 +904,7 @@ function obtenerServicio(select) {
 }
 
 //menú flotante
-window.toggleMenu = function(btn) {
+window.toggleMenu = function (btn) {
 
   const dropdown = btn
     .closest(".menu-acciones")
@@ -940,7 +941,7 @@ window.toggleMenu = function(btn) {
 
 
 
-window.validarFormulario = function() {
+window.validarFormulario = function () {
 
   const fecha = document.getElementById("editFecha").value;
   const hora = document.getElementById("editHora").value;
@@ -1030,7 +1031,7 @@ async function obtenerHorasOcupadas(fechaSeleccionada) {
   return ocupadas;
 }
 
-window.onChangeFecha = function() {
+window.onChangeFecha = function () {
   generarHoras();
   validarFormulario();
 };
