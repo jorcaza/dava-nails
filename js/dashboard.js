@@ -271,7 +271,19 @@ function formatTimeReadable(date) {
 
 function getDuracionMinutos(str) {
   if (!str) return 30;
-  return parseInt(String(str).replace(/[^0-9]/g, '')) || 30;
+
+  const text = String(str).toLowerCase();
+  const horasMatch = text.match(/(\d+)\s*h/);
+  const minutosMatch = text.match(/(\d+)\s*m/);
+
+  if (horasMatch || minutosMatch) {
+    const horas = horasMatch ? parseInt(horasMatch[1], 10) : 0;
+    const minutos = minutosMatch ? parseInt(minutosMatch[1], 10) : 0;
+    return horas * 60 + minutos;
+  }
+
+  const numero = parseInt(text.replace(/\D/g, ''), 10);
+  return Number.isNaN(numero) ? 30 : numero;
 }
 
 function slotsFromCita(cita) {
@@ -445,37 +457,43 @@ async function cargarCitas() {
     horas.push(String(h).padStart(2, "0") + ":00");
   }
 
-  container.innerHTML = horas.map(hora => {
+  const horasOcultas = new Set();
+  citasProcesadas.forEach(cita => {
+    if (!cita._start || !cita._end) return;
+
+    const startHour = new Date(cita._start);
+    startHour.setMinutes(0, 0, 0);
+    const endHour = new Date(cita._end);
+    endHour.setMinutes(0, 0, 0);
+
+    let cursor = new Date(startHour);
+    cursor.setHours(cursor.getHours() + 1);
+
+    while (cursor < endHour) {
+      const label = `${String(cursor.getHours()).padStart(2, "0")}:00`;
+      horasOcultas.add(label);
+      cursor.setHours(cursor.getHours() + 1);
+    }
+  });
+
+  container.innerHTML = horas.filter(hora => !horasOcultas.has(hora)).map(hora => {
     const [horaNum] = hora.split(":").map(Number);
     const hourStart = new Date(selectedDate);
     hourStart.setHours(horaNum, 0, 0, 0);
     const hourEnd = new Date(hourStart);
     hourEnd.setHours(hourStart.getHours() + 1);
 
-    const citasHora = citasProcesadas.filter(cita => {
-      // excluir canceladas
+    const citasInicio = citasProcesadas.filter(cita => {
       if ((cita.estado || 'pendiente') === 'cancelada') return false;
-      return cita._start && cita._end && cita._start < hourEnd && cita._end > hourStart;
+      return cita._start && cita._start >= hourStart && cita._start < hourEnd;
     });
 
     const selectedDateIso = formatDateForInput(selectedDate);
 
     let contenido = '';
 
-    /*vlidación de slots completo, bloqueado*/
-    if (citasHora.length) {
-      const citasInicio = citasHora.filter(cita => cita._start >= hourStart && cita._start < hourEnd);
-      if (citasInicio.length) {
-        contenido = citasInicio.map(crearEventoCalendario).join("");
-      } else {
-        contenido = citasHora.map(cita => {
-          const cliente = cita?.cliente || 'Cita';
-          const horaInicio = cita?._start ? formatHourLabel(cita._start) : '';
-          const horaFin = cita?._end ? formatHourLabel(cita._end) : '';
-          const rango = horaInicio && horaFin ? `${horaInicio} - ${horaFin}` : 'Ocupado';
-          return `<div class="hour-continued" data-id="${escapeHtml(cita?.id || '')}"><strong>${escapeHtml(cliente)}</strong><span>${escapeHtml(rango)}</span></div>`;
-        }).join("");
-      }
+    if (citasInicio.length) {
+      contenido = citasInicio.map(crearEventoCalendario).join("");
     } else {
       contenido = `<div class="hour-empty" onclick="irAReserva('${escapeHtml(selectedDateIso)}', '${hora}')">Espacio libre</div>`;
     }
@@ -1017,10 +1035,10 @@ async function obtenerHorasOcupadas(fechaSeleccionada) {
     if (data.fechaHora) {
       const fecha = data.fechaHora.toDate();
       const durMin = getDuracionMinutos(data.duracion || '30');
-      const fin = new Date(fecha.getTime() + durMin * 60000);
+      const bloques = Math.ceil(durMin / 30);
       let cursor = new Date(fecha);
 
-      while (cursor < fin) {
+      for (let i = 0; i < bloques; i++) {
         const hora = `${String(cursor.getHours()).padStart(2, "0")}:${String(cursor.getMinutes()).padStart(2, "0")}`;
         ocupadas.push(hora);
         cursor = new Date(cursor.getTime() + 30 * 60000);

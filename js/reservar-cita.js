@@ -27,7 +27,7 @@ const clienteSearchInput = document.getElementById('clienteSearch');
 
 const booking = {
   servicio: '',
-  servicioId: '',   
+  servicioId: '',
   duracion: '',
   precio: '',
   manicurista: 'Sin preferencia',
@@ -61,7 +61,7 @@ async function prefillFromQuery() {
         const fechaHora = data.fechaHora?.toDate();
         if (fechaHora) {
           const fechaIso = fechaHora.toISOString().slice(0, 10);
-          const horaRaw = fechaHora.toTimeString().slice(0,5);
+          const horaRaw = fechaHora.toTimeString().slice(0, 5);
           booking.fechaRaw = fechaIso;
           booking.hora = formatHora(horaRaw);
           booking.prefilledDateTime = true;
@@ -174,7 +174,7 @@ function applyPrefilledDateTimeState() {
     const infoBox = document.createElement('div');
     infoBox.id = 'prefillInfoBox';
     infoBox.className = 'prefill-info';
-    infoBox.textContent = `Fecha y hora predefinidas: ${booking.fechaRaw} · ${booking.hora}`;
+    infoBox.textContent = `Fecha y hora predefinidas: ${booking.fechaRaw} ï¿½ ${booking.hora}`;
     panel1.insertBefore(infoBox, panel1.querySelector('.field'));
   }
 
@@ -185,7 +185,7 @@ function applyPrefilledDateTimeState() {
   }
 }
 
-window.debouncedBuscar = function(text) {
+window.debouncedBuscar = function (text) {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     buscarClientes(text);
@@ -193,7 +193,7 @@ window.debouncedBuscar = function(text) {
 };
 
 
-/* ================= SERVICIOS DINÁMICOS ================= */
+/* ================= SERVICIOS DINï¿½MICOS ================= */
 async function cargarServicios() {
   const container = document.querySelector(".service-grid");
 
@@ -255,18 +255,18 @@ async function cargarServicios() {
 
 /* ================= FUNCIONES GLOBALES ================= */
 
-window.selectSvc = function(el, name, dur, price, id) {
+window.selectSvc = function (el, name, dur, price, id) {
 
   document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
 
   booking.servicio = name;
-  booking.servicioId = id; 
+  booking.servicioId = id;
   booking.duracion = dur;
   booking.precio = price;
 };
 
-window.selectMani = function(el, name) {
+window.selectMani = function (el, name) {
   document.querySelectorAll('.mani-pill').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
 
@@ -275,7 +275,7 @@ window.selectMani = function(el, name) {
   renderSlots();
 };
 
-window.selectSlot = function(el) {
+window.selectSlot = function (el) {
   if (el.classList.contains('taken')) return;
 
   document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
@@ -330,7 +330,7 @@ window.buscarClientes = async function (text) {
 
   if (!clientes.length) {
     resultsEl.innerHTML = `
-      <div class="client-result-empty">No existe un cliente con ese nombre o teléfono.</div>
+      <div class="client-result-empty">No existe un cliente con ese nombre o telï¿½fono.</div>
       <button type="button" class="client-create-btn" onclick="crearNuevoCliente('${encodeURIComponent(queryText)}')">Crear nuevo cliente</button>
     `;
     return;
@@ -344,7 +344,7 @@ window.buscarClientes = async function (text) {
   `).join("");
 }
 
-window.seleccionarCliente = function(id, nombre, telefono, email) {
+window.seleccionarCliente = function (id, nombre, telefono, email) {
   const nombreCompleto = decodeURIComponent(nombre);
   const telefonoDec = decodeURIComponent(telefono);
   const emailDec = decodeURIComponent(email);
@@ -376,7 +376,7 @@ window.seleccionarCliente = function(id, nombre, telefono, email) {
   if (formEl) formEl.style.display = 'block';
 };
 
-window.clearClienteSeleccionado = function() {
+window.clearClienteSeleccionado = function () {
   selectedCliente = null;
   booking.cliente = null;
   booking.clienteRef = null;
@@ -385,7 +385,7 @@ window.clearClienteSeleccionado = function() {
   if (clienteSearchInput) clienteSearchInput.value = "";
 };
 
-window.crearNuevoCliente = function(query) {
+window.crearNuevoCliente = function (query) {
   clearClienteSeleccionado();
   booking.cliente = null;
   booking.clienteRef = null;
@@ -408,15 +408,28 @@ window.crearNuevoCliente = function(query) {
 
 /* ================= HORAS ================= */
 function getDuracionMinutos(str) {
-  return parseInt(str.replace(" min", ""));
+  if (!str) return 30;
+
+  const text = String(str).toLowerCase();
+  const horasMatch = text.match(/(\d+)\s*h/);
+  const minutosMatch = text.match(/(\d+)\s*m/);
+
+  if (horasMatch || minutosMatch) {
+    const horas = horasMatch ? parseInt(horasMatch[1], 10) : 0;
+    const minutos = minutosMatch ? parseInt(minutosMatch[1], 10) : 0;
+    return horas * 60 + minutos;
+  }
+
+  const numero = parseInt(text.replace(/\D/g, ""), 10);
+  return Number.isNaN(numero) ? 30 : numero;
 }
 
 function generarHorasBase() {
   const arr = [];
 
-  for (let h = 9; h <= 18; h++) {
+  for (let h = 8; h <= 18; h++) {
     for (let m of [0, 30]) {
-      arr.push(`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`);
+      arr.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
     }
   }
 
@@ -448,7 +461,7 @@ async function obtenerCitasFecha(fecha) {
     const d = doc.data();
 
     const fecha = d.fechaHora?.toDate();
-    const hora = fecha ? fecha.toTimeString().slice(0,5) : null;
+    const hora = fecha ? fecha.toTimeString().slice(0, 5) : null;
 
     citas.push({
       id: doc.id,
@@ -507,7 +520,7 @@ async function guardarClienteYRetornarRef(nombre, apellido, telefono, email, not
     }
   }
 
-  // si no hay cliente seleccionado, buscar por teléfono
+  // si no hay cliente seleccionado, buscar por telï¿½fono
   const q = query(
     collection(db, "clientes"),
     where("telefono", "==", telefonoLimpio)
@@ -519,7 +532,7 @@ async function guardarClienteYRetornarRef(nombre, apellido, telefono, email, not
     try {
       await updateDoc(doc(db, 'clientes', foundId), clienteData);
     } catch (e) {
-      console.warn('Error actualizando cliente existente por teléfono:', e);
+      console.warn('Error actualizando cliente existente por telï¿½fono:', e);
     }
     return doc(db, 'clientes', foundId);
   }
@@ -539,13 +552,13 @@ function obtenerSlotsOcupados(citas) {
 
   citas.forEach(c => {
 
-    const bloques = getDuracionMinutos(c.duracion) / 30;
+    const bloques = Math.ceil(getDuracionMinutos(c.duracion) / 30);
 
     let [h, m] = c.hora.split(":").map(Number);
 
     for (let i = 0; i < bloques; i++) {
 
-      ocupados.push(`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`);
+      ocupados.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
 
       m += 30;
       if (m >= 60) {
@@ -556,6 +569,27 @@ function obtenerSlotsOcupados(citas) {
   });
 
   return ocupados;
+}
+
+function obtenerSlotsOcultos(citas) {
+  const ocultos = new Set();
+
+  citas.forEach(c => {
+    const bloques = Math.ceil(getDuracionMinutos(c.duracion) / 30);
+    let [h, m] = String(c.hora || "00:00").split(":").map(Number);
+
+    for (let i = 1; i < bloques; i++) {
+      m += 30;
+      if (m >= 60) {
+        m = 0;
+        h++;
+      }
+
+      ocultos.add(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    }
+  });
+
+  return ocultos;
 }
 
 /* ================= RENDER ================= */
@@ -574,6 +608,7 @@ async function renderSlots() {
   });
 
   let ocupados = obtenerSlotsOcupados(filtradas);
+  const ocultos = obtenerSlotsOcultos(filtradas);
   if (booking.editId && booking.hora && booking.duracion) {
     const currentSlots = normalizeSlotsForEdit();
     ocupados = ocupados.filter(slot => !currentSlots.includes(slot));
@@ -582,6 +617,7 @@ async function renderSlots() {
   container.innerHTML = "";
 
   horas.forEach(h => {
+    if (ocultos.has(h)) return;
 
     const div = document.createElement("div");
     div.className = "slot";
@@ -609,7 +645,7 @@ fechaInput.addEventListener("change", () => {
   renderSlots();
 });
 
-/* ================= VALIDACIÓN ================= */
+/* ================= VALIDACIï¿½N ================= */
 async function validarDisponibilidad() {
 
   const citas = await obtenerCitasFecha(booking.fechaRaw);
@@ -631,11 +667,11 @@ async function validarDisponibilidad() {
   let hh = h;
   let mm = m;
 
-  const bloques = getDuracionMinutos(booking.duracion) / 30;
+  const bloques = Math.ceil(getDuracionMinutos(booking.duracion) / 30);
 
   for (let i = 0; i < bloques; i++) {
 
-    const slot = `${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")}`;
+    const slot = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 
     if (ocupados.includes(slot)) return false;
 
@@ -663,7 +699,7 @@ window.confirmar = async function () {
   const disponible = await validarDisponibilidad();
 
   if (!disponible) {
-    alert("Ese horario ya no está disponible ?");
+    alert("Ese horario ya no estï¿½ disponible ?");
     return;
   }
 
@@ -778,11 +814,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-/* ================= NAVEGACIÓN ENTRE PASOS ================= */
+/* ================= NAVEGACIï¿½N ENTRE PASOS ================= */
 
-window.goTo = function(step) {
+window.goTo = function (step) {
 
-  // validaciones básicas
+  // validaciones bï¿½sicas
   if (step === 2) {
     if (!booking.servicio) {
       alert("Selecciona un servicio ?");
@@ -875,7 +911,7 @@ window.confirmar = window.confirmar || async function () {
 
 function convertirFechaHora(fecha, horaTexto) {
 
-  // extraer números
+  // extraer nï¿½meros
   const partes = horaTexto.match(/\d+/g).map(Number);
 
   let h = partes[0];
@@ -887,7 +923,7 @@ function convertirFechaHora(fecha, horaTexto) {
   if (esPM && h < 12) h += 12;
   if (!esPM && h === 12) h = 0;
 
-  return new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`);
+  return new Date(`${fecha}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`);
 }
 
 function renderBookingSummary() {
@@ -910,7 +946,7 @@ function mostrarSuccessScreen(data) {
   const waLink = document.getElementById('waLink');
 
   if (summarySvc) summarySvc.textContent = data.servicio || '?';
-  if (summaryFecha) summaryFecha.textContent = `${data.fecha} · ${data.hora}`;
+  if (summaryFecha) summaryFecha.textContent = `${data.fecha} ï¿½ ${data.hora}`;
   if (summaryMani) summaryMani.textContent = data.manicurista || '?';
 
   if (waLink) {
@@ -919,7 +955,7 @@ function mostrarSuccessScreen(data) {
     if (data.fecha) parts.push(`?? Fecha: ${data.fecha}`);
     if (data.hora) parts.push(`? Hora: ${data.hora}`);
     if (data.manicurista) parts.push(`?? Manicurista: ${data.manicurista}`);
-    const header = `CONFIRMACIÓN DE CITA DAVANAILS`;
+    const header = `CONFIRMACIï¿½N DE CITA DAVANAILS`;
     const nombreLine = data.cliente ? `Hola ${data.cliente}` : '';
     const body = [header, nombreLine, '', ...parts, '', 'Te esperamos ??'].filter(Boolean).join('\n').normalize('NFKC').trim();
     const telefono = String(data.celular || '').replace(/\D/g, '');
@@ -937,11 +973,11 @@ function mostrarSuccessScreen(data) {
   }
 }
 
-window.irInicio = function() {
+window.irInicio = function () {
   window.location.href = 'dashboard.html';
 };
 
-window.clearErr = function(id, input) {
+window.clearErr = function (id, input) {
 
   const el = document.getElementById(id);
   if (el) el.classList.remove('show');
@@ -950,7 +986,7 @@ window.clearErr = function(id, input) {
 
 };
 
-window.showErr = function(errId, inputId) {
+window.showErr = function (errId, inputId) {
 
   const el = document.getElementById(errId);
   if (el) el.classList.add('show');
