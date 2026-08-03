@@ -749,6 +749,83 @@ window.editarCita = async function (id) {
 /*modales*/
 let citaActualId = null;
 
+function obtenerIntervaloCita(cita) {
+  const fecha = cita?.fechaHora?.toDate ? cita.fechaHora.toDate() : new Date(cita?.fechaHora || null);
+  const durMin = getDuracionMinutos(cita?.duracion || '30');
+  const fin = fecha ? new Date(fecha.getTime() + durMin * 60000) : null;
+  return { inicio: fecha, fin };
+}
+
+function haySolapamiento(inicioA, finA, inicioB, finB) {
+  if (!inicioA || !finA || !inicioB || !finB) return false;
+  return inicioA < finB && inicioB < finA;
+}
+
+async function obtenerConflictoReprogramacion(fechaSeleccionada, horaSeleccionada, idCitaActual) {
+  if (!fechaSeleccionada || !horaSeleccionada || !idCitaActual) return null;
+
+  const citaActualSnap = await getDoc(doc(db, 'citas', idCitaActual));
+  if (!citaActualSnap.exists()) return null;
+
+  const citaActualData = citaActualSnap.data();
+  const nuevaFechaHora = new Date(`${fechaSeleccionada}T${horaSeleccionada}:00`);
+  const durMin = getDuracionMinutos(citaActualData.duracion || '30');
+  const nuevoFin = new Date(nuevaFechaHora.getTime() + durMin * 60000);
+
+  const fechaInicio = new Date(`${fechaSeleccionada}T00:00:00`);
+  const fechaFin = new Date(`${fechaSeleccionada}T23:59:59`);
+
+  const q = query(
+    collection(db, 'citas'),
+    where('fechaHora', '>=', fechaInicio),
+    where('fechaHora', '<=', fechaFin)
+  );
+
+  const snap = await getDocs(q);
+
+  for (const docu of snap.docs) {
+    if (docu.id === idCitaActual) continue;
+
+    const data = docu.data();
+    if (!data.fechaHora) continue;
+
+    const { inicio, fin } = obtenerIntervaloCita({ ...data, fechaHora: data.fechaHora });
+    if (!inicio || !fin) continue;
+
+    if (haySolapamiento(nuevaFechaHora, nuevoFin, inicio, fin)) {
+      return { id: docu.id, ...data, inicio, fin };
+    }
+  }
+
+  return null;
+}
+
+function mostrarModalConflicto(citaConflicto) {
+  const panel = document.getElementById('modalConflicto');
+  const card = document.getElementById('conflictCard');
+  if (!panel || !card) return;
+
+  const inicio = citaConflicto?.inicio;
+  const fin = citaConflicto?.fin;
+  const rango = inicio && fin ? `${formatTimeReadable(inicio)} - ${formatTimeReadable(fin)}` : 'Horario ocupado';
+  const cliente = citaConflicto?.cliente || 'Cliente';
+  const telefono = citaConflicto?.telefono || '';
+  const servicio = citaConflicto?.servicioNombre || citaConflicto?.servicio || 'Servicio';
+  const manicurista = citaConflicto?.manicuristaNombre || citaConflicto?.manicurista || 'Sin preferencia';
+  const estado = citaConflicto?.estado || 'pendiente';
+
+  card.innerHTML = `
+    <div class="conflict-chip">${escapeHtml(estado)}</div>
+    <strong>${escapeHtml(cliente)}</strong>
+    <div class="conflict-meta">${escapeHtml(rango)}</div>
+    <div class="conflict-meta">${escapeHtml(servicio)}</div>
+    <div class="conflict-meta">${escapeHtml(manicurista)}</div>
+    ${telefono ? `<div class="conflict-meta">📱 ${escapeHtml(telefono)}</div>` : ''}
+  `;
+
+  panel.style.display = 'flex';
+}
+
 window.abrirModal = function (id) {
 
   citaActualId = id;
@@ -768,6 +845,10 @@ window.abrirModal = function (id) {
 
 window.cerrarModal = function () {
   document.getElementById("modalEditar").style.display = "none";
+}
+
+window.cerrarModalConflicto = function () {
+  document.getElementById("modalConflicto").style.display = "none";
 }
 
 //guardar reprogramaci´pn import { doc, updateDoc }
@@ -805,6 +886,13 @@ window.guardarReprogramacion = async function () {
   const nuevaFechaHora = new Date(`${fecha}T${hora}:00`);
 
   try {
+    const conflicto = await obtenerConflictoReprogramacion(fecha, hora, citaActualId);
+    if (conflicto) {
+      mostrarModalConflicto(conflicto);
+      btn.disabled = false;
+      btn.textContent = "Guardar";
+      return;
+    }
 
     await updateDoc(doc(db, "citas", citaActualId), {
       fechaHora: nuevaFechaHora,
@@ -987,7 +1075,7 @@ async function generarHoras() {
 
   if (!fecha) return;
 
-  const ocupadas = await obtenerHorasOcupadas(fecha);
+  const ocupadas = await obtenerHorasOcupadas(fecha, citaActualId);
 
   select.innerHTML = `<option value="">Selecciona hora</option>`;
 
@@ -1000,7 +1088,6 @@ async function generarHoras() {
 
       const valor = `${hora}:${minuto}`;
 
-      // ✅ si está ocupada → deshabilitar
       const disabled = ocupadas.includes(valor) ? "disabled" : "";
 
       select.innerHTML += `
@@ -1014,7 +1101,7 @@ async function generarHoras() {
 
 
 
-async function obtenerHorasOcupadas(fechaSeleccionada) {
+async function obtenerHorasOcupadas(fechaSeleccionada, excludeId = null) {
 
   const fechaInicio = new Date(fechaSeleccionada + "T00:00:00");
   const fechaFin = new Date(fechaSeleccionada + "T23:59:59");
@@ -1029,8 +1116,10 @@ async function obtenerHorasOcupadas(fechaSeleccionada) {
 
   const ocupadas = [];
 
-  snap.forEach(doc => {
-    const data = doc.data();
+  for (const docu of snap.docs) {
+    if (excludeId && docu.id === excludeId) continue;
+
+    const data = docu.data();
 
     if (data.fechaHora) {
       const fecha = data.fechaHora.toDate();
@@ -1044,7 +1133,7 @@ async function obtenerHorasOcupadas(fechaSeleccionada) {
         cursor = new Date(cursor.getTime() + 30 * 60000);
       }
     }
-  });
+  }
 
   return ocupadas;
 }
