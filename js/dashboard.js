@@ -312,6 +312,7 @@ function crearEventoCalendario(cita) {
 
   const dataFecha = fecha ? formatDateReadable(fecha) : '';
   const dataHora = fecha ? formatTimeReadable(fecha) : '';
+  const fechaHoraTexto = fecha ? `${dataFecha} · ${horaLabel} - ${horaFinLabel}` : `${horaLabel} - ${horaFinLabel}`;
   const bloques = Math.max(1, Math.ceil(durMin / 30));
 
   return `
@@ -325,7 +326,7 @@ function crearEventoCalendario(cita) {
       </div>
 
       <div class="appointment-meta">
-        <div class="meta-item"><i class="fa-regular fa-clock"></i><span>${escapeHtml(`${horaLabel} - ${horaFinLabel}`)}</span></div>
+        <div class="meta-item"><i class="fa-regular fa-clock"></i><span>${escapeHtml(fechaHoraTexto)}</span></div>
         <div class="meta-item"><i class="fa-solid fa-spa"></i><span>${escapeHtml(servicio)}</span></div>
         <div class="meta-item"><i class="fa-solid fa-user-check"></i><span>${escapeHtml(manicurista)}</span></div>
       </div>
@@ -356,12 +357,17 @@ function crearFila(cita) {
 async function cargarCitas() {
   if (!filterStart || !filterEnd) applyDateFilter();
 
-  const q = query(
-    collection(db, "citas"),
-    where("fechaHora", ">=", filterStart),
-    where("fechaHora", "<=", filterEnd),
-    orderBy("fechaHora", "asc")
-  );
+  let q;
+  if (searchQuery) {
+    q = query(collection(db, "citas"), orderBy("fechaHora", "asc"));
+  } else {
+    q = query(
+      collection(db, "citas"),
+      where("fechaHora", ">=", filterStart),
+      where("fechaHora", "<=", filterEnd),
+      orderBy("fechaHora", "asc")
+    );
+  }
 
   const snap = await getDocs(q);
   const container = document.getElementById("citasContainer");
@@ -376,10 +382,19 @@ async function cargarCitas() {
 
     if (statusFilter && statusFilter !== 'all' && cita.estado !== statusFilter) continue;
 
+    if (["cancelada", "completada"].includes(cita.estado)) continue;
+
     if (searchQuery) {
       const cliente = String(cita.cliente || "").toLowerCase();
       const telefono = String(cita.telefono || "").toLowerCase();
-      if (!cliente.includes(searchQuery) && !telefono.includes(searchQuery)) continue;
+      const servicio = String(cita.servicioNombre || "").toLowerCase();
+      const manicurista = String(cita.manicuristaNombre || "").toLowerCase();
+      const hayCoincidencia = cliente.includes(searchQuery)
+        || telefono.includes(searchQuery)
+        || servicio.includes(searchQuery)
+        || manicurista.includes(searchQuery);
+
+      if (!hayCoincidencia) continue;
     }
 
     if (cita.servicio) {
@@ -432,12 +447,23 @@ async function cargarCitas() {
   const currentMinute = today.getMinutes();
 
   if (calendarTitle) {
-    const titleLabel = selectedDate.toLocaleDateString("es-CO", { weekday: "long", day: "2-digit", month: "long" });
-    calendarTitle.textContent = titleLabel.charAt(0).toUpperCase() + titleLabel.slice(1);
+    if (searchQuery) {
+      calendarTitle.textContent = "Resultados de búsqueda";
+    } else {
+      const titleLabel = selectedDate.toLocaleDateString("es-CO", { weekday: "long", day: "2-digit", month: "long" });
+      calendarTitle.textContent = titleLabel.charAt(0).toUpperCase() + titleLabel.slice(1);
+    }
   }
 
   if (calendarSummary) {
     calendarSummary.textContent = `${citasProcesadas.length} cita${citasProcesadas.length === 1 ? "" : "s"}`;
+  }
+
+  if (searchQuery) {
+    container.innerHTML = citasProcesadas.length
+      ? citasProcesadas.map(cita => crearEventoCalendario(cita)).join("")
+      : `<div class="empty-list">No hay resultados para "${escapeHtml(searchQuery)}".</div>`;
+    return;
   }
 
   const slots = [];
