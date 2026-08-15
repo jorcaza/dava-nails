@@ -525,23 +525,6 @@ window.cambiarEstado = async function(select, id) {
   const nuevoEstado = select.value;
   const estadoAnterior = select.dataset.estadoAnterior;
 
-  if (nuevoEstado === 'cancelada' && estadoAnterior !== 'cancelada') {
-    const { isConfirmed } = await Swal.fire({
-      title: 'Cancelar cita',
-      text: 'øDeseas marcar esta cita como cancelada?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'SÌ, cancelar',
-      cancelButtonText: 'Volver',
-      confirmButtonColor: '#d33'
-    });
-
-    if (!isConfirmed) {
-      select.value = estadoAnterior || 'pendiente';
-      return;
-    }
-  }
-
   try {
 
     // si se cancela, adem·s liberamos el slot quitando la fecha/hora
@@ -799,6 +782,56 @@ window.cerrarModal = function() {
 //guardar reprogramaci¬¥pn import { doc, updateDoc }
 
 
+async function obtenerCitaConflictiva(fecha, hora) {
+  if (!fecha || !hora || !citaActualId) return null;
+
+  const citaActualSnap = await getDoc(doc(db, "citas", citaActualId));
+  if (!citaActualSnap.exists()) return null;
+
+  const citaActual = citaActualSnap.data();
+  const nuevaFechaHora = new Date(`${fecha}T${hora}:00`);
+  if (!Number.isFinite(nuevaFechaHora.getTime())) return null;
+
+  const durMinActual = getDuracionMinutos(citaActual.duracion || "30");
+  const nuevaFin = new Date(nuevaFechaHora.getTime() + durMinActual * 60000);
+
+  const fechaInicio = new Date(`${fecha}T00:00:00`);
+  const fechaFin = new Date(`${fecha}T23:59:59`);
+
+  const q = query(
+    collection(db, "citas"),
+    where("fechaHora", ">=", fechaInicio),
+    where("fechaHora", "<=", fechaFin)
+  );
+
+  const snap = await getDocs(q);
+
+  let conflicto = null;
+
+  snap.forEach((docu) => {
+    if (docu.id === citaActualId) return;
+
+    const data = docu.data();
+    if (!data.fechaHora || data.estado === "cancelada") return;
+    if (esMismoUsuarioCita(data, citaActual)) return;
+
+    const fechaOtra = data.fechaHora.toDate();
+    const durMinOtra = getDuracionMinutos(data.duracion || "30");
+    const finOtra = new Date(fechaOtra.getTime() + durMinOtra * 60000);
+
+    if (nuevaFechaHora < finOtra && nuevaFin > fechaOtra) {
+      conflicto = {
+        id: docu.id,
+        ...data,
+        fechaHora: fechaOtra,
+        durMin: durMinOtra
+      };
+    }
+  });
+
+  return conflicto;
+}
+
 window.guardarReprogramacion = async function() {
 
   const btn = document.getElementById("btnGuardar");
@@ -822,6 +855,37 @@ window.guardarReprogramacion = async function() {
   // üî• VALIDACI√ìN 30 MIN
   if (!esHoraValida(hora)) {
     mostrarToast("Solo se permiten bloques de 30 min ‚è∞", "error");
+
+    btn.disabled = false;
+    btn.textContent = "Guardar";
+    return;
+  }
+
+  const conflicto = await obtenerCitaConflictiva(fecha, hora);
+
+  if (conflicto) {
+    const inicioConflictivo = conflicto.fechaHora;
+    const finConflictivo = new Date(inicioConflictivo.getTime() + (conflicto.durMin || 30) * 60000);
+    const cliente = conflicto.cliente || "Cliente";
+    const servicio = conflicto.servicioNombre || "Servicio";
+    const horaInicio = inicioConflictivo.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+    const horaFin = finConflictivo.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+    const fechaTexto = inicioConflictivo.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+    await Swal.fire({
+      title: "Horario ocupado",
+      html: `
+        <div style="text-align:left;">
+          <p>No se puede guardar la reprogramaciÛn porque hay un cruce con otra cita.</p>
+          <p><strong>Cliente:</strong> ${cliente}</p>
+          <p><strong>Servicio:</strong> ${servicio}</p>
+          <p><strong>Fecha:</strong> ${fechaTexto}</p>
+          <p><strong>Horario:</strong> ${horaInicio} - ${horaFin}</p>
+        </div>
+      `,
+      icon: "error",
+      confirmButtonText: "Entendido"
+    });
 
     btn.disabled = false;
     btn.textContent = "Guardar";
@@ -1032,7 +1096,7 @@ async function generarHoras() {
 
   if (!fecha) return;
 
-  const ocupadas = await obtenerHorasOcupadas(fecha);
+  const { ocupadas, ocupadasMismoUsuario } = await obtenerHorasOcupadas(fecha);
 
   select.innerHTML = `<option value="">Selecciona hora</option>`;
 
@@ -1044,13 +1108,16 @@ async function generarHoras() {
       const minuto = String(m).padStart(2, "0");
 
       const valor = `${hora}:${minuto}`;
+      const esOcupada = ocupadas.includes(valor);
+      const esOcupadaMismoUsuario = ocupadasMismoUsuario.includes(valor);
 
-      // ‚úÖ si est√° ocupada ‚Üí deshabilitar
-      const disabled = ocupadas.includes(valor) ? "disabled" : "";
+      // si el horario pertenece al mismo usuario, lo dejamos visible pero seleccionable
+      const disabled = esOcupada && !esOcupadaMismoUsuario ? "disabled" : "";
+      const etiqueta = esOcupada ? (esOcupadaMismoUsuario ? "(ocupado por ti)" : "(ocupado)") : "";
 
       select.innerHTML += `
         <option value="${valor}" ${disabled}>
-          ${valor} ${disabled ? "(ocupado)" : ""}
+          ${valor} ${etiqueta}
         </option>
       `;
     }
@@ -1058,6 +1125,29 @@ async function generarHoras() {
 }
 
 
+function esMismoUsuarioCita(data, citaActual) {
+  if (!citaActual) return false;
+
+  const clienteActual = String(citaActual.cliente || citaActual.clienteNombre || "").trim().toLowerCase();
+  const telefonoActual = String(citaActual.telefono || "").replace(/\D/g, "");
+  const clienteRefActual = citaActual.clienteRef && typeof citaActual.clienteRef === "object" && citaActual.clienteRef.path
+    ? citaActual.clienteRef.path
+    : "";
+
+  const clienteOtro = String(data.cliente || data.clienteNombre || "").trim().toLowerCase();
+  const telefonoOtro = String(data.telefono || "").replace(/\D/g, "");
+  const clienteRefOtro = data.clienteRef && typeof data.clienteRef === "object" && data.clienteRef.path
+    ? data.clienteRef.path
+    : "";
+
+  return (
+    clienteActual && clienteOtro && clienteActual === clienteOtro
+  ) || (
+    telefonoActual && telefonoOtro && telefonoActual === telefonoOtro
+  ) || (
+    clienteRefActual && clienteRefOtro && clienteRefActual === clienteRefOtro
+  );
+}
 
 async function obtenerHorasOcupadas(fechaSeleccionada) {
 
@@ -1073,9 +1163,20 @@ async function obtenerHorasOcupadas(fechaSeleccionada) {
   const snap = await getDocs(q);
 
   const ocupadas = [];
+  const ocupadasMismoUsuario = [];
 
-  snap.forEach(doc => {
-    const data = doc.data();
+  let citaActual = null;
+  if (citaActualId) {
+    const snapActual = await getDoc(doc(db, "citas", citaActualId));
+    if (snapActual.exists()) {
+      citaActual = snapActual.data();
+    }
+  }
+
+  snap.forEach(docu => {
+    if (docu.id === citaActualId) return;
+
+    const data = docu.data();
 
     if (data.fechaHora) {
       const fecha = data.fechaHora.toDate();
@@ -1086,12 +1187,17 @@ async function obtenerHorasOcupadas(fechaSeleccionada) {
       while (cursor < fin) {
         const hora = `${String(cursor.getHours()).padStart(2, "0")}:${String(cursor.getMinutes()).padStart(2, "0")}`;
         ocupadas.push(hora);
+
+        if (esMismoUsuarioCita(data, citaActual)) {
+          ocupadasMismoUsuario.push(hora);
+        }
+
         cursor = new Date(cursor.getTime() + 30 * 60000);
       }
     }
   });
 
-  return ocupadas;
+  return { ocupadas, ocupadasMismoUsuario };
 }
 
 window.onChangeFecha = function() {
