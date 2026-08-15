@@ -538,20 +538,17 @@ function obtenerSlotsOcupados(citas) {
   const ocupados = [];
 
   citas.forEach(c => {
+    const [h, m] = c.hora.split(":").map(Number);
+    const startMin = h * 60 + m;
+    const duracionMin = getDuracionMinutos(c.duracion);
+    const endMin = startMin + duracionMin;
+    let currentMin = startMin;
 
-    const bloques = getDuracionMinutos(c.duracion) / 30;
-
-    let [h, m] = c.hora.split(":").map(Number);
-
-    for (let i = 0; i < bloques; i++) {
-
-      ocupados.push(`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`);
-
-      m += 30;
-      if (m >= 60) {
-        m = 0;
-        h++;
-      }
+    while (currentMin + 30 <= endMin) {
+      const slotH = Math.floor(currentMin / 60);
+      const slotM = currentMin % 60;
+      ocupados.push(`${String(slotH).padStart(2, "0")}:${String(slotM).padStart(2, "0")}`);
+      currentMin += 30;
     }
   });
 

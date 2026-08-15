@@ -409,7 +409,6 @@ async function cargarCitas() {
       }
     }
 
-    // calcular inicio, fin y slots ocupados por duracion
     try {
       const inicio = getFechaHora(cita);
       cita._start = inicio;
@@ -430,6 +429,7 @@ async function cargarCitas() {
   const today = new Date();
   const isToday = selectedDate.toDateString() === today.toDateString();
   const currentHour = today.getHours();
+  const currentMinute = today.getMinutes();
 
   if (calendarTitle) {
     const titleLabel = selectedDate.toLocaleDateString("es-CO", { weekday: "long", day: "2-digit", month: "long" });
@@ -440,50 +440,54 @@ async function cargarCitas() {
     calendarSummary.textContent = `${citasProcesadas.length} cita${citasProcesadas.length === 1 ? "" : "s"}`;
   }
 
-  const horas = [];
+  const slots = [];
   for (let h = 8; h <= 20; h++) {
-    horas.push(String(h).padStart(2, "0") + ":00");
+    for (const m of [0, 30]) {
+      const slotLabel = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+      const slotStart = new Date(selectedDate);
+      slotStart.setHours(h, m, 0, 0);
+      const slotEnd = new Date(slotStart);
+      slotEnd.setMinutes(slotEnd.getMinutes() + 30);
+      slots.push({ slotLabel, slotStart, slotEnd });
+    }
   }
 
-  container.innerHTML = horas.map(hora => {
-    const [horaNum] = hora.split(":").map(Number);
-    const hourStart = new Date(selectedDate);
-    hourStart.setHours(horaNum, 0, 0, 0);
-    const hourEnd = new Date(hourStart);
-    hourEnd.setHours(hourStart.getHours() + 1);
+  container.innerHTML = slots.map(({ slotLabel, slotStart, slotEnd }) => {
+    const slotOcultoPorCita = citasProcesadas.some(cita => {
+      if ((cita.estado || 'pendiente') === 'cancelada' || !cita._start || !cita._end) return false;
+      return cita._start < slotStart && slotEnd <= cita._end;
+    });
 
-    const citasHora = citasProcesadas.filter(cita => {
-      // excluir canceladas
+    if (slotOcultoPorCita) return "";
+
+    const citasSlot = citasProcesadas.filter(cita => {
       if ((cita.estado || 'pendiente') === 'cancelada') return false;
-      return cita._start && cita._end && cita._start < hourEnd && cita._end > hourStart;
+      return cita._start && cita._end && cita._start < slotEnd && cita._end > slotStart;
     });
 
     const selectedDateIso = formatDateForInput(selectedDate);
-
     let contenido = '';
 
-    if (citasHora.length) {
-      const citasInicio = citasHora.filter(cita => cita._start >= hourStart && cita._start < hourEnd);
+    if (citasSlot.length) {
+      const citasInicio = citasSlot.filter(cita => cita._start >= slotStart && cita._start < slotEnd);
       if (citasInicio.length) {
         contenido = citasInicio.map(crearEventoCalendario).join("");
       } else {
-        contenido = citasHora.map(cita => {
-          const cliente = cita?.cliente || 'Cita';
-          const horaInicio = cita?._start ? formatHourLabel(cita._start) : '';
-          const horaFin = cita?._end ? formatHourLabel(cita._end) : '';
-          const rango = horaInicio && horaFin ? `${horaInicio} - ${horaFin}` : 'Ocupado';
-          return `<div class="hour-continued" data-id="${escapeHtml(cita?.id || '')}"><strong>${escapeHtml(cliente)}</strong><span>${escapeHtml(rango)}</span></div>`;
-        }).join("");
+        contenido = "";
       }
     } else {
-      contenido = `<div class="hour-empty" onclick="irAReserva('${escapeHtml(selectedDateIso)}', '${hora}')">Espacio libre</div>`;
+      contenido = `<div class="hour-empty clickable" onclick="irAReserva('${escapeHtml(selectedDateIso)}', '${slotLabel}')">Espacio libre</div>`;
     }
 
-    const isCurrentHour = isToday && currentHour === horaNum;
+    const isCurrentSlot = isToday && (() => {
+      const currentSlotStart = new Date(selectedDate);
+      currentSlotStart.setHours(currentHour, currentMinute < 30 ? 0 : 30, 0, 0);
+      return slotStart.getTime() === currentSlotStart.getTime();
+    })();
 
     return `
-      <div class="hour-row ${isCurrentHour ? "current-hour" : ""}">
-        <div class="hour-label"><span>${hora}</span></div>
+      <div class="hour-row ${isCurrentSlot ? "current-hour" : ""}">
+        <div class="hour-label"><span>${slotLabel}</span></div>
         <div class="hour-column">${contenido}</div>
       </div>
     `;
