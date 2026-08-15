@@ -79,19 +79,34 @@ function validarServicio() {
   const iconoValue = String(icono.value || "fa-star").trim() || "fa-star";
 
   if (!nombreValue) {
-    alert("El nombre es obligatorio.");
+    Swal.fire({
+      title: 'Falta el nombre',
+      text: 'El nombre es obligatorio.',
+      icon: 'warning',
+      confirmButtonText: 'Aceptar'
+    });
     nombre.focus();
     return null;
   }
 
   if (!precioValue || precioValue <= 0) {
-    alert("El precio debe ser mayor que 0.");
+    Swal.fire({
+      title: 'Precio inválido',
+      text: 'El precio debe ser mayor que 0.',
+      icon: 'warning',
+      confirmButtonText: 'Aceptar'
+    });
     precio.focus();
     return null;
   }
 
   if (!duracionValue || duracionValue <= 0) {
-    alert("La duración debe ser mayor que 0.");
+    Swal.fire({
+      title: 'Duración inválida',
+      text: 'La duración debe ser mayor que 0.',
+      icon: 'warning',
+      confirmButtonText: 'Aceptar'
+    });
     duracion.focus();
     return null;
   }
@@ -215,7 +230,12 @@ async function cambiarEstado(servicio) {
     await cargarServicios();
   } catch (error) {
     console.error("Error cambiando estado de servicio:", error);
-    alert("No se pudo cambiar el estado del servicio.");
+    Swal.fire({
+      title: 'No se pudo actualizar',
+      text: 'No se pudo cambiar el estado del servicio.',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
   }
 }
 
@@ -239,7 +259,12 @@ async function guardarServicio() {
     await cargarServicios();
   } catch (error) {
     console.error("Error guardando servicio:", error);
-    alert("No se pudo guardar el servicio.");
+    Swal.fire({
+      title: 'Error al guardar',
+      text: 'No se pudo guardar el servicio.',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
   }
 }
 

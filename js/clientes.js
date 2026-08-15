@@ -116,8 +116,19 @@ window.eliminarCliente = async (event, id) => {
   event.stopPropagation();
   const cliente = clientesCache.find(c => c.id === id);
   if (!cliente) return;
-  const confirmed = confirm(`Eliminar cliente ${cliente.nombre}? Esta acción no se puede deshacer.`);
-  if (!confirmed) return;
+
+  const { isConfirmed } = await Swal.fire({
+    title: 'Eliminar cliente',
+    text: `¿Eliminar a ${cliente.nombre}? Esta acción no se puede deshacer.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33'
+  });
+
+  if (!isConfirmed) return;
+
   try {
     await deleteDoc(doc(db, 'clientes', id));
     if (selectedCliente && selectedCliente.id === id) {
@@ -171,14 +182,20 @@ window.guardarCliente = async function () {
     } else {
       const duplicado = clientesCache.find(c => c.telefono === telefono);
       if (duplicado) {
-        const confirmed = confirm('Ya existe un cliente con ese teléfono. ¿Deseas actualizar sus datos?');
-        if (confirmed) {
-          await updateDoc(doc(db, 'clientes', duplicado.id), clienteData);
-          selectedCliente = duplicado;
-          mostrarToast('Cliente existente actualizado', 'ok');
-        } else {
-          return;
-        }
+        const { isConfirmed } = await Swal.fire({
+          title: 'Cliente duplicado',
+          text: 'Ya existe un cliente con ese teléfono. ¿Deseas actualizar sus datos?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, actualizar',
+          cancelButtonText: 'Cancelar'
+        });
+
+        if (!isConfirmed) return;
+
+        await updateDoc(doc(db, 'clientes', duplicado.id), clienteData);
+        selectedCliente = duplicado;
+        mostrarToast('Cliente existente actualizado', 'ok');
       } else {
         await addDoc(collection(db, 'clientes'), {
           ...clienteData,

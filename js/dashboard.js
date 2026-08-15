@@ -525,6 +525,23 @@ window.cambiarEstado = async function(select, id) {
   const nuevoEstado = select.value;
   const estadoAnterior = select.dataset.estadoAnterior;
 
+  if (nuevoEstado === 'cancelada' && estadoAnterior !== 'cancelada') {
+    const { isConfirmed } = await Swal.fire({
+      title: 'Cancelar cita',
+      text: '¿Deseas marcar esta cita como cancelada?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'Volver',
+      confirmButtonColor: '#d33'
+    });
+
+    if (!isConfirmed) {
+      select.value = estadoAnterior || 'pendiente';
+      return;
+    }
+  }
+
   try {
 
     // si se cancela, además liberamos el slot quitando la fecha/hora
@@ -572,7 +589,7 @@ window.cambiarEstado = async function(select, id) {
 
 
     if (estadoAnterior !== nuevoEstado && estadosConMensaje.includes(nuevoEstado)) {
-      preguntarEnvioWhatsApp(select, nuevoEstado);
+      await preguntarEnvioWhatsApp(select, nuevoEstado);
     }
 
 
@@ -705,12 +722,36 @@ function mostrarToast(msg, tipo = "ok") {
 
 window.editarCita = async function(id) {
 
-  const nuevaFecha = prompt("Nueva fecha (YYYY-MM-DD):");
-  const nuevaHora = prompt("Nueva hora (HH:MM):");
+  const { value } = await Swal.fire({
+    title: 'Reprogramar cita',
+    html: `
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <label style="text-align:left;font-weight:600;">Nueva fecha</label>
+        <input id="swal-fecha" type="date" class="swal2-input" style="margin:0;">
+        <label style="text-align:left;font-weight:600;">Nueva hora</label>
+        <input id="swal-hora" type="time" step="1800" class="swal2-input" style="margin:0;">
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Guardar',
+    cancelButtonText: 'Cancelar',
+    preConfirm: () => {
+      const nuevaFecha = document.getElementById('swal-fecha')?.value;
+      const nuevaHora = document.getElementById('swal-hora')?.value;
 
-  if (!nuevaFecha || !nuevaHora) return;
+      if (!nuevaFecha || !nuevaHora) {
+        Swal.showValidationMessage('Debes completar fecha y hora.');
+        return false;
+      }
 
-  const nuevaFechaHora = new Date(`${nuevaFecha}T${nuevaHora}:00`);
+      return { nuevaFecha, nuevaHora };
+    }
+  });
+
+  if (!value) return;
+
+  const nuevaFechaHora = new Date(`${value.nuevaFecha}T${value.nuevaHora}:00`);
 
   try {
 
@@ -849,35 +890,54 @@ window.editarDesdeMenu = function (el) {
   if (id) abrirModal(id);
 };
 
-window.cancelarDesdeMenu = function(el) {
+window.cancelarDesdeMenu = async function(el) {
   const card = el.closest(".appointment-card");
   const select = card?.querySelector("select");
 
-  if (select && card?.dataset.id) {
-    select.value = "cancelada";
-    cambiarEstado(select, card.dataset.id);
-  }
+  if (!select || !card?.dataset.id) return;
+
+  const { isConfirmed } = await Swal.fire({
+    title: 'Cancelar cita',
+    text: '¿Deseas cancelar esta cita antes de continuar?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, cancelar',
+    cancelButtonText: 'Volver',
+    confirmButtonColor: '#d33'
+  });
+
+  if (!isConfirmed) return;
+
+  select.value = "cancelada";
+  await cambiarEstado(select, card.dataset.id);
 };
 
-function preguntarEnvioWhatsApp(select, estado) {
+async function preguntarEnvioWhatsApp(select, estado) {
 
   let mensaje = "";
 
   if (estado === "confirmada") {
-    mensaje = "Â¿Enviar confirmaciÃ³n por WhatsApp?";
+    mensaje = "¿Enviar confirmación por WhatsApp?";
   }
 
   if (estado === "cancelada") {
-    mensaje = "Â¿Enviar cancelaciÃ³n por WhatsApp?";
+    mensaje = "¿Enviar cancelación por WhatsApp?";
   }
 
   if (estado === "reprogramada") {
-    mensaje = "Â¿Enviar reprogramaciÃ³n por WhatsApp?";
+    mensaje = "¿Enviar reprogramación por WhatsApp?";
   }
 
-  const confirmar = confirm(mensaje);
+  const { isConfirmed } = await Swal.fire({
+    title: 'WhatsApp',
+    text: mensaje,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, enviar',
+    cancelButtonText: 'No enviar'
+  });
 
-  if (confirmar) {
+  if (isConfirmed) {
     enviarWhatsApp(
       obtenerCliente(select),
       obtenerHora(select),

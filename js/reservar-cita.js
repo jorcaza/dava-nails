@@ -652,7 +652,12 @@ window.confirmar = async function () {
 
   // validar que haya fecha y hora
   if (!booking.fechaRaw || !booking.hora) {
-    alert("Selecciona fecha y hora ?");
+    await Swal.fire({
+      title: 'Falta la fecha y la hora',
+      text: 'Selecciona fecha y hora.',
+      icon: 'warning',
+      confirmButtonText: 'Aceptar'
+    });
     return;
   }
 
@@ -660,7 +665,12 @@ window.confirmar = async function () {
   const disponible = await validarDisponibilidad();
 
   if (!disponible) {
-    alert("Ese horario ya no está disponible ?");
+    await Swal.fire({
+      title: 'Horario no disponible',
+      text: 'Ese horario ya no está disponible.',
+      icon: 'warning',
+      confirmButtonText: 'Aceptar'
+    });
     return;
   }
 
@@ -760,7 +770,12 @@ window.confirmar = async function () {
 
   } catch (error) {
     console.error(error);
-    alert("Error al guardar la cita ?");
+    await Swal.fire({
+      title: 'Error al guardar',
+      text: 'Error al guardar la cita.',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
   }
 };
 
@@ -782,7 +797,12 @@ window.goTo = function(step) {
   // validaciones básicas
   if (step === 2) {
     if (!booking.servicio) {
-      alert("Selecciona un servicio ?");
+      Swal.fire({
+        title: 'Selecciona un servicio',
+        text: 'Debes elegir un servicio antes de continuar.',
+        icon: 'warning',
+        confirmButtonText: 'Aceptar'
+      });
       return;
     }
     if (booking.prefilledDateTime) {
@@ -792,11 +812,21 @@ window.goTo = function(step) {
 
   if (step === 3) {
     if (!booking.servicio) {
-      alert("Selecciona un servicio ?");
+      Swal.fire({
+        title: 'Selecciona un servicio',
+        text: 'Debes elegir un servicio antes de continuar.',
+        icon: 'warning',
+        confirmButtonText: 'Aceptar'
+      });
       return;
     }
     if (!booking.fechaRaw || !booking.hora) {
-      alert("Selecciona fecha y hora ?");
+      Swal.fire({
+        title: 'Falta la fecha y la hora',
+        text: 'Selecciona fecha y hora.',
+        icon: 'warning',
+        confirmButtonText: 'Aceptar'
+      });
       return;
     }
   }
@@ -867,7 +897,12 @@ window.resetForm = function () {
 };
 
 window.confirmar = window.confirmar || async function () {
-  alert("Cita confirmada ?");
+  await Swal.fire({
+    title: 'Cita confirmada',
+    text: 'La cita se ha confirmado correctamente.',
+    icon: 'success',
+    confirmButtonText: 'Aceptar'
+  });
 };
 
 function convertirFechaHora(fecha, horaTexto) {
