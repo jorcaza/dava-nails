@@ -29,7 +29,7 @@ const booking = {
   servicio: '',
   servicioId: '',
   duracion: '',
-  precio: '',
+  precio: 0,
   manicurista: 'Sin preferencia',
   fechaRaw: '',
   hora: '',
@@ -38,6 +38,20 @@ const booking = {
   editId: null,
   prefilledDateTime: false
 };
+
+function normalizarPrecioNumero(valor) {
+  if (typeof valor === 'number') return Number.isFinite(valor) ? valor : 0;
+  if (!valor && valor !== 0) return 0;
+
+  const limpio = String(valor)
+    .replace(/\$/g, '')
+    .replace(/\./g, '')
+    .replace(/,/g, '')
+    .replace(/\s/g, '');
+
+  const numero = Number(limpio);
+  return Number.isFinite(numero) ? numero : 0;
+}
 
 let selectedCliente = null;
 let lastQuery = '';
@@ -72,7 +86,7 @@ async function prefillFromQuery() {
           booking.servicioId = data.servicio.id || data.servicio;
           booking.servicio = data.servicioNombre || '';
           booking.duracion = data.duracion || '';
-          booking.precio = data.precio || '';
+          booking.precio = normalizarPrecioNumero(data.precio ?? 0);
         }
 
         if (data.manicuristaNombre) {
@@ -226,9 +240,10 @@ async function cargarServicios() {
     }
 
     serviciosActivos.forEach(s => {
+      const precioNumero = normalizarPrecioNumero(s.precio);
       const html = `
         <label class="svc-card"
-          onclick="selectSvc(this,'${s.nombre}','${s.duracion} min','$${s.precio}','${s.id}')">
+          onclick="selectSvc(this,'${s.nombre}','${s.duracion} min','${precioNumero}','${s.id}')">
 
           <input type="radio" name="servicio">
 
@@ -240,7 +255,7 @@ async function cargarServicios() {
 
           <div class="svc-name">${s.nombre}</div>
           <div class="svc-time">${s.duracion} min</div>
-          <div class="svc-price">$${s.precio}</div>
+          <div class="svc-price">$${precioNumero.toLocaleString('es-CO')}</div>
 
         </label>
       `;
@@ -263,7 +278,7 @@ window.selectSvc = function (el, name, dur, price, id) {
   booking.servicio = name;
   booking.servicioId = id;
   booking.duracion = dur;
-  booking.precio = price;
+  booking.precio = normalizarPrecioNumero(price);
 };
 
 window.selectMani = function (el, name) {
@@ -768,7 +783,7 @@ window.confirmar = async function () {
         servicio: doc(db, "servicios", booking.servicioId),
         servicioNombre: booking.servicio,
         duracion: booking.duracion,
-        precio: booking.precio,
+        precio: Number(booking.precio),
         manicurista: manicuristaRef,
         manicuristaNombre: booking.manicurista,
         fechaCambioEstado: serverTimestamp(),
@@ -785,7 +800,7 @@ window.confirmar = async function () {
         servicio: doc(db, "servicios", booking.servicioId),
         servicioNombre: booking.servicio,
         duracion: booking.duracion,
-        precio: booking.precio,
+        precio: Number(booking.precio),
         manicurista: manicuristaRef,
         manicuristaNombre: booking.manicurista,
         estado: "pendiente",

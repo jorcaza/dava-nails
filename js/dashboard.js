@@ -558,6 +558,28 @@ window.editarCitaDesdeCalendario = function (id) {
 };
 
 
+async function obtenerDatosCita(id) {
+  const snap = await getDoc(doc(db, "citas", id));
+  return snap.exists() ? snap.data() : {};
+}
+
+function parsePrecioDesdeInput(valor) {
+  const limpio = String(valor ?? "")
+    .replace(/\$/g, "")
+    .replace(/\s/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .replace(/[^\d.]/g, "");
+
+  const numero = Number(limpio);
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+function formatearPrecioInput(valor) {
+  const numero = Number(String(valor ?? "").replace(/[^\d.-]/g, ""));
+  return Number.isFinite(numero) ? numero.toLocaleString('es-CO') : '0';
+}
+
 window.cambiarEstado = async function (select, id) {
 
   const nuevoEstado = select.value;
@@ -565,8 +587,102 @@ window.cambiarEstado = async function (select, id) {
 
   try {
 
-    // si se cancela, ademï¿½s liberamos el slot quitando la fecha/hora
-    if (nuevoEstado === 'cancelada') {
+    if (nuevoEstado === 'completada') {
+      const citaActual = await obtenerDatosCita(id);
+      const formaPagoActual = String(citaActual.formaPago || 'efectivo');
+      const precioActual = Number(citaActual.precio ?? 0);
+      const precioValor = Number.isFinite(precioActual) && precioActual > 0 ? precioActual : 0;
+      const { isConfirmed, value } = await Swal.fire({
+        title: 'Completar cita',
+        html: `
+          <div style="display:flex;flex-direction:column;gap:12px;text-align:left;">
+            <div>
+              <label for="swal-forma-pago" style="display:block;font-weight:600;margin-bottom:6px;">Forma de pago</label>
+              <select id="swal-forma-pago" class="swal2-input" style="width:100%;margin:0;">
+                <option value="efectivo" ${formaPagoActual === 'efectivo' ? 'selected' : ''}>Efectivo</option>
+                <option value="transferencia" ${formaPagoActual === 'transferencia' ? 'selected' : ''}>Transferencia</option>
+              </select>
+            </div>
+            <div>
+              <label for="swal-precio" style="display:block;font-weight:600;margin-bottom:6px;">Precio</label>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-weight:700;color:#2d3748;">$</span>
+                <input id="swal-precio" type="text" class="swal2-input" value="${formatearPrecioInput(precioValor)}" style="width:100%;margin:0;background:#f8fafc;cursor:default;" inputmode="numeric" autocomplete="off" readonly>
+              </div>
+              <div style="margin-top:8px;">
+                <button type="button" id="swal-toggle-precio" class="swal2-styled swal2-confirm" style="padding:8px 12px;font-size:12px;">Editar valor</button>
+              </div>
+            </div>
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        didOpen: () => {
+          const precioInput = document.getElementById('swal-precio');
+          const togglePrecioBtn = document.getElementById('swal-toggle-precio');
+
+          if (!precioInput || !togglePrecioBtn) return;
+
+          const aplicarFormatoPrecio = () => {
+            if (precioInput.hasAttribute('readonly')) return;
+            const digits = String(precioInput.value || '').replace(/\D/g, '');
+            precioInput.value = digits ? Number(digits).toLocaleString('es-CO') : '';
+          };
+
+          togglePrecioBtn.addEventListener('click', () => {
+            const isReadonly = precioInput.hasAttribute('readonly');
+            if (isReadonly) {
+              precioInput.removeAttribute('readonly');
+              precioInput.style.background = '#fff';
+              precioInput.style.cursor = 'text';
+              const digits = String(precioInput.value || '').replace(/\D/g, '');
+              precioInput.value = digits ? Number(digits).toLocaleString('es-CO') : '';
+              precioInput.focus();
+              togglePrecioBtn.textContent = 'Bloquear valor';
+            } else {
+              precioInput.setAttribute('readonly', 'readonly');
+              precioInput.style.background = '#f8fafc';
+              precioInput.style.cursor = 'default';
+              const digits = String(precioInput.value || '').replace(/\D/g, '');
+              precioInput.value = digits ? Number(digits).toLocaleString('es-CO') : '0';
+              togglePrecioBtn.textContent = 'Editar valor';
+            }
+          });
+
+          precioInput.addEventListener('input', () => {
+            if (precioInput.hasAttribute('readonly')) return;
+            const digits = String(precioInput.value || '').replace(/\D/g, '');
+            precioInput.value = digits ? Number(digits).toLocaleString('es-CO') : '';
+          });
+        },
+        preConfirm: () => {
+          const formaPago = document.getElementById('swal-forma-pago')?.value || 'efectivo';
+          const precioTexto = document.getElementById('swal-precio')?.value || '';
+          const precio = parsePrecioDesdeInput(precioTexto);
+
+          if (!precio || precio <= 0) {
+            Swal.showValidationMessage('Ingresa un precio válido.');
+            return false;
+          }
+
+          return { formaPago, precio };
+        }
+      });
+
+      if (!isConfirmed || !value) {
+        select.value = estadoAnterior || 'pendiente';
+        return;
+      }
+
+      await updateDoc(doc(db, "citas", id), {
+        estado: nuevoEstado,
+        formaPago: value.formaPago,
+        precio: Number(value.precio)
+      });
+
+    } else if (nuevoEstado === 'cancelada') {
       await updateDoc(doc(db, "citas", id), {
         estado: nuevoEstado,
         fechaHora: null,
