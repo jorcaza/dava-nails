@@ -1157,7 +1157,7 @@ white-space: nowrap;
 }
 
 
-/* círculo */
+/* cï¿½rculo */
 
 
 .estado.pendiente {
@@ -1200,7 +1200,7 @@ white-space: nowrap;
   justify-content: center;
 
   width: fit-content;       /* ?? NO se expande */
-  height: 32px;             /* ?? tamaño consistente */
+  height: 32px;             /* ?? tamaï¿½o consistente */
 
   padding: 0 10px;          /* ?? horizontal solamente */
 
@@ -1220,7 +1220,7 @@ white-space: nowrap;
 }
 
 
-.col[data-label="Acción"] {
+.col[data-label="Acciï¿½n"] {
   justify-content: flex-start;
 }
 
@@ -1303,11 +1303,11 @@ white-space: nowrap;
 
 
 /* =========================
-   BOTÓN WHATSAPP ?
+   BOTï¿½N WHATSAPP ?
 ========================= */
 
 
-.col[data-label="Acción"] {
+.col[data-label="Acciï¿½n"] {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1389,7 +1389,7 @@ white-space: nowrap;
 }
 
 
-/* COLORES DINÁMICOS */
+/* COLORES DINï¿½MICOS */
 .estado-pendiente {
   background: #fff4cc;
   color: #b38b00;
@@ -1477,7 +1477,7 @@ white-space: nowrap;
   animation: fadeIn 0.3s ease;
 }
 
-/* animación */
+/* animaciï¿½n */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1550,8 +1550,8 @@ white-space: nowrap;
   gap: 10px;
 }
 
-/* COLUMNA ACCIÓN */
-.col[data-label="Acción"] {
+/* COLUMNA ACCIï¿½N */
+.col[data-label="Acciï¿½n"] {
   display: flex;
   align-items: center;      /* ?? centra vertical */
 }
@@ -1614,7 +1614,7 @@ white-space: nowrap;
   position: relative;   /* ?? base del floating */
 }
 
-/* menú desplegable */
+/* menï¿½ desplegable */
 
 .menu-options {
   position: fixed;
@@ -1739,7 +1739,7 @@ white-space: nowrap;
     margin-bottom: 6px;
   }
 
-  .t-row .col[data-label="Acción"] {
+  .t-row .col[data-label="Acciï¿½n"] {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
@@ -1794,7 +1794,7 @@ white-space: nowrap;
   gap: 8px;
 }
 
-/* base botón */
+/* base botï¿½n */
 .btn-accion {
   width: 36px;
   height: 36px;
@@ -1841,7 +1841,55 @@ white-space: nowrap;
   margin-top: 10px;
 }
 
-/* BOTÓN PRINCIPAL */
+.conflict-modal .modal-content {
+  width: min(92vw, 360px);
+  border: 1px solid #f2d8d8;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.18);
+}
+
+.conflict-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #b42318;
+}
+
+.conflict-description {
+  margin: 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+.conflict-card {
+  background: #fff7f7;
+  border: 1px solid #f2d8d8;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.conflict-card strong {
+  color: #111827;
+}
+
+.conflict-meta {
+  font-size: 13px;
+  color: #475467;
+}
+
+.conflict-chip {
+  display: inline-flex;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fee4e2;
+  color: #b42318;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* BOTï¿½N PRINCIPAL */
 .btn-primary {
   background: #1976d2;
   color: white;
@@ -1859,7 +1907,7 @@ white-space: nowrap;
   cursor: not-allowed;
 }
 
-/* BOTÓN SECUNDARIO (CANCELAR) */
+/* BOTï¿½N SECUNDARIO (CANCELAR) */
 .btn-secondary {
   background: #e0e0e0;
   color: #333;
@@ -2234,7 +2282,7 @@ white-space: nowrap;
     margin-bottom: 6px;
   }
 
-  .t-row .col[data-label="Acción"] {
+  .t-row .col[data-label="Acciï¿½n"] {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;

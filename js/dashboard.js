@@ -1,9 +1,9 @@
 // 🔥 IMPORTS FIREBASE
-import { auth,db } from "/js/firebase-config.js";
-import { signOut } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { collection, getDocs, query, orderBy, where, getDoc, updateDoc, doc } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { auth, db } from "/js/firebase-config.js";
+import { signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { collection, getDocs, query, orderBy, where, getDoc, updateDoc, doc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
 
@@ -84,8 +84,8 @@ let statusFilter = localStorage.getItem('dsf_status') || 'all';
 let searchQuery = localStorage.getItem('dsf_search') || '';
 let debounceSearchTimer = null;
 
-function startOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0,0,0); }
-function endOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23,59,59); }
+function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0); }
+function endOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59); }
 function parseDateInput(value) {
   if (!value) return new Date();
   const [year, month, day] = value.split('-').map(Number);
@@ -117,9 +117,9 @@ function initFilters() {
 
   if (sc) {
     sc.value = searchQuery || '';
-    sc.addEventListener('input', (e)=>{
+    sc.addEventListener('input', (e) => {
       clearTimeout(debounceSearchTimer);
-      debounceSearchTimer = setTimeout(()=>{
+      debounceSearchTimer = setTimeout(() => {
         searchQuery = String(e.target.value || '').trim().toLowerCase();
         localStorage.setItem('dsf_search', searchQuery);
         cargarCitas();
@@ -134,10 +134,10 @@ function initFilters() {
   // attach KPI card listeners and visual state
   const kpis = document.querySelectorAll('.kpi-strip .kpi-card');
   if (kpis && kpis.length >= 4) {
-    const map = ['all','completada','pendiente','confirmada'];
+    const map = ['all', 'completada', 'pendiente', 'confirmada'];
     kpis.forEach((c, i) => {
       c.dataset.estado = map[i] || 'all';
-      c.addEventListener('click', ()=> setEstadoFilter(c.dataset.estado));
+      c.addEventListener('click', () => setEstadoFilter(c.dataset.estado));
       if (c.dataset.estado === statusFilter) c.classList.add('active');
     });
   }
@@ -153,7 +153,7 @@ function onFilterDateChange() {
   actualizarKpis();
 }
 
-function applyDateFilter(){
+function applyDateFilter() {
   const fd = document.getElementById('filterDate');
   const dateStr = fd ? fd.value : null;
   const d = dateStr ? parseDateInput(dateStr) : new Date();
@@ -161,7 +161,7 @@ function applyDateFilter(){
   filterEnd = endOfDay(d);
 }
 
-function setEstadoFilter(estado){
+function setEstadoFilter(estado) {
   if (statusFilter === estado) {
     statusFilter = 'all';
   } else {
@@ -169,13 +169,13 @@ function setEstadoFilter(estado){
   }
   localStorage.setItem('dsf_status', statusFilter);
   // update visual
-  document.querySelectorAll('.kpi-strip .kpi-card').forEach(c=>{
+  document.querySelectorAll('.kpi-strip .kpi-card').forEach(c => {
     if (c.dataset.estado === statusFilter) c.classList.add('active'); else c.classList.remove('active');
   });
   cargarCitas();
 }
 
-function resetFilter(){
+function resetFilter() {
   const fd = document.getElementById('filterDate');
   const today = new Date();
   const iso = formatDateForInput(today);
@@ -194,7 +194,7 @@ function formatRangeLabel(date) {
   return `Mostrando: ${label.charAt(0).toUpperCase()}${label.slice(1)}`;
 }
 
-function updateRangeLabel(){
+function updateRangeLabel() {
   const fd = document.getElementById('filterDate');
   const rangeEl = document.getElementById('rangeLabel');
   const dateStr = fd ? fd.value : null;
@@ -202,7 +202,7 @@ function updateRangeLabel(){
   if (rangeEl) rangeEl.textContent = formatRangeLabel(date);
 }
 
-function updateTopbarSubtitle(){
+function updateTopbarSubtitle() {
   const fd = document.getElementById('filterDate');
   const subtitle = document.getElementById('topbarSubtitle');
   const dateStr = fd ? fd.value : null;
@@ -210,7 +210,7 @@ function updateTopbarSubtitle(){
   if (subtitle) subtitle.textContent = formatRangeLabel(date);
 }
 
-window.actualizarKpis = async function(){
+window.actualizarKpis = async function () {
   if (!filterStart || !filterEnd) applyDateFilter();
   const qk = query(
     collection(db, 'citas'),
@@ -218,8 +218,8 @@ window.actualizarKpis = async function(){
     where('fechaHora', '<=', filterEnd)
   );
   const snap = await getDocs(qk);
-  let total = 0, comp=0, pend=0, conf=0;
-  snap.forEach(docu=>{
+  let total = 0, comp = 0, pend = 0, conf = 0;
+  snap.forEach(docu => {
     total++;
     const e = (docu.data().estado || 'pendiente');
     if (e === 'completada') comp++;
@@ -235,7 +235,7 @@ window.actualizarKpis = async function(){
   if (elComp) elComp.textContent = comp;
   if (elPend) elPend.textContent = pend;
   if (elConf) elConf.textContent = conf;
-  if (badge) badge.textContent = `💅 ${total} citas`; 
+  if (badge) badge.textContent = `💅 ${total} citas`;
 }
 
 
@@ -271,21 +271,33 @@ function formatTimeReadable(date) {
 
 function getDuracionMinutos(str) {
   if (!str) return 30;
-  return parseInt(String(str).replace(/[^0-9]/g, '')) || 30;
+
+  const text = String(str).toLowerCase();
+  const horasMatch = text.match(/(\d+)\s*h/);
+  const minutosMatch = text.match(/(\d+)\s*m/);
+
+  if (horasMatch || minutosMatch) {
+    const horas = horasMatch ? parseInt(horasMatch[1], 10) : 0;
+    const minutos = minutosMatch ? parseInt(minutosMatch[1], 10) : 0;
+    return horas * 60 + minutos;
+  }
+
+  const numero = parseInt(text.replace(/\D/g, ''), 10);
+  return Number.isNaN(numero) ? 30 : numero;
 }
 
 function slotsFromCita(cita) {
   const slots = [];
   const fecha = getFechaHora(cita);
   if (!fecha) return slots;
-  const minutos = getDuracionMinutos(cita.duracion || cita.duracionMin || cita.duracionM || '') ;
+  const minutos = getDuracionMinutos(cita.duracion || cita.duracionMin || cita.duracionM || '');
   const bloques = Math.ceil(minutos / 30);
 
   let h = fecha.getHours();
   let m = fecha.getMinutes();
 
   for (let i = 0; i < bloques; i++) {
-    slots.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+    slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
     m += 30;
     if (m >= 60) { m = 0; h++; }
   }
@@ -526,7 +538,7 @@ initFilters();
 actualizarKpis();
 cargarCitas();
 
-window.getReservaUrl = function(fecha, hora, editId) {
+window.getReservaUrl = function (fecha, hora, editId) {
   const params = new URLSearchParams();
   params.set('fecha', fecha);
   params.set('hora', hora);
@@ -534,11 +546,11 @@ window.getReservaUrl = function(fecha, hora, editId) {
   return `reservar-cita.html?${params.toString()}`;
 };
 
-window.irAReserva = function(fecha, hora, editId) {
+window.irAReserva = function (fecha, hora, editId) {
   window.location.href = window.getReservaUrl(fecha, hora, editId);
 };
 
-window.editarCitaDesdeCalendario = function(id) {
+window.editarCitaDesdeCalendario = function (id) {
   const fecha = document.getElementById('filterDate')?.value || '';
   const hora = '';
   if (!id) return;
@@ -546,14 +558,14 @@ window.editarCitaDesdeCalendario = function(id) {
 };
 
 
-window.cambiarEstado = async function(select, id) {
+window.cambiarEstado = async function (select, id) {
 
   const nuevoEstado = select.value;
   const estadoAnterior = select.dataset.estadoAnterior;
 
   try {
 
-    // si se cancela, adem�s liberamos el slot quitando la fecha/hora
+    // si se cancela, adem�s liberamos el slot quitando la fecha/hora
     if (nuevoEstado === 'cancelada') {
       await updateDoc(doc(db, "citas", id), {
         estado: nuevoEstado,
@@ -606,8 +618,8 @@ window.cambiarEstado = async function(select, id) {
     select.dataset.estadoAnterior = nuevoEstado;
 
 
-    
-    
+
+
     // ✅ 🔥 MOSTRAR TOAST
     mostrarToast("Guardado ✅", "ok");
     actualizarKpis();
@@ -654,7 +666,7 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
 
   const lines = [];
   if (tipo === "confirmada") {
-    lines.push("? CONFIRMACI�N DE CITA DAVANAILS");
+    lines.push("? CONFIRMACI�N DE CITA DAVANAILS");
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
     lines.push("Tu cita ha sido CONFIRMADA");
@@ -669,7 +681,7 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
     lines.push("Tu cita ha sido cancelada.");
-    lines.push("Si deseas reprogramar, cont�ctanos");
+    lines.push("Si deseas reprogramar, cont�ctanos");
   } else if (tipo === "reprogramada") {
     lines.push("?? CITA REPROGRAMADA");
     if (cliente) lines.push(`Hola ${cliente}`);
@@ -691,7 +703,7 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
     if (servicio) lines.push(`?? Servicio: ${servicio}`);
     if (manicurista) lines.push(`?? Manicurista: ${manicurista}`);
     lines.push("");
-    lines.push("�Te esperamos! ??");
+    lines.push("�Te esperamos! ??");
   }
 
   const mensaje = lines.join("\n").normalize("NFKC").replace(/\uFE0F/g, "").trim();
@@ -703,7 +715,7 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
 
   const telefonoLimpio = String(telefono).replace(/\D/g, "");
   if (!telefonoLimpio) {
-    console.warn("No hay tel�fono para abrir WhatsApp.");
+    console.warn("No hay tel�fono para abrir WhatsApp.");
     return;
   }
 
@@ -729,7 +741,7 @@ function mostrarToast(msg, tipo = "ok") {
 }
 
 
-window.editarCita = async function(id) {
+window.editarCita = async function (id) {
 
   const { value } = await Swal.fire({
     title: 'Reprogramar cita',
@@ -784,7 +796,117 @@ window.editarCita = async function(id) {
 /*modales*/
 let citaActualId = null;
 
-window.abrirModal = function(id) {
+function obtenerIntervaloCita(cita) {
+  const fecha = cita?.fechaHora?.toDate ? cita.fechaHora.toDate() : new Date(cita?.fechaHora || null);
+  const durMin = getDuracionMinutos(cita?.duracion || '30');
+  const fin = fecha ? new Date(fecha.getTime() + durMin * 60000) : null;
+  return { inicio: fecha, fin };
+}
+
+function haySolapamiento(inicioA, finA, inicioB, finB) {
+  if (!inicioA || !finA || !inicioB || !finB) return false;
+  return inicioA < finB && inicioB < finA;
+}
+
+async function obtenerConflictoReprogramacion(fechaSeleccionada, horaSeleccionada, idCitaActual) {
+  if (!fechaSeleccionada || !horaSeleccionada || !idCitaActual) return null;
+
+  const citaActualSnap = await getDoc(doc(db, 'citas', idCitaActual));
+  if (!citaActualSnap.exists()) return null;
+
+  const citaActualData = citaActualSnap.data();
+  const nuevaFechaHora = new Date(`${fechaSeleccionada}T${horaSeleccionada}:00`);
+  const durMin = getDuracionMinutos(citaActualData.duracion || '30');
+  const nuevoFin = new Date(nuevaFechaHora.getTime() + durMin * 60000);
+
+  const fechaInicio = new Date(`${fechaSeleccionada}T00:00:00`);
+  const fechaFin = new Date(`${fechaSeleccionada}T23:59:59`);
+
+  const q = query(
+    collection(db, 'citas'),
+    where('fechaHora', '>=', fechaInicio),
+    where('fechaHora', '<=', fechaFin)
+  );
+
+  const snap = await getDocs(q);
+
+  for (const docu of snap.docs) {
+    if (docu.id === idCitaActual) continue;
+
+    const data = docu.data();
+    if (!data.fechaHora) continue;
+
+    const { inicio, fin } = obtenerIntervaloCita({ ...data, fechaHora: data.fechaHora });
+    if (!inicio || !fin) continue;
+
+    if (haySolapamiento(nuevaFechaHora, nuevoFin, inicio, fin)) {
+      return { id: docu.id, ...data, inicio, fin };
+    }
+  }
+
+  return null;
+}
+
+async function obtenerCitaConflictiva(fechaSeleccionada, horaSeleccionada, excludeId = null) {
+  if (!fechaSeleccionada || !horaSeleccionada) return null;
+
+  const fechaInicio = new Date(`${fechaSeleccionada}T00:00:00`);
+  const fechaFin = new Date(`${fechaSeleccionada}T23:59:59`);
+  const nuevaFechaHora = new Date(`${fechaSeleccionada}T${horaSeleccionada}:00`);
+
+  const q = query(
+    collection(db, 'citas'),
+    where('fechaHora', '>=', fechaInicio),
+    where('fechaHora', '<=', fechaFin)
+  );
+
+  const snap = await getDocs(q);
+
+  for (const docu of snap.docs) {
+    if (excludeId && docu.id === excludeId) continue;
+
+    const data = docu.data();
+    if (!data.fechaHora) continue;
+
+    const inicio = data.fechaHora.toDate ? data.fechaHora.toDate() : new Date(data.fechaHora);
+    const durMin = getDuracionMinutos(data.duracion || '30');
+    const fin = new Date(inicio.getTime() + durMin * 60000);
+
+    if (nuevaFechaHora < fin && inicio < new Date(nuevaFechaHora.getTime() + 30 * 60000)) {
+      return { id: docu.id, ...data, fechaHora: inicio, durMin, inicio, fin };
+    }
+  }
+
+  return null;
+}
+
+function mostrarModalConflicto(citaConflicto) {
+  const panel = document.getElementById('modalConflicto');
+  const card = document.getElementById('conflictCard');
+  if (!panel || !card) return;
+
+  const inicio = citaConflicto?.inicio;
+  const fin = citaConflicto?.fin;
+  const rango = inicio && fin ? `${formatTimeReadable(inicio)} - ${formatTimeReadable(fin)}` : 'Horario ocupado';
+  const cliente = citaConflicto?.cliente || 'Cliente';
+  const telefono = citaConflicto?.telefono || '';
+  const servicio = citaConflicto?.servicioNombre || citaConflicto?.servicio || 'Servicio';
+  const manicurista = citaConflicto?.manicuristaNombre || citaConflicto?.manicurista || 'Sin preferencia';
+  const estado = citaConflicto?.estado || 'pendiente';
+
+  card.innerHTML = `
+    <div class="conflict-chip">${escapeHtml(estado)}</div>
+    <strong>${escapeHtml(cliente)}</strong>
+    <div class="conflict-meta">${escapeHtml(rango)}</div>
+    <div class="conflict-meta">${escapeHtml(servicio)}</div>
+    <div class="conflict-meta">${escapeHtml(manicurista)}</div>
+    ${telefono ? `<div class="conflict-meta">📱 ${escapeHtml(telefono)}</div>` : ''}
+  `;
+
+  panel.style.display = 'flex';
+}
+
+window.abrirModal = function (id) {
 
   citaActualId = id;
 
@@ -801,64 +923,18 @@ window.abrirModal = function(id) {
 };
 
 
-window.cerrarModal = function() {
+window.cerrarModal = function () {
   document.getElementById("modalEditar").style.display = "none";
+}
+
+window.cerrarModalConflicto = function () {
+  document.getElementById("modalConflicto").style.display = "none";
 }
 
 //guardar reprogramaci´pn import { doc, updateDoc }
 
 
-async function obtenerCitaConflictiva(fecha, hora) {
-  if (!fecha || !hora || !citaActualId) return null;
-
-  const citaActualSnap = await getDoc(doc(db, "citas", citaActualId));
-  if (!citaActualSnap.exists()) return null;
-
-  const citaActual = citaActualSnap.data();
-  const nuevaFechaHora = new Date(`${fecha}T${hora}:00`);
-  if (!Number.isFinite(nuevaFechaHora.getTime())) return null;
-
-  const durMinActual = getDuracionMinutos(citaActual.duracion || "30");
-  const nuevaFin = new Date(nuevaFechaHora.getTime() + durMinActual * 60000);
-
-  const fechaInicio = new Date(`${fecha}T00:00:00`);
-  const fechaFin = new Date(`${fecha}T23:59:59`);
-
-  const q = query(
-    collection(db, "citas"),
-    where("fechaHora", ">=", fechaInicio),
-    where("fechaHora", "<=", fechaFin)
-  );
-
-  const snap = await getDocs(q);
-
-  let conflicto = null;
-
-  snap.forEach((docu) => {
-    if (docu.id === citaActualId) return;
-
-    const data = docu.data();
-    if (!data.fechaHora || data.estado === "cancelada") return;
-    if (esMismoUsuarioCita(data, citaActual)) return;
-
-    const fechaOtra = data.fechaHora.toDate();
-    const durMinOtra = getDuracionMinutos(data.duracion || "30");
-    const finOtra = new Date(fechaOtra.getTime() + durMinOtra * 60000);
-
-    if (nuevaFechaHora < finOtra && nuevaFin > fechaOtra) {
-      conflicto = {
-        id: docu.id,
-        ...data,
-        fechaHora: fechaOtra,
-        durMin: durMinOtra
-      };
-    }
-  });
-
-  return conflicto;
-}
-
-window.guardarReprogramacion = async function() {
+window.guardarReprogramacion = async function () {
 
   const btn = document.getElementById("btnGuardar");
 
@@ -887,7 +963,7 @@ window.guardarReprogramacion = async function() {
     return;
   }
 
-  const conflicto = await obtenerCitaConflictiva(fecha, hora);
+  const conflicto = await obtenerCitaConflictiva(fecha, hora, citaActualId);
 
   if (conflicto) {
     const inicioConflictivo = conflicto.fechaHora;
@@ -921,6 +997,13 @@ window.guardarReprogramacion = async function() {
   const nuevaFechaHora = new Date(`${fecha}T${hora}:00`);
 
   try {
+    const conflicto = await obtenerConflictoReprogramacion(fecha, hora, citaActualId);
+    if (conflicto) {
+      mostrarModalConflicto(conflicto);
+      btn.disabled = false;
+      btn.textContent = "Guardar";
+      return;
+    }
 
     await updateDoc(doc(db, "citas", citaActualId), {
       fechaHora: nuevaFechaHora,
@@ -947,14 +1030,14 @@ window.guardarReprogramacion = async function() {
 
 
 /*menú flotante*/
-window.toggleMenu = function(btn) {
+window.toggleMenu = function (btn) {
 
   const parent = btn.closest(".menu-acciones");
   parent.classList.toggle("open");
 
 }
 
-document.addEventListener("click", function(e) {
+document.addEventListener("click", function (e) {
 
   document.querySelectorAll(".menu-acciones").forEach(menu => {
     if (!menu.contains(e.target)) {
@@ -966,7 +1049,7 @@ document.addEventListener("click", function(e) {
 
 
 
-window.accionWhatsApp = function(el) {
+window.accionWhatsApp = function (el) {
   const card = el.closest(".appointment-card");
   const estado = card?.querySelector("select")?.value || "pendiente";
   enviarWhatsApp(card, estado);
@@ -1057,7 +1140,7 @@ function obtenerServicio(select) {
 }
 
 //menú flotante
-window.toggleMenu = function(btn) {
+window.toggleMenu = function (btn) {
 
   const dropdown = btn
     .closest(".menu-acciones")
@@ -1094,7 +1177,7 @@ window.toggleMenu = function(btn) {
 
 
 
-window.validarFormulario = function() {
+window.validarFormulario = function () {
 
   const fecha = document.getElementById("editFecha").value;
   const hora = document.getElementById("editHora").value;
@@ -1122,7 +1205,7 @@ async function generarHoras() {
 
   if (!fecha) return;
 
-  const { ocupadas, ocupadasMismoUsuario } = await obtenerHorasOcupadas(fecha);
+  const { ocupadas, ocupadasMismoUsuario } = await obtenerHorasOcupadas(fecha, citaActualId);
 
   select.innerHTML = `<option value="">Selecciona hora</option>`;
 
@@ -1137,7 +1220,6 @@ async function generarHoras() {
       const esOcupada = ocupadas.includes(valor);
       const esOcupadaMismoUsuario = ocupadasMismoUsuario.includes(valor);
 
-      // si el horario pertenece al mismo usuario, lo dejamos visible pero seleccionable
       const disabled = esOcupada && !esOcupadaMismoUsuario ? "disabled" : "";
       const etiqueta = esOcupada ? (esOcupadaMismoUsuario ? "(ocupado por ti)" : "(ocupado)") : "";
 
@@ -1175,7 +1257,7 @@ function esMismoUsuarioCita(data, citaActual) {
   );
 }
 
-async function obtenerHorasOcupadas(fechaSeleccionada) {
+async function obtenerHorasOcupadas(fechaSeleccionada, excludeId = null) {
 
   const fechaInicio = new Date(fechaSeleccionada + "T00:00:00");
   const fechaFin = new Date(fechaSeleccionada + "T23:59:59");
@@ -1192,25 +1274,25 @@ async function obtenerHorasOcupadas(fechaSeleccionada) {
   const ocupadasMismoUsuario = [];
 
   let citaActual = null;
-  if (citaActualId) {
-    const snapActual = await getDoc(doc(db, "citas", citaActualId));
+  if (excludeId) {
+    const snapActual = await getDoc(doc(db, "citas", excludeId));
     if (snapActual.exists()) {
       citaActual = snapActual.data();
     }
   }
 
-  snap.forEach(docu => {
-    if (docu.id === citaActualId) return;
+  for (const docu of snap.docs) {
+    if (excludeId && docu.id === excludeId) continue;
 
     const data = docu.data();
 
     if (data.fechaHora) {
-      const fecha = data.fechaHora.toDate();
+      const fecha = data.fechaHora.toDate ? data.fechaHora.toDate() : new Date(data.fechaHora);
       const durMin = getDuracionMinutos(data.duracion || '30');
-      const fin = new Date(fecha.getTime() + durMin * 60000);
+      const bloques = Math.ceil(durMin / 30);
       let cursor = new Date(fecha);
 
-      while (cursor < fin) {
+      for (let i = 0; i < bloques; i++) {
         const hora = `${String(cursor.getHours()).padStart(2, "0")}:${String(cursor.getMinutes()).padStart(2, "0")}`;
         ocupadas.push(hora);
 
@@ -1221,12 +1303,12 @@ async function obtenerHorasOcupadas(fechaSeleccionada) {
         cursor = new Date(cursor.getTime() + 30 * 60000);
       }
     }
-  });
+  }
 
   return { ocupadas, ocupadasMismoUsuario };
 }
 
-window.onChangeFecha = function() {
+window.onChangeFecha = function () {
   generarHoras();
   validarFormulario();
 };
