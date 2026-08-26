@@ -324,7 +324,7 @@ function crearEventoCalendario(cita) {
 
   const dataFecha = fecha ? formatDateReadable(fecha) : '';
   const dataHora = fecha ? formatTimeReadable(fecha) : '';
-  const fechaHoraTexto = fecha ? `${dataFecha} · ${horaLabel} - ${horaFinLabel}` : `${horaLabel} - ${horaFinLabel}`;
+  const fechaHoraTexto = fecha ? `${dataFecha} ï¿½ ${horaLabel} - ${horaFinLabel}` : `${horaLabel} - ${horaFinLabel}`;
   const bloques = Math.max(1, Math.ceil(durMin / 30));
 
   return `
@@ -460,7 +460,7 @@ async function cargarCitas() {
 
   if (calendarTitle) {
     if (searchQuery) {
-      calendarTitle.textContent = "Resultados de búsqueda";
+      calendarTitle.textContent = "Resultados de bï¿½squeda";
     } else {
       const titleLabel = selectedDate.toLocaleDateString("es-CO", { weekday: "long", day: "2-digit", month: "long" });
       calendarTitle.textContent = titleLabel.charAt(0).toUpperCase() + titleLabel.slice(1);
@@ -663,7 +663,7 @@ window.cambiarEstado = async function (select, id) {
           const precio = parsePrecioDesdeInput(precioTexto);
 
           if (!precio || precio <= 0) {
-            Swal.showValidationMessage('Ingresa un precio válido.');
+            Swal.showValidationMessage('Ingresa un precio vï¿½lido.');
             return false;
           }
 
@@ -1094,7 +1094,7 @@ window.guardarReprogramacion = async function () {
       title: "Horario ocupado",
       html: `
         <div style="text-align:left;">
-          <p>No se puede guardar la reprogramación porque hay un cruce con otra cita.</p>
+          <p>No se puede guardar la reprogramaciï¿½n porque hay un cruce con otra cita.</p>
           <p><strong>Cliente:</strong> ${cliente}</p>
           <p><strong>Servicio:</strong> ${servicio}</p>
           <p><strong>Fecha:</strong> ${fechaTexto}</p>
@@ -1179,7 +1179,7 @@ window.editarDesdeMenu = function (el) {
   if (id) abrirModal(id);
 };
 
-window.cancelarDesdeMenu = async function(el) {
+window.cancelarDesdeMenu = async function (el) {
   const card = el.closest(".appointment-card");
   const select = card?.querySelector("select");
 
@@ -1187,10 +1187,10 @@ window.cancelarDesdeMenu = async function(el) {
 
   const { isConfirmed } = await Swal.fire({
     title: 'Cancelar cita',
-    text: '¿Deseas cancelar esta cita antes de continuar?',
+    text: 'ï¿½Deseas cancelar esta cita antes de continuar?',
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonText: 'Sí, cancelar',
+    confirmButtonText: 'Sï¿½, cancelar',
     cancelButtonText: 'Volver',
     confirmButtonColor: '#d33'
   });
@@ -1206,15 +1206,15 @@ async function preguntarEnvioWhatsApp(select, estado) {
   let mensaje = "";
 
   if (estado === "confirmada") {
-    mensaje = "¿Enviar confirmación por WhatsApp?";
+    mensaje = "ï¿½Enviar confirmaciï¿½n por WhatsApp?";
   }
 
   if (estado === "cancelada") {
-    mensaje = "¿Enviar cancelación por WhatsApp?";
+    mensaje = "ï¿½Enviar cancelaciï¿½n por WhatsApp?";
   }
 
   if (estado === "reprogramada") {
-    mensaje = "¿Enviar reprogramación por WhatsApp?";
+    mensaje = "ï¿½Enviar reprogramaciï¿½n por WhatsApp?";
   }
 
   const { isConfirmed } = await Swal.fire({
@@ -1222,7 +1222,7 @@ async function preguntarEnvioWhatsApp(select, estado) {
     text: mensaje,
     icon: 'question',
     showCancelButton: true,
-    confirmButtonText: 'Sí, enviar',
+    confirmButtonText: 'Sï¿½, enviar',
     cancelButtonText: 'No enviar'
   });
 
@@ -1367,10 +1367,10 @@ function esMismoUsuarioCita(data, citaActual) {
   return (
     clienteActual && clienteOtro && clienteActual === clienteOtro
   ) || (
-    telefonoActual && telefonoOtro && telefonoActual === telefonoOtro
-  ) || (
-    clienteRefActual && clienteRefOtro && clienteRefActual === clienteRefOtro
-  );
+      telefonoActual && telefonoOtro && telefonoActual === telefonoOtro
+    ) || (
+      clienteRefActual && clienteRefOtro && clienteRefActual === clienteRefOtro
+    );
 }
 
 async function obtenerHorasOcupadas(fechaSeleccionada, excludeId = null) {

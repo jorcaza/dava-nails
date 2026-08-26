@@ -622,7 +622,7 @@ body.collapsed .logout-btn .nav-label {
 
 .t-head {
   display: grid;
-  
+
   padding: 10px 18px;
   background: var(--bg);
   font-size: 10px;
@@ -635,7 +635,7 @@ body.collapsed .logout-btn .nav-label {
 
 .t-row {
   display: grid;
-  
+
   align-items: flex-start;
   padding: 13px 18px;
   border-bottom: 1px solid var(--border);
@@ -1029,7 +1029,7 @@ body.collapsed .open-sidebar {
 
 .t-row {
   display: grid;
-  
+
   gap: 10px;
 }
 
@@ -1046,7 +1046,7 @@ body.collapsed .open-sidebar {
     padding: 14px;
     margin-bottom: 14px;
 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   /* Encabezado tipo m-card-top */
@@ -1087,7 +1087,7 @@ body.collapsed .open-sidebar {
 /* CSS DESKTOP*/
 .t-row {
   display: grid;
-  
+
   gap: 10px;
   padding: 12px 16px;
   border-bottom: 1px solid #eee;
@@ -1117,7 +1117,7 @@ body.collapsed .open-sidebar {
 /* ? NUEVO SISTEMA DE FILAS */
 .t-row {
   display: grid;
-  
+
   gap: 12px;
   padding: 14px 18px;
   align-items: center;
@@ -1152,7 +1152,7 @@ body.collapsed .open-sidebar {
   font-size: 12px;
   font-weight: 600;
   text-transform: capitalize;
-white-space: nowrap;
+  white-space: nowrap;
   width: fit-content;
 }
 
@@ -1190,7 +1190,8 @@ white-space: nowrap;
   display: flex;
   flex-direction: row;
   justify-content: stretch;
-  height: auto; /* ?? importante */
+  height: auto;
+  /* ?? importante */
 }
 
 
@@ -1199,10 +1200,13 @@ white-space: nowrap;
   align-items: center;
   justify-content: center;
 
-  width: fit-content;       /* ?? NO se expande */
-  height: 32px;             /* ?? tama�o consistente */
+  width: fit-content;
+  /* ?? NO se expande */
+  height: 32px;
+  /* ?? tama�o consistente */
 
-  padding: 0 10px;          /* ?? horizontal solamente */
+  padding: 0 10px;
+  /* ?? horizontal solamente */
 
   background: #25D366;
   color: white;
@@ -1258,8 +1262,10 @@ white-space: nowrap;
 
 .col.estado {
   display: flex;
-  align-items: flex-start;   /* ?? clave */
-  height: auto;              /* ?? rompe el crecimiento */
+  align-items: flex-start;
+  /* ?? clave */
+  height: auto;
+  /* ?? rompe el crecimiento */
 }
 
 
@@ -1274,7 +1280,8 @@ white-space: nowrap;
   font-size: 12px;
   font-weight: 600;
 
-  white-space: nowrap;       /* ?? evita salto */
+  white-space: nowrap;
+  /* ?? evita salto */
 }
 
 
@@ -1311,7 +1318,8 @@ white-space: nowrap;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center; /* o center si lo quieres centrado */
+  justify-content: center;
+  /* o center si lo quieres centrado */
   gap: 8px;
 }
 
@@ -1352,10 +1360,12 @@ white-space: nowrap;
   }
 
   .t-row {
-    display: flex !important;   /* ?? fuerza flex */
+    display: flex !important;
+    /* ?? fuerza flex */
     flex-direction: column;
 
-    width: 100%;                /* ?? evita overflow */
+    width: 100%;
+    /* ?? evita overflow */
     max-width: 100%;
 
     gap: 10px;
@@ -1366,7 +1376,7 @@ white-space: nowrap;
     border-radius: 14px;
     border: 1px solid var(--border);
 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   /* ?? QUITA GRID COMPLETAMENTE */
@@ -1470,7 +1480,7 @@ white-space: nowrap;
   font-size: 13px;
   font-weight: 500;
 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 
   z-index: 9999;
 
@@ -1483,6 +1493,7 @@ white-space: nowrap;
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1505,7 +1516,7 @@ white-space: nowrap;
   width: 100%;
   height: 100%;
 
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
 
   display: none;
   justify-content: center;
@@ -1544,7 +1555,8 @@ white-space: nowrap;
 /* CONTENEDOR DE BOTONES */
 .acciones {
   display: flex;
-  flex-direction: row;      /* ?? fuerza horizontal */
+  flex-direction: row;
+  /* ?? fuerza horizontal */
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
@@ -1553,7 +1565,8 @@ white-space: nowrap;
 /* COLUMNA ACCI�N */
 .col[data-label="Acci�n"] {
   display: flex;
-  align-items: center;      /* ?? centra vertical */
+  align-items: center;
+  /* ?? centra vertical */
 }
 
 /* BOTONES */
@@ -1582,14 +1595,15 @@ white-space: nowrap;
 
 /* dropdown */
 .menu-options {
-  position: fixed;     /* ?? CAMBIO CLAVE */
+  position: fixed;
+  /* ?? CAMBIO CLAVE */
   display: none;
 
   background: white;
   border-radius: 10px;
   border: 1px solid var(--border);
 
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 
   min-width: 160px;
   z-index: 9999;
@@ -1611,7 +1625,8 @@ white-space: nowrap;
 }
 
 .menu-acciones {
-  position: relative;   /* ?? base del floating */
+  position: relative;
+  /* ?? base del floating */
 }
 
 /* men� desplegable */
@@ -1624,7 +1639,7 @@ white-space: nowrap;
   border-radius: 10px;
   border: 1px solid #eee;
 
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 
   min-width: 160px;
   z-index: 9999;
@@ -1671,7 +1686,8 @@ white-space: nowrap;
 
 
 .table-card {
-  overflow: visible !important;   /* ?? CLAVE */
+  overflow: visible !important;
+  /* ?? CLAVE */
 }
 
 @media (max-width: 900px) {
@@ -1777,12 +1793,15 @@ white-space: nowrap;
 
   .menu-options {
     top: auto !important;
-    bottom: 100% !important;   /* ?? SIEMPRE arriba */
+    bottom: 100% !important;
+    /* ?? SIEMPRE arriba */
 
-    left: 0;                  /* alineado dentro */
+    left: 0;
+    /* alineado dentro */
     right: auto;
 
-    width: 100%;              /* opcional: ancho completo */
+    width: 100%;
+    /* opcional: ancho completo */
   }
 
 }
@@ -1812,15 +1831,18 @@ white-space: nowrap;
 
 /* colores */
 .btn-wa {
-  background: #25D366; /* verde */
+  background: #25D366;
+  /* verde */
 }
 
 .btn-edit {
-  background: #1976d2; /* azul */
+  background: #1976d2;
+  /* azul */
 }
 
 .btn-cancel {
-  background: #c62828; /* rojo */
+  background: #c62828;
+  /* rojo */
 }
 
 /* hover pro */
@@ -1831,7 +1853,7 @@ white-space: nowrap;
 
 .btn-accion:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 
@@ -2039,7 +2061,7 @@ white-space: nowrap;
   border-radius: 16px;
   padding: 14px;
   color: var(--text-muted);
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.5);
   font-size: 0.92rem;
 }
 
@@ -2087,11 +2109,11 @@ white-space: nowrap;
 }
 
 .appointment-card[data-duracion] {
-  border-left: 4px solid rgba(58,116,212,0.18);
+  border-left: 4px solid rgba(58, 116, 212, 0.18);
 }
 
 .hour-continued {
-  background: rgba(58,116,212,0.08);
+  background: rgba(58, 116, 212, 0.08);
   border-radius: 12px;
   padding: 10px;
   color: #1c3d72;
@@ -2101,7 +2123,7 @@ white-space: nowrap;
   justify-content: center;
   gap: 3px;
   font-size: 0.9rem;
-  border: 1px dashed rgba(58,116,212,0.24);
+  border: 1px dashed rgba(58, 116, 212, 0.24);
 }
 
 .hour-continued strong {
@@ -2115,7 +2137,7 @@ white-space: nowrap;
 }
 
 .appointment-card[data-duracion] {
-  border-left: 4px solid rgba(58,116,212,0.18);
+  border-left: 4px solid rgba(58, 116, 212, 0.18);
 }
 
 .appointment-top {
