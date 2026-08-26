@@ -188,7 +188,7 @@ function applyPrefilledDateTimeState() {
     const infoBox = document.createElement('div');
     infoBox.id = 'prefillInfoBox';
     infoBox.className = 'prefill-info';
-    infoBox.textContent = `Fecha y hora predefinidas: ${booking.fechaRaw} � ${booking.hora}`;
+    infoBox.textContent = `Fecha y hora predefinidas: ${booking.fechaRaw} - ${booking.hora}`;
     panel1.insertBefore(infoBox, panel1.querySelector('.field'));
   }
 
@@ -207,7 +207,7 @@ window.debouncedBuscar = function (text) {
 };
 
 
-/* ================= SERVICIOS DIN�MICOS ================= */
+/* ================= SERVICIOS DINÁMICOS ================= */
 async function cargarServicios() {
   const container = document.querySelector(".service-grid");
 
@@ -345,7 +345,7 @@ window.buscarClientes = async function (text) {
 
   if (!clientes.length) {
     resultsEl.innerHTML = `
-      <div class="client-result-empty">No existe un cliente con ese nombre o tel�fono.</div>
+      <div class="client-result-empty">No existe un cliente con ese nombre o teléfono.</div>
       <button type="button" class="client-create-btn" onclick="crearNuevoCliente('${encodeURIComponent(queryText)}')">Crear nuevo cliente</button>
     `;
     return;
@@ -535,7 +535,7 @@ async function guardarClienteYRetornarRef(nombre, apellido, telefono, email, not
     }
   }
 
-  // si no hay cliente seleccionado, buscar por tel�fono
+  // si no hay cliente seleccionado, buscar por teléfono
   const q = query(
     collection(db, "clientes"),
     where("telefono", "==", telefonoLimpio)
@@ -547,7 +547,7 @@ async function guardarClienteYRetornarRef(nombre, apellido, telefono, email, not
     try {
       await updateDoc(doc(db, 'clientes', foundId), clienteData);
     } catch (e) {
-      console.warn('Error actualizando cliente existente por tel�fono:', e);
+      console.warn('Error actualizando cliente existente por teléfono:', e);
     }
     return doc(db, 'clientes', foundId);
   }
@@ -657,7 +657,7 @@ fechaInput.addEventListener("change", () => {
   renderSlots();
 });
 
-/* ================= VALIDACI�N ================= */
+/* ================= VALIDACIÓN ================= */
 async function validarDisponibilidad() {
 
   const citas = await obtenerCitasFecha(booking.fechaRaw);
@@ -718,7 +718,7 @@ window.confirmar = async function () {
   if (!disponible) {
     await Swal.fire({
       title: 'Horario no disponible',
-      text: 'Ese horario ya no est� disponible.',
+      text: 'Ese horario ya no está disponible.',
       icon: 'warning',
       confirmButtonText: 'Aceptar'
     });
@@ -841,11 +841,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-/* ================= NAVEGACI�N ENTRE PASOS ================= */
+/* ================= NAVEGACIÓN ENTRE PASOS ================= */
 
 window.goTo = function (step) {
 
-  // validaciones b�sicas
+  // validaciones básicas
   if (step === 2) {
     if (!booking.servicio) {
       Swal.fire({
@@ -993,18 +993,27 @@ function mostrarSuccessScreen(data) {
   const waLink = document.getElementById('waLink');
 
   if (summarySvc) summarySvc.textContent = data.servicio || '?';
-  if (summaryFecha) summaryFecha.textContent = `${data.fecha} � ${data.hora}`;
+  if (summaryFecha) summaryFecha.textContent = `${data.fecha} - ${data.hora}`;
   if (summaryMani) summaryMani.textContent = data.manicurista || '?';
 
   if (waLink) {
     const parts = [];
-    if (data.servicio) parts.push(`?? Servicio: ${data.servicio}`);
-    if (data.fecha) parts.push(`?? Fecha: ${data.fecha}`);
-    if (data.hora) parts.push(`? Hora: ${data.hora}`);
-    if (data.manicurista) parts.push(`?? Manicurista: ${data.manicurista}`);
-    const header = `CONFIRMACI�N DE CITA DAVANAILS`;
+    const emoji = {
+      servicio: "💅",
+      fecha: "📅",
+      hora: "⏰",
+      manicurista: "👩‍💼",
+      espera: "👋"
+    };
+
+    if (data.servicio) parts.push(`${emoji.servicio} Servicio: ${data.servicio}`);
+    if (data.fecha) parts.push(`${emoji.fecha} Fecha: ${data.fecha}`);
+    if (data.hora) parts.push(`${emoji.hora} Hora: ${data.hora}`);
+    if (data.manicurista) parts.push(`${emoji.manicurista} Manicurista: ${data.manicurista}`);
+
+    const header = 'CONFIRMACIÓN DE CITA DAVANAILS';
     const nombreLine = data.cliente ? `Hola ${data.cliente}` : '';
-    const body = [header, nombreLine, '', ...parts, '', 'Te esperamos ??'].filter(Boolean).join('\n').normalize('NFKC').trim();
+    const body = [header, nombreLine, '', ...parts, '', `Te esperamos ${emoji.espera}`].filter(Boolean).join('\n').trim();
     const telefono = String(data.celular || '').replace(/\D/g, '');
     if (body && telefono) {
       waLink.href = `https://wa.me/57${telefono}?text=${encodeURIComponent(body)}`;

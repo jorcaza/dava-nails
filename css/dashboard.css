@@ -1157,7 +1157,7 @@ body.collapsed .open-sidebar {
 }
 
 
-/* c�rculo */
+/* círculo */
 
 
 .estado.pendiente {
@@ -1224,7 +1224,7 @@ body.collapsed .open-sidebar {
 }
 
 
-.col[data-label="Acci�n"] {
+.col[data-label="Acción"] {
   justify-content: flex-start;
 }
 
@@ -1310,11 +1310,11 @@ body.collapsed .open-sidebar {
 
 
 /* =========================
-   BOT�N WHATSAPP ?
+   BOTÓN WHATSAPP ?
 ========================= */
 
 
-.col[data-label="Acci�n"] {
+.col[data-label="Acción"] {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1562,8 +1562,8 @@ body.collapsed .open-sidebar {
   gap: 10px;
 }
 
-/* COLUMNA ACCI�N */
-.col[data-label="Acci�n"] {
+/* COLUMNA ACCIÓN */
+.col[data-label="Acción"] {
   display: flex;
   align-items: center;
   /* ?? centra vertical */

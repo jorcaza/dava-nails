@@ -324,7 +324,7 @@ function crearEventoCalendario(cita) {
 
   const dataFecha = fecha ? formatDateReadable(fecha) : '';
   const dataHora = fecha ? formatTimeReadable(fecha) : '';
-  const fechaHoraTexto = fecha ? `${dataFecha} � ${horaLabel} - ${horaFinLabel}` : `${horaLabel} - ${horaFinLabel}`;
+  const fechaHoraTexto = fecha ? `${dataFecha} • ${horaLabel} - ${horaFinLabel}` : `${horaLabel} - ${horaFinLabel}`;
   const bloques = Math.max(1, Math.ceil(durMin / 30));
 
   return `
@@ -460,7 +460,7 @@ async function cargarCitas() {
 
   if (calendarTitle) {
     if (searchQuery) {
-      calendarTitle.textContent = "Resultados de b�squeda";
+      calendarTitle.textContent = "Resultados de búsqueda";
     } else {
       const titleLabel = selectedDate.toLocaleDateString("es-CO", { weekday: "long", day: "2-digit", month: "long" });
       calendarTitle.textContent = titleLabel.charAt(0).toUpperCase() + titleLabel.slice(1);
@@ -663,7 +663,7 @@ window.cambiarEstado = async function (select, id) {
           const precio = parsePrecioDesdeInput(precioTexto);
 
           if (!precio || precio <= 0) {
-            Swal.showValidationMessage('Ingresa un precio v�lido.');
+            Swal.showValidationMessage('Ingresa un precio válido.');
             return false;
           }
 
@@ -780,49 +780,44 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
     else tipo = estadoReal;
   }
 
+  const emoji = {
+    confirmada: "✅",
+    cancelada: "❌",
+    reprogramada: "🔄",
+    recordatorio: "🔔",
+    fecha: "📅",
+    hora: "⏰",
+    servicio: "💅",
+    manicurista: "👩‍💼"
+  };
+
   const lines = [];
   if (tipo === "confirmada") {
-    lines.push("? CONFIRMACI�N DE CITA DAVANAILS");
+    lines.push(`${emoji.confirmada} Confirmación de cita`);
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
-    lines.push("Tu cita ha sido CONFIRMADA");
-    if (fechaTexto) lines.push(`?? Fecha: ${fechaTexto}`);
-    if (hora) lines.push(`? Hora: ${hora}`);
-    if (servicio) lines.push(`?? Servicio: ${servicio}`);
-    if (manicurista) lines.push(`?? Manicurista: ${manicurista}`);
-    lines.push("");
-    lines.push("Te esperamos ??");
   } else if (tipo === "cancelada") {
-    lines.push("CITA CANCELADA");
+    lines.push(`${emoji.cancelada} Cita cancelada`);
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
-    lines.push("Tu cita ha sido cancelada.");
-    lines.push("Si deseas reprogramar, cont�ctanos");
   } else if (tipo === "reprogramada") {
-    lines.push("?? CITA REPROGRAMADA");
+    lines.push(`${emoji.reprogramada} Cita reprogramada`);
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
-    lines.push("Tu cita ha sido REPROGRAMADA.");
-    if (fechaTexto) lines.push(`?? Fecha: ${fechaTexto}`);
-    if (hora) lines.push(`? Hora: ${hora}`);
-    if (servicio) lines.push(`?? Servicio: ${servicio}`);
-    if (manicurista) lines.push(`?? Manicurista: ${manicurista}`);
-    lines.push("");
-    lines.push("Por favor confirma si este horario te funciona");
   } else if (tipo === "recordatorio") {
-    lines.push("?? RECORDATORIO DE CITA DAVANAILS");
+    lines.push(`${emoji.recordatorio} Recordatorio de cita`);
     if (cliente) lines.push(`Hola ${cliente}`);
     lines.push("");
-    lines.push("Te recordamos tu cita programada:");
-    if (fechaTexto) lines.push(`?? Fecha: ${fechaTexto}`);
-    if (hora) lines.push(`? Hora: ${hora}`);
-    if (servicio) lines.push(`?? Servicio: ${servicio}`);
-    if (manicurista) lines.push(`?? Manicurista: ${manicurista}`);
-    lines.push("");
-    lines.push("�Te esperamos! ??");
   }
 
-  const mensaje = lines.join("\n").normalize("NFKC").replace(/\uFE0F/g, "").trim();
+  if (fechaTexto) lines.push(`${emoji.fecha} Fecha: ${fechaTexto}`);
+  if (hora) lines.push(`${emoji.hora} Hora: ${hora}`);
+  if (servicio) lines.push(`${emoji.servicio} Servicio: ${servicio}`);
+  if (manicurista) lines.push(`${emoji.manicurista} Manicurista: ${manicurista}`);
+
+  const mensaje = lines
+    .join("\n")
+    .trim();
 
   if (!mensaje) {
     console.warn("No se pudo construir el mensaje de WhatsApp.");
@@ -831,7 +826,7 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
 
   const telefonoLimpio = String(telefono).replace(/\D/g, "");
   if (!telefonoLimpio) {
-    console.warn("No hay tel�fono para abrir WhatsApp.");
+    console.warn("No hay teléfono para abrir WhatsApp.");
     return;
   }
 
@@ -1094,7 +1089,7 @@ window.guardarReprogramacion = async function () {
       title: "Horario ocupado",
       html: `
         <div style="text-align:left;">
-          <p>No se puede guardar la reprogramaci�n porque hay un cruce con otra cita.</p>
+          <p>No se puede guardar la reprogramación porque hay un cruce con otra cita.</p>
           <p><strong>Cliente:</strong> ${cliente}</p>
           <p><strong>Servicio:</strong> ${servicio}</p>
           <p><strong>Fecha:</strong> ${fechaTexto}</p>
@@ -1187,10 +1182,10 @@ window.cancelarDesdeMenu = async function (el) {
 
   const { isConfirmed } = await Swal.fire({
     title: 'Cancelar cita',
-    text: '�Deseas cancelar esta cita antes de continuar?',
+    text: '¿Deseas cancelar esta cita antes de continuar?',
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonText: 'S�, cancelar',
+    confirmButtonText: 'Sí, cancelar',
     cancelButtonText: 'Volver',
     confirmButtonColor: '#d33'
   });
@@ -1206,15 +1201,15 @@ async function preguntarEnvioWhatsApp(select, estado) {
   let mensaje = "";
 
   if (estado === "confirmada") {
-    mensaje = "�Enviar confirmaci�n por WhatsApp?";
+    mensaje = "¿Enviar confirmación por WhatsApp?";
   }
 
   if (estado === "cancelada") {
-    mensaje = "�Enviar cancelaci�n por WhatsApp?";
+    mensaje = "¿Enviar cancelación por WhatsApp?";
   }
 
   if (estado === "reprogramada") {
-    mensaje = "�Enviar reprogramaci�n por WhatsApp?";
+    mensaje = "¿Enviar reprogramación por WhatsApp?";
   }
 
   const { isConfirmed } = await Swal.fire({
@@ -1222,7 +1217,7 @@ async function preguntarEnvioWhatsApp(select, estado) {
     text: mensaje,
     icon: 'question',
     showCancelButton: true,
-    confirmButtonText: 'S�, enviar',
+    confirmButtonText: 'Sí, enviar',
     cancelButtonText: 'No enviar'
   });
 
