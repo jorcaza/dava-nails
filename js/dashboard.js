@@ -815,6 +815,11 @@ function enviarWhatsApp(selectOrCliente, tipoOrHora, servicioParam, manicuristaP
   if (servicio) lines.push(`${emoji.servicio} Servicio: ${servicio}`);
   if (manicurista) lines.push(`${emoji.manicurista} Manicurista: ${manicurista}`);
 
+  if (tipo === "confirmada" || tipo === "reprogramada") {
+    lines.push("");
+    lines.push("Por favor confirmar tu cita");
+  }
+
   const mensaje = lines
     .join("\n")
     .trim();

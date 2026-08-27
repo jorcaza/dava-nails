@@ -1203,7 +1203,7 @@ body.collapsed .open-sidebar {
   width: fit-content;
   /* ?? NO se expande */
   height: 32px;
-  /* ?? tama�o consistente */
+  /* tamaño consistente */
 
   padding: 0 10px;
   /* ?? horizontal solamente */
@@ -1399,7 +1399,7 @@ body.collapsed .open-sidebar {
 }
 
 
-/* COLORES DIN�MICOS */
+/* COLORES DINÁMICOS */
 .estado-pendiente {
   background: #fff4cc;
   color: #b38b00;
@@ -1487,7 +1487,7 @@ body.collapsed .open-sidebar {
   animation: fadeIn 0.3s ease;
 }
 
-/* animaci�n */
+/* animación */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1629,7 +1629,7 @@ body.collapsed .open-sidebar {
   /* ?? base del floating */
 }
 
-/* men� desplegable */
+/* menú desplegable */
 
 .menu-options {
   position: fixed;
@@ -1755,7 +1755,7 @@ body.collapsed .open-sidebar {
     margin-bottom: 6px;
   }
 
-  .t-row .col[data-label="Acci�n"] {
+  .t-row .col[data-label="Acción"] {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
@@ -1813,7 +1813,7 @@ body.collapsed .open-sidebar {
   gap: 8px;
 }
 
-/* base bot�n */
+/* base botón */
 .btn-accion {
   width: 36px;
   height: 36px;
@@ -1911,7 +1911,7 @@ body.collapsed .open-sidebar {
   font-weight: 600;
 }
 
-/* BOT�N PRINCIPAL */
+/* BOTÓN PRINCIPAL */
 .btn-primary {
   background: #1976d2;
   color: white;
@@ -1929,7 +1929,7 @@ body.collapsed .open-sidebar {
   cursor: not-allowed;
 }
 
-/* BOT�N SECUNDARIO (CANCELAR) */
+/* BOTÓN SECUNDARIO (CANCELAR) */
 .btn-secondary {
   background: #e0e0e0;
   color: #333;
@@ -2304,7 +2304,7 @@ body.collapsed .open-sidebar {
     margin-bottom: 6px;
   }
 
-  .t-row .col[data-label="Acci�n"] {
+  .t-row .col[data-label="Acción"] {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;

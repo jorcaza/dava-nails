@@ -958,7 +958,7 @@ window.confirmar = window.confirmar || async function () {
 
 function convertirFechaHora(fecha, horaTexto) {
 
-  // extraer n�meros
+  // extraer números
   const partes = horaTexto.match(/\d+/g).map(Number);
 
   let h = partes[0];
