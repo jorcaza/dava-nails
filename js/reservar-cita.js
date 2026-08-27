@@ -1012,7 +1012,7 @@ function mostrarSuccessScreen(data) {
     if (data.manicurista) parts.push(`${emoji.manicurista} Manicurista: ${data.manicurista}`);
 
     const header = 'CONFIRMACIÓN DE CITA DAVANAILS';
-    const nombreLine = data.cliente ? `Hola ${data.cliente}` : '';
+    const nombreLine = data.cliente ? `Hola ${data.cliente}\n ` : '';
     const body = [header, nombreLine, '', ...parts, '', `Te esperamos ${emoji.espera}`].filter(Boolean).join('\n').trim();
     const telefono = String(data.celular || '').replace(/\D/g, '');
     if (body && telefono) {
