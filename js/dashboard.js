@@ -210,6 +210,248 @@ function updateTopbarSubtitle() {
   if (subtitle) subtitle.textContent = formatRangeLabel(date);
 }
 
+function getWeekStart(date) {
+  const copy = new Date(date);
+  const day = copy.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  copy.setDate(copy.getDate() + diff);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+}
+
+function getWeekEnd(date) {
+  const start = getWeekStart(date);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
+function getMonthWindow(baseDate, mode) {
+  const date = new Date(baseDate);
+  const current = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
+  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+
+  if (mode === 'anterior') {
+    const prev = new Date(date.getFullYear(), date.getMonth() - 1, 1, 0, 0, 0, 0);
+    return {
+      start: prev,
+      end: new Date(date.getFullYear(), date.getMonth(), 0, 23, 59, 59, 999)
+    };
+  }
+
+  return { start: current, end: end };
+}
+
+function getWeekWindow(baseDate, mode) {
+  const date = new Date(baseDate);
+  const currentStart = getWeekStart(date);
+  const currentEnd = getWeekEnd(date);
+
+  if (mode === 'anterior') {
+    const prev = new Date(currentStart);
+    prev.setDate(prev.getDate() - 7);
+    const prevEnd = new Date(prev);
+    prevEnd.setDate(prev.getDate() + 6);
+    prevEnd.setHours(23, 59, 59, 999);
+    return { start: prev, end: prevEnd };
+  }
+
+  return { start: currentStart, end: currentEnd };
+}
+
+function getBillingRange() {
+  const today = new Date();
+  const monthMode = document.getElementById('facturacionMes')?.value || 'actual';
+  const weekMode = document.getElementById('facturacionSemana')?.value || 'actual';
+
+  const monthWindow = monthMode === 'todos' ? { start: new Date(2000, 0, 1), end: new Date(2100, 11, 31, 23, 59, 59, 999) } : getMonthWindow(today, monthMode);
+  const weekWindow = weekMode === 'todos' ? { start: new Date(2000, 0, 1), end: new Date(2100, 11, 31, 23, 59, 59, 999) } : getWeekWindow(today, weekMode);
+
+  return {
+    start: monthWindow.start < weekWindow.start ? monthWindow.start : weekWindow.start,
+    end: monthWindow.end > weekWindow.end ? monthWindow.end : weekWindow.end
+  };
+}
+
+function formatMoney(value) {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0
+  }).format(Number(value || 0));
+}
+
+function normalizarPrecioFacturacion(valor) {
+  if (typeof valor === 'number') return Number.isFinite(valor) ? valor : 0;
+  if (!valor && valor !== 0) return 0;
+
+  const limpio = String(valor)
+    .replace(/\$/g, '')
+    .replace(/\./g, '')
+    .replace(/,/g, '.')
+    .replace(/\s/g, '')
+    .replace(/[^\d.-]/g, '');
+
+  const numero = Number(limpio);
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+function getFechaFacturacion(data) {
+  const candidatos = [
+    data?.fechaPago,
+    data?.fechaCompletada,
+    data?.fechaCambioEstado,
+    data?.fechaHora,
+    data?.fecha
+  ];
+
+  for (const value of candidatos) {
+    if (!value) continue;
+    if (typeof value.toDate === 'function') return value.toDate();
+    if (value instanceof Date) return value;
+    if (typeof value === 'string' || typeof value === 'number') {
+      const parsed = new Date(value);
+      if (!Number.isNaN(parsed.getTime())) return parsed;
+    }
+  }
+
+  return null;
+}
+
+async function actualizarFacturacion() {
+  const range = getBillingRange();
+  const q = query(
+    collection(db, 'citas'),
+    where('estado', '==', 'completada')
+  );
+
+  const snap = await getDocs(q);
+  let efectivo = 0;
+  let transferencia = 0;
+
+  snap.forEach((docu) => {
+    const data = docu.data() || {};
+    const estado = String(data.estado || 'pendiente');
+    if (estado !== 'completada') return;
+
+    const fechaCompletado = getFechaFacturacion(data);
+    if (!fechaCompletado || fechaCompletado < range.start || fechaCompletado > range.end) return;
+
+    const precio = normalizarPrecioFacturacion(data.precio ?? 0);
+    if (!Number.isFinite(precio) || precio <= 0) return;
+
+    const metodoPago = String(data.formaPago || 'efectivo').trim().toLowerCase();
+    if (metodoPago === 'transferencia') {
+      transferencia += precio;
+    } else {
+      efectivo += precio;
+    }
+  });
+
+  const efectivoEl = document.getElementById('facturacionEfectivo');
+  const transferenciaEl = document.getElementById('facturacionTransferencia');
+
+  if (efectivoEl) efectivoEl.textContent = formatMoney(efectivo);
+  if (transferenciaEl) transferenciaEl.textContent = formatMoney(transferencia);
+}
+
+function initFacturacion() {
+  const mes = document.getElementById('facturacionMes');
+  const semana = document.getElementById('facturacionSemana');
+
+  if (mes) {
+    mes.addEventListener('change', actualizarFacturacion);
+  }
+
+  if (semana) {
+    semana.addEventListener('change', actualizarFacturacion);
+  }
+}
+
+function getDashboardStats() {
+  const qk = query(
+    collection(db, 'citas'),
+    where('fechaHora', '>=', filterStart),
+    where('fechaHora', '<=', filterEnd)
+  );
+
+  return getDocs(qk).then(snap => {
+    let total = 0, comp = 0, pend = 0, conf = 0;
+    const servicios = {};
+    const estados = {
+      pendiente: 0,
+      confirmada: 0,
+      completada: 0,
+      cancelada: 0,
+      reprogramada: 0
+    };
+
+    snap.forEach(docu => {
+      total++;
+      const data = docu.data() || {};
+      const e = (data.estado || 'pendiente');
+      if (e === 'completada') comp++;
+      if (e === 'pendiente') pend++;
+      if (e === 'confirmada') conf++;
+      if (estados[e] !== undefined) estados[e]++;
+
+      const nombreServicio = String(data.servicioNombre || data.servicio || 'Sin servicio').trim();
+      if (nombreServicio) {
+        servicios[nombreServicio] = (servicios[nombreServicio] || 0) + 1;
+      }
+    });
+
+    return { total, comp, pend, conf, estados, servicios };
+  });
+}
+
+function renderBarChart(containerId, items, palette = ['rose', 'green', 'gold', 'blue']) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  if (!items.length) {
+    container.innerHTML = '<div class="empty-chart">Sin datos para este rango.</div>';
+    return;
+  }
+
+  const maxValue = Math.max(...items.map(item => item.value), 1);
+
+  container.innerHTML = items.map((item, index) => {
+    const width = Math.max((item.value / maxValue) * 100, 8);
+    const className = palette[index % palette.length] || 'rose';
+    return `
+      <div class="bar-item">
+        <div class="bar-label">${item.label}</div>
+        <div class="bar-track"><div class="bar-fill ${className}" style="width:${width}%"></div></div>
+        <div class="bar-value">${item.value}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderDashboardGraficas() {
+  if (!filterStart || !filterEnd) applyDateFilter();
+  getDashboardStats().then(({ estados, servicios }) => {
+    const statusData = [
+      { label: 'Pend.', value: estados.pendiente || 0, className: 'gold' },
+      { label: 'Conf.', value: estados.confirmada || 0, className: 'blue' },
+      { label: 'Comp.', value: estados.completada || 0, className: 'green' },
+      { label: 'Repro.', value: estados.reprogramada || 0, className: 'rose' }
+    ].filter(item => item.value > 0);
+
+    const servicesData = Object.entries(servicios)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([label, value]) => ({ label, value }));
+
+    renderBarChart('chartEstado', statusData.length ? statusData : [{ label: 'Sin', value: 0 }], ['gold', 'blue', 'green', 'rose']);
+    renderBarChart('chartServicios', servicesData.length ? servicesData : [{ label: 'Sin', value: 0 }], ['rose', 'green', 'gold', 'blue']);
+  }).catch(err => {
+    console.error('Error cargando gráficas:', err);
+  });
+}
+
 window.actualizarKpis = async function () {
   if (!filterStart || !filterEnd) applyDateFilter();
   const qk = query(
@@ -236,6 +478,7 @@ window.actualizarKpis = async function () {
   if (elPend) elPend.textContent = pend;
   if (elConf) elConf.textContent = conf;
   if (badge) badge.textContent = `💅 ${total} citas`;
+  renderDashboardGraficas();
 }
 
 
@@ -535,7 +778,9 @@ async function cargarCitas() {
 
 // initialize filters, KPIs and load data
 initFilters();
+initFacturacion();
 actualizarKpis();
+actualizarFacturacion();
 cargarCitas();
 
 window.getReservaUrl = function (fecha, hora, editId) {
@@ -678,8 +923,11 @@ window.cambiarEstado = async function (select, id) {
 
       await updateDoc(doc(db, "citas", id), {
         estado: nuevoEstado,
-        formaPago: value.formaPago,
-        precio: Number(value.precio)
+        formaPago: String(value.formaPago || 'efectivo').trim().toLowerCase(),
+        precio: Number(value.precio),
+        fechaPago: new Date(),
+        fechaCompletada: new Date(),
+        fechaCambioEstado: new Date()
       });
 
     } else if (nuevoEstado === 'cancelada') {
@@ -739,6 +987,7 @@ window.cambiarEstado = async function (select, id) {
     // ✅ 🔥 MOSTRAR TOAST
     mostrarToast("Guardado ✅", "ok");
     actualizarKpis();
+    await actualizarFacturacion();
     // refrescar lista para que la UI muestre cambios inmediatamente
     if (typeof cargarCitas === 'function') cargarCitas();
 

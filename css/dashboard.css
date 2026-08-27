@@ -205,6 +205,96 @@ body.collapsed .sidebar nav a[data-tip]:hover::after {
   opacity: 1;
 }
 
+.facturacion-menu-wrap {
+  margin: 8px 0 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff, #fff8fb);
+  overflow: hidden;
+}
+
+.facturacion-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 10px;
+  color: var(--rose);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.facturacion-menu-header i {
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.facturacion-menu-panel {
+  padding: 0 12px 12px;
+}
+
+.facturacion-menu-filtros {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.facturacion-menu-filtros label {
+  display: grid;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.facturacion-menu-filtros select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 7px 8px;
+  color: var(--text-main);
+  font-size: 12px;
+}
+
+.facturacion-menu-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.facturacion-menu-card {
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: var(--white);
+}
+
+.facturacion-menu-card.efectivo {
+  border-color: rgba(37, 211, 102, 0.3);
+}
+
+.facturacion-menu-card.transferencia {
+  border-color: rgba(194, 24, 91, 0.3);
+}
+
+.facturacion-menu-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.facturacion-menu-valor {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: 'Playfair Display', serif;
+  line-height: 1.1;
+}
+
 .sidebar-footer {
   padding: 14px 10px;
   border-top: 1px solid var(--border);
@@ -552,6 +642,431 @@ body.collapsed .logout-btn .nav-label {
   font-size: 22px;
   font-weight: 700;
   line-height: 1.1;
+}
+
+.graficas-section {
+  margin: 18px 24px 0;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.04);
+  padding: 18px 20px;
+}
+
+.facturacion-page {
+  min-height: 100vh;
+}
+
+.facturacion-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
+  padding: 20px;
+}
+
+.facturacion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.facturacion-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.facturacion-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 18px;
+}
+
+.facturacion-export-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  background: linear-gradient(135deg, #e8fff3, #dff9ea);
+  color: #1d7a43;
+  font-size: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(34, 197, 94, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.facturacion-export-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(34, 197, 94, 0.18);
+}
+
+.facturacion-chart-card {
+  background: linear-gradient(180deg, #fff, #fffafc);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.facturacion-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.facturacion-chart-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.facturacion-chart-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.facturacion-chart-filter select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: var(--text-main);
+  font-size: 12px;
+}
+
+.graficas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.graficas-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.graficas-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.graficas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.facturacion-graficas {
+  margin-top: 0;
+}
+
+.chart-card {
+  background: linear-gradient(180deg, #fff, #fffafc);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.chart-card-header {
+  margin-bottom: 14px;
+}
+
+.chart-card-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.bar-chart {
+  display: grid;
+  gap: 12px;
+}
+
+.bar-item {
+  display: grid;
+  gap: 6px;
+}
+
+.bar-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.bar-track {
+  width: 100%;
+  height: 10px;
+  background: #f5f0f2;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  min-width: 10%;
+  transition: width .25s ease;
+}
+
+.bar-fill.rose {
+  background: linear-gradient(90deg, var(--rose-mid), var(--rose));
+}
+
+.bar-fill.green {
+  background: linear-gradient(90deg, #66bb6a, #2e7d32);
+}
+
+.bar-fill.gold {
+  background: linear-gradient(90deg, #f6c65b, #d97706);
+}
+
+.bar-fill.blue {
+  background: linear-gradient(90deg, #64b5f6, #1565c0);
+}
+
+.bar-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.empty-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--text-muted);
+  background: #fff;
+  font-size: 13px;
+}
+
+.donut-chart-wrapper {
+  min-height: 200px;
+}
+
+.donut-chart {
+  display: grid;
+  grid-template-columns: minmax(180px, 210px) minmax(220px, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+
+.donut-ring {
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  position: relative;
+  margin: 0 auto;
+  border: 1px solid rgba(194, 24, 91, 0.08);
+  box-shadow: 0 14px 28px rgba(194, 24, 91, 0.08), inset 0 0 0 1px rgba(194, 24, 91, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.donut-ring:hover {
+  transform: scale(1.02);
+  box-shadow: 0 16px 30px rgba(194, 24, 91, 0.1), inset 0 0 0 1px rgba(194, 24, 91, 0.08);
+}
+
+.donut-ring::before {
+  content: "";
+  position: absolute;
+  inset: 26px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05), inset 0 12px 18px rgba(255, 255, 255, 0.7);
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-main);
+  padding: 30px;
+}
+
+.donut-center strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text-main);
+  font-family: 'Playfair Display', serif;
+}
+
+.donut-legend {
+  display: grid;
+  gap: 10px;
+}
+
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-main);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.donut-legend-item:hover,
+.donut-legend-item.active {
+  border-color: rgba(194, 24, 91, 0.35);
+  box-shadow: 0 8px 18px rgba(194, 24, 91, 0.08);
+  background: #fffafc;
+}
+
+.donut-legend-item.muted {
+  opacity: 0.75;
+}
+
+.donut-legend-item span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.donut-legend-item strong {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--text-main);
+}
+
+.donut-legend-item strong small {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.facturacion-section {
+  margin: 18px 24px 0;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.04);
+  padding: 18px 20px;
+}
+
+.facturacion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.facturacion-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.facturacion-filtros {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.facturacion-filtros label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.facturacion-filtros select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.facturacion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.facturacion-card {
+  background: linear-gradient(135deg, #fff, #fff7fb);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.facturacion-card.facturacion-efectivo {
+  border-color: rgba(37, 211, 102, 0.3);
+}
+
+.facturacion-card.facturacion-transferencia {
+  border-color: rgba(194, 24, 91, 0.3);
+}
+
+.facturacion-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.facturacion-valor {
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: 'Playfair Display', serif;
 }
 
 /* ── TABLE ── */

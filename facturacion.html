@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facturación - NailStudio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/servicios.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+</head>
+<body>
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="logo">
+        <i class="fa fa-spa"></i>
+        <span class="logo-text">NailStudio</span>
+      </div>
+
+      <div class="app-version" id="appVersion"></div>
+
+      <button class="toggle-btn" id="toggleBtn" title="Ocultar menú" type="button">
+        <i class="fa fa-chevron-left chevron"></i>
+      </button>
+    </div>
+
+    <nav>
+      <a href="dashboard.html" data-tip="Citas">
+        <i class="fa fa-calendar"></i>
+        <span class="nav-label">Citas</span>
+      </a>
+
+      <a href="clientes.html" data-tip="Clientes">
+        <i class="fa fa-user"></i>
+        <span class="nav-label">Clientes</span>
+      </a>
+
+      <a href="servicios.html" data-tip="Servicios">
+        <i class="fa fa-paint-brush"></i>
+        <span class="nav-label">Servicios</span>
+      </a>
+
+      <a class="active" href="facturacion.html" data-tip="Facturación">
+        <i class="fa fa-wallet"></i>
+        <span class="nav-label">Facturación</span>
+      </a>
+
+      <a href="#" data-tip="Ajustes">
+        <i class="fa fa-cog"></i>
+        <span class="nav-label">Ajustes</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar" id="sideAvatar">A</div>
+        <div class="user-info">
+          <strong id="sideName">Admin</strong>
+          <small id="sideEmail">admin@nailstudio.co</small>
+        </div>
+      </div>
+
+      <a class="logout-btn" href="index.html" data-tip="Cerrar sesión">
+        <i class="fa fa-right-from-bracket"></i>
+        <span class="nav-label">Cerrar sesión</span>
+      </a>
+    </div>
+  </aside>
+
+  <button id="openSidebarBtn" class="open-sidebar" type="button">
+    <i class="fa fa-chevron-right"></i>
+  </button>
+
+  <div class="content">
+    <div class="topbar">
+      <button class="hamburger" id="hamburger" type="button">
+        <i class="fa fa-bars"></i>
+      </button>
+      <div class="topbar-left">
+        <div class="title-group">
+          <h1>Facturación</h1>
+          <p id="topbarSubtitle">Control contable</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-back" type="button" onclick="window.location.href='dashboard.html'">
+          <i class="fa fa-arrow-left"></i> Volver al dashboard
+        </button>
+      </div>
+    </div>
+
+    <main class="facturacion-page" style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+      <div class="hero" style="margin-bottom: 20px;">
+        <span class="hero-eyebrow">Control contable</span>
+        <h1>Facturación</h1>
+      </div>
+
+      <section class="facturacion-panel">
+        <div class="facturacion-header">
+          <div>
+            <p class="graficas-eyebrow">Métricas</p>
+            <h2>Totales por periodo</h2>
+          </div>
+          <div class="facturacion-filtros">
+            <label>
+              <span>Mes</span>
+              <select id="facturacionMes">
+                <option value="actual">Mes actual</option>
+                <option value="anterior">Mes anterior</option>
+                <option value="todos">Todo</option>
+              </select>
+            </label>
+            <label>
+              <span>Semana</span>
+              <select id="facturacionSemana">
+                <option value="actual">Semana actual</option>
+                <option value="anterior">Semana anterior</option>
+                <option value="todos">Todo</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="kpi-strip facturacion-kpis">
+          <div class="kpi-card">
+            <div class="kpi-icon green"><i class="fa fa-money-bill-wave"></i></div>
+            <div>
+              <div class="kpi-label">Total</div>
+              <div class="kpi-value" id="facturacionTotal">$0</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon rose"><i class="fa fa-wallet"></i></div>
+            <div>
+              <div class="kpi-label">Efectivo</div>
+              <div class="kpi-value" id="facturacionEfectivo">$0</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon blue"><i class="fa fa-bank"></i></div>
+            <div>
+              <div class="kpi-label">Transferencia</div>
+              <div class="kpi-value" id="facturacionTransferencia">$0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="facturacion-actions">
+          <button id="btnDescargarExcel" class="facturacion-export-btn" type="button" aria-label="Descargar detalle en Excel" title="Descargar detalle en Excel">
+            <i class="fa-solid fa-file-excel"></i>
+          </button>
+        </div>
+
+        <div class="chart-card facturacion-chart-card">
+          <div class="facturacion-chart-header">
+            <h3>Facturación del periodo</h3>
+            <label class="facturacion-chart-filter">
+              <span>Ver</span>
+              <select id="facturacionChartFilter">
+                <option value="todos">Todo</option>
+                <option value="efectivo">Efectivo</option>
+                <option value="transferencia">Transferencia</option>
+              </select>
+            </label>
+          </div>
+          <div class="donut-chart-wrapper" id="chartEstadoFacturacion"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script type="module" src="js/facturacion.js"></script>
+  <script>
+    const body = document.body;
+    const toggleBtn = document.getElementById('toggleBtn');
+    const hamburger = document.getElementById('hamburger');
+    const overlay = document.getElementById('overlay');
+    const openSidebarBtn = document.getElementById('openSidebarBtn');
+
+    function closeMobile() {
+      body.classList.remove('mobile-open');
+      if (overlay) overlay.classList.remove('visible');
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        body.classList.toggle('collapsed');
+      });
+    }
+
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        body.classList.add('mobile-open');
+        if (overlay) overlay.classList.add('visible');
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', closeMobile);
+    }
+
+    document.querySelectorAll('.sidebar nav a').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 640) closeMobile();
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const versionEl = document.getElementById('appVersion');
+
+      if (openSidebarBtn) {
+        openSidebarBtn.addEventListener('click', () => {
+          body.classList.remove('collapsed');
+        });
+      }
+
+      if (versionEl && window.APP_VERSION) {
+        versionEl.textContent = 'Versión ' + window.APP_VERSION;
+      }
+    });
+  </script>
+</body>
+</html>
