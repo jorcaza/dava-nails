@@ -1,14 +1,14 @@
 :root {
-    --rose: #b5485a;
-    --rose-dark: #8c2d3d;
-    --rose-pale: #f9eff1;
-    --blush: #f2d9dd;
-    --cream: #fdf8f5;
-    --dark: #1e1117;
-    --muted: #9b8990;
-    --border: #e8dade;
-    --white: #ffffff;
-    --green: #25D366;
+    --rose: #A55529;
+    --rose-dark: #7D3F22;
+    --rose-pale: rgba(165, 85, 41, 0.12);
+    --blush: rgba(165, 85, 41, 0.18);
+    --cream: #E6DEDB;
+    --dark: #3B2A22;
+    --muted: rgba(59, 42, 34, 0.68);
+    --border: rgba(165, 85, 41, 0.2);
+    --white: #F8F4F2;
+    --green: #A55529;
 }
 
 *,
@@ -108,7 +108,7 @@ body::before {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #f48fb1, #b5485a);
+    background: #A55529;
     color: #fff;
     font-size: 16px;
     font-weight: 700;
@@ -419,7 +419,7 @@ body::before {
     border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
     z-index: 9999;
     animation: fadeIn 0.24s ease;
 }
@@ -429,8 +429,15 @@ body::before {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .client-search-results {
@@ -719,15 +726,15 @@ body::before {
 }
 
 .ma-1 {
-    background: linear-gradient(135deg, #f48fb1, #ec407a);
+    background: #A55529;
 }
 
 .ma-2 {
-    background: linear-gradient(135deg, #ce93d8, #8e24aa);
+    background: #7D3F22;
 }
 
 .ma-3 {
-    background: linear-gradient(135deg, #80cbc4, #00695c);
+    background: #A55529;
 }
 
 /* ── SUMMARY ── */
@@ -907,6 +914,79 @@ body::before {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* DavaNails global palette */
+body::before {
+    background: radial-gradient(ellipse 60% 40% at 80% 10%, rgba(165, 85, 41, .12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 10% 80%, rgba(165, 85, 41, .08) 0%, transparent 60%);
+}
+
+.site-header {
+    background: rgba(248, 244, 242, .92);
+}
+
+.step.done .step-dot,
+.step-line.done {
+    background: #A55529;
+    border-color: #A55529;
+}
+
+.prefill-info {
+    background: rgba(165, 85, 41, .08);
+    border-color: rgba(165, 85, 41, .22);
+    color: #7D3F22;
+}
+
+.form-card {
+    box-shadow: 0 8px 40px rgba(74, 42, 25, .1);
+}
+
+.toast {
+    background: #A55529;
+}
+
+.client-create-btn,
+.client-result-selected {
+    background: rgba(165, 85, 41, .1);
+    color: #7D3F22;
+}
+
+.client-create-btn:hover,
+.client-result-item:hover {
+    background: rgba(165, 85, 41, .18);
+}
+
+.prefilled-chip {
+    color: #7D3F22;
+    background: rgba(165, 85, 41, .12);
+    border-color: rgba(165, 85, 41, .25);
+}
+
+.mani-avatar,
+.ma-any,
+.ma-1,
+.ma-2,
+.ma-3,
+.success-icon {
+    background: #A55529;
+}
+
+.summary {
+    background: rgba(165, 85, 41, .1);
+    border-color: rgba(165, 85, 41, .22);
+}
+
+.btn-next,
+.btn-wa-confirm {
+    background: #A55529;
+    box-shadow: 0 4px 16px rgba(165, 85, 41, .28);
+}
+
+.btn-next:hover,
+.btn-wa-confirm:hover {
+    background: #7D3F22;
+    box-shadow: 0 6px 20px rgba(165, 85, 41, .38);
 }
 
 @keyframes fadeUp {

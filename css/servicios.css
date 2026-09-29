@@ -61,11 +61,11 @@
 }
 
 .svc-card.active {
-  border-color: #22c55e;
+  border-color: #A55529;
 }
 
 .svc-card.inactive {
-  border-color: #f87171;
+  border-color: rgba(165, 85, 41, .28);
   opacity: 0.85;
   background: #f8fafc;
 }
@@ -170,7 +170,7 @@
 }
 
 .svc-card.inactive .svc-actions button {
-  border-color: #f87171;
+  border-color: rgba(165, 85, 41, .28);
 }
 
 .empty-list {
@@ -180,4 +180,62 @@
   text-align: center;
   color: #475569;
   background: #f8fafc;
+}
+
+/* DavaNails global palette */
+.servicios-page,
+.svc-card,
+.field-search input,
+.svc-actions button,
+.btn-secondary {
+  color: #3B2A22;
+}
+
+.svc-card,
+.field-search input,
+.svc-actions button {
+  border-color: rgba(165, 85, 41, .2);
+  background: #F8F4F2;
+}
+
+.field-search label,
+.svc-name,
+.svc-body {
+  color: #3B2A22;
+}
+
+.svc-status,
+.empty-list {
+  color: rgba(59, 42, 34, .68);
+}
+
+.svc-card:hover,
+.svc-actions button:hover,
+.btn-secondary:hover,
+.icon-item:hover {
+  background: rgba(165, 85, 41, .08);
+}
+
+.svc-card.active {
+  border-color: #A55529;
+}
+
+.svc-card.inactive {
+  border-color: rgba(165, 85, 41, .28);
+  background: rgba(165, 85, 41, .06);
+}
+
+.svc-icon {
+  background: rgba(165, 85, 41, .1);
+  color: #A55529;
+}
+
+.svc-actions button,
+.btn-secondary {
+  border-color: rgba(165, 85, 41, .3);
+}
+
+.empty-list {
+  border-color: rgba(165, 85, 41, .35);
+  background: rgba(165, 85, 41, .06);
 }

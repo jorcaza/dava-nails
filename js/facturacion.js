@@ -271,7 +271,7 @@ async function obtenerFacturacion(range = getBillingRange()) {
     return { efectivo, transferencia, total, completadas: completadas.length, ticket: completadas.length ? total / completadas.length : 0, mayorValor, items };
 }
 
-function renderDonutChart(containerId, items, colors = ['#c2185b', '#25D366', '#1565c0'], selectedFilter = 'todos') {
+function renderDonutChart(containerId, items, colors = ['#A55529', '#7D3F22'], selectedFilter = 'todos') {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -289,7 +289,7 @@ function renderDonutChart(containerId, items, colors = ['#c2185b', '#25D366', '#
         const percentage = total > 0 ? (value / total) * 100 : 0;
         const start = cumulative;
         cumulative += percentage;
-        const color = item.color || colors[index % colors.length] || '#c2185b';
+        const color = item.color || colors[index % colors.length] || '#A55529';
         return { ...item, color, start, end: cumulative, percentage };
     });
 
@@ -308,7 +308,7 @@ function renderDonutChart(containerId, items, colors = ['#c2185b', '#25D366', '#
         return `
             <button type="button" class="donut-legend-item ${activeFilter && !isActive ? 'muted' : ''} ${!activeFilter || isActive ? 'active' : ''}" data-filter="${itemFilter}" aria-label="Ver ${item.label}">
                 <span style="opacity:${opacity};">
-                    <i class="legend-dot" style="background:${item.color || colors[index % colors.length] || '#c2185b'}; opacity:${opacity};"></i>
+                    <i class="legend-dot" style="background:${item.color || colors[index % colors.length] || '#A55529'}; opacity:${opacity};"></i>
                     ${item.label}
                 </span>
                 <strong style="opacity:${opacity};">${percentage.toFixed(0)}%<br><small>${formatMoney(item.value)}</small></strong>
@@ -338,8 +338,8 @@ function renderDonutChart(containerId, items, colors = ['#c2185b', '#25D366', '#
 
 function getChartDataByFilter(data, filter) {
     const base = [
-        { label: 'Efectivo', value: data.efectivo, color: '#25D366' },
-        { label: 'Transferencia', value: data.transferencia, color: '#c2185b' }
+        { label: 'Efectivo', value: data.efectivo, color: '#A55529' },
+        { label: 'Transferencia', value: data.transferencia, color: '#7D3F22' }
     ];
 
     if (filter === 'efectivo') {
@@ -371,7 +371,7 @@ async function actualizarFacturacionView() {
     renderMayorValor(data.mayorValor, mayorValorEl);
 
     const metodo = document.getElementById('facturacionMetodo')?.value || 'todos';
-    renderDonutChart('chartEstadoFacturacion', getChartDataByFilter(data, metodo), ['#25D366', '#c2185b'], metodo);
+    renderDonutChart('chartEstadoFacturacion', getChartDataByFilter(data, metodo), ['#A55529', '#7D3F22'], metodo);
     renderIncomeChart(data.items, metodo);
     renderFacturacionTable(data.items);
 
@@ -442,8 +442,8 @@ function renderIncomeChart(items, selectedMethod = 'todos') {
     const max = Math.max(...entries.map(([, values]) => values.efectivo + values.transferencia), 1);
     container.innerHTML = entries.map(([date, values]) => {
         const segmentos = selectedMethod === 'todos'
-            ? [['efectivo', values.efectivo, '#25D366'], ['transferencia', values.transferencia, '#c2185b']]
-            : [[selectedMethod, values[selectedMethod] || 0, selectedMethod === 'efectivo' ? '#25D366' : '#c2185b']];
+            ? [['efectivo', values.efectivo, '#A55529'], ['transferencia', values.transferencia, '#7D3F22']]
+            : [[selectedMethod, values[selectedMethod] || 0, selectedMethod === 'efectivo' ? '#A55529' : '#7D3F22']];
         const efectivo = selectedMethod === 'transferencia' ? 0 : values.efectivo;
         const transferencia = selectedMethod === 'efectivo' ? 0 : values.transferencia;
         const total = efectivo + transferencia;
