@@ -831,9 +831,21 @@ window.cambiarEstado = async function (select, id) {
   const estadoAnterior = select.dataset.estadoAnterior;
 
   try {
+    const citaActual = await obtenerDatosCita(id);
+    const fechaCita = getFechaHora(citaActual);
+    const hoy = startOfDay(new Date());
+
+    if (!fechaCita || startOfDay(fechaCita) > hoy) {
+      select.value = estadoAnterior || 'pendiente';
+      await Swal.fire({
+        icon: 'info',
+        title: 'Cambio no permitido',
+        text: 'El estado solo puede cambiarse cuando la fecha de la cita sea hoy o anterior.'
+      });
+      return;
+    }
 
     if (nuevoEstado === 'completada') {
-      const citaActual = await obtenerDatosCita(id);
       const formaPagoActual = String(citaActual.formaPago || 'efectivo');
       const precioActual = Number(citaActual.precio ?? 0);
       const precioValor = Number.isFinite(precioActual) && precioActual > 0 ? precioActual : 0;
@@ -1150,7 +1162,9 @@ window.editarCita = async function (id) {
     enviarWhatsApp(cardEl, "reprogramada");
     mostrarToast("Cita reprogramada 🔄", "ok");
 
-    cargarCitas(); // refrescar tabla
+    await cargarCitas();
+    await actualizarKpis();
+    await actualizarFacturacion();
 
   } catch (error) {
     console.error(error);
@@ -1378,7 +1392,9 @@ window.guardarReprogramacion = async function () {
     mostrarToast("Cita reprogramada 🔄", "ok");
 
     cerrarModal();
-    cargarCitas();
+    await cargarCitas();
+    await actualizarKpis();
+    await actualizarFacturacion();
 
   } catch (error) {
 

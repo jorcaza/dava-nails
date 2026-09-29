@@ -1478,6 +1478,557 @@ body.collapsed .logout-btn .nav-label {
   }
 }
 
+/* Facturacion avanzada */
+.facturacion-page {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid rgba(194, 24, 91, 0.2);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--rose);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease, transform .12s ease;
+}
+
+.btn-back i {
+  font-size: 13px;
+}
+
+.btn-back:hover {
+  border-color: var(--rose);
+  background: var(--rose-light);
+  color: var(--rose);
+  box-shadow: 0 6px 14px rgba(194, 24, 91, 0.12);
+}
+
+.btn-back:focus-visible {
+  outline: 3px solid rgba(194, 24, 91, 0.22);
+  outline-offset: 2px;
+}
+
+.btn-back:active {
+  transform: translateY(1px);
+  background: #f8dce8;
+  box-shadow: none;
+}
+
+.facturacion-filtros {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  width: 100%;
+  align-items: end;
+}
+
+.facturacion-filtros[hidden] {
+  display: none !important;
+}
+
+.facturacion-toggle-filtros {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  margin-top: 9px;
+  padding: 7px 11px;
+  border: 1px solid rgba(194, 24, 91, 0.2);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--rose);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .12s ease;
+}
+
+.facturacion-toggle-filtros:hover {
+  border-color: var(--rose);
+  background: var(--rose-light);
+  box-shadow: 0 5px 12px rgba(194, 24, 91, 0.1);
+}
+
+.facturacion-toggle-filtros:focus-visible {
+  outline: 3px solid rgba(194, 24, 91, 0.2);
+  outline-offset: 2px;
+}
+
+.facturacion-toggle-filtros:active {
+  transform: translateY(1px);
+}
+
+.facturacion-filtros label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.facturacion-filtros label>span {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.facturacion-filtros select,
+.facturacion-filtros input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 9px;
+  background: var(--bg);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 12px;
+}
+
+.facturacion-filtros select,
+.facturacion-filtros input,
+.facturacion-export-btn,
+.btn-back {
+  min-height: 44px;
+}
+
+.facturacion-cliente {
+  grid-column: span 2;
+}
+
+.facturacion-comparar {
+  display: flex !important;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 0;
+  color: var(--text-main);
+  font-size: 12px;
+}
+
+.facturacion-comparar input {
+  width: auto;
+}
+
+.facturacion-rango {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.facturacion-kpis {
+  grid-template-columns: repeat(5, 1fr);
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.facturacion-kpis .kpi-card>div:nth-child(2) {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.facturacion-kpis .kpi-value {
+  max-width: 100%;
+  font-size: 19px;
+  line-height: 1.15;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.kpi-icon.gold {
+  background: #fff4d6;
+  color: #b7791f;
+}
+
+.kpi-icon.purple {
+  background: #f0e7ff;
+  color: #6b46c1;
+}
+
+.facturacion-mayor-valor {
+  position: relative;
+  cursor: help;
+}
+
+.facturacion-kpi-tooltip {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  z-index: 10;
+  display: grid;
+  gap: 5px;
+  width: 220px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: #111;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+  font-size: 11px;
+  line-height: 1.3;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity .16s ease, transform .16s ease;
+}
+
+.facturacion-kpi-tooltip::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  bottom: 100%;
+  border: 6px solid transparent;
+  border-bottom-color: #111;
+}
+
+.facturacion-kpi-tooltip strong {
+  color: #fff;
+}
+
+.facturacion-mayor-valor:hover .facturacion-kpi-tooltip,
+.facturacion-mayor-valor:focus-visible .facturacion-kpi-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.facturacion-comparacion {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+  background: #fffafc;
+}
+
+.facturacion-comparacion strong {
+  color: var(--text-main);
+}
+
+.facturacion-variacion.positiva {
+  color: #16803c;
+}
+
+.facturacion-variacion.negativa {
+  color: #c53030;
+}
+
+.facturacion-graficas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.facturacion-line-chart {
+  display: grid;
+  gap: 9px;
+  min-height: 200px;
+  align-content: center;
+}
+
+.facturacion-bar-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 58px minmax(50px, 1fr) 88px;
+  gap: 9px;
+  align-items: center;
+  font-size: 11px;
+}
+
+.facturacion-bar-row>span {
+  color: var(--text-muted);
+}
+
+.facturacion-bar-row>strong {
+  text-align: right;
+  font-size: 11px;
+}
+
+.facturacion-bar-tooltip {
+  position: absolute;
+  left: 58px;
+  bottom: calc(100% + 8px);
+  z-index: 5;
+  display: grid;
+  gap: 5px;
+  min-width: 190px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: #111;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+  font-size: 11px;
+  line-height: 1.3;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity .16s ease, transform .16s ease;
+}
+
+.facturacion-bar-tooltip::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 100%;
+  border: 6px solid transparent;
+  border-top-color: #111;
+}
+
+.facturacion-bar-tooltip strong,
+.facturacion-bar-tooltip b {
+  color: #fff;
+}
+
+.facturacion-bar-row:hover .facturacion-bar-tooltip,
+.facturacion-bar-row:focus-within .facturacion-bar-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.facturacion-bar-track {
+  display: flex;
+  height: 10px;
+  background: #f7e8ef;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.facturacion-bar-track i {
+  display: block;
+  height: 100%;
+}
+
+.facturacion-tabla-wrap {
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--white);
+}
+
+.facturacion-tabla-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.facturacion-tabla-header h3 {
+  font-size: 15px;
+}
+
+.facturacion-tabla-header span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.facturacion-tabla-scroll {
+  overflow-x: auto;
+}
+
+.facturacion-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 780px;
+  font-size: 12px;
+}
+
+.facturacion-tabla th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 10px 12px;
+}
+
+.facturacion-tabla td {
+  padding: 11px 12px;
+  border-top: 1px solid var(--border);
+  color: var(--text-main);
+}
+
+.facturacion-tabla tr:hover td {
+  background: #fffafc;
+}
+
+.facturacion-precio {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.facturacion-estado {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  font-size: 10px;
+  text-transform: capitalize;
+}
+
+.facturacion-estado.estado-completada {
+  background: #e8f7ee;
+  color: #16803c;
+}
+
+.facturacion-estado.estado-cancelada {
+  background: #fdecec;
+  color: #c53030;
+}
+
+.facturacion-vacio {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 24px !important;
+}
+
+@media (max-width: 900px) {
+  .facturacion-filtros {
+    grid-template-columns: repeat(2, minmax(130px, 1fr));
+  }
+
+  .facturacion-kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .facturacion-graficas {
+    grid-template-columns: 1fr;
+  }
+
+  .facturacion-panel {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .btn-back {
+    width: 100%;
+  }
+
+  .facturacion-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .facturacion-cliente {
+    grid-column: auto;
+  }
+
+  .facturacion-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .facturacion-kpis .kpi-card {
+    min-width: 0;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .facturacion-kpis .kpi-icon {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .facturacion-kpis .kpi-card>div:last-child {
+    min-width: 0;
+  }
+
+  .facturacion-kpis .kpi-label {
+    font-size: 9px;
+    letter-spacing: 0;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .facturacion-kpis .kpi-value {
+    max-width: 100%;
+    font-size: 15px;
+    line-height: 1.15;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .facturacion-panel {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .facturacion-header {
+    align-items: stretch;
+  }
+
+  .facturacion-filtros {
+    gap: 10px;
+  }
+
+  .facturacion-filtros label {
+    width: 100%;
+  }
+
+  .facturacion-graficas {
+    gap: 10px;
+  }
+
+  .facturacion-chart-card {
+    padding: 14px;
+  }
+
+  .donut-chart {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .facturacion-tabla-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .facturacion-tabla-scroll {
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .facturacion-comparacion {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+  }
+
+  .facturacion-comparacion strong {
+    grid-column: 1 / -1;
+  }
+
+  .facturacion-comparacion span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
 @media (max-width: 380px) {
   .kpi-strip {
     grid-template-columns: 1fr 1fr;

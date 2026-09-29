@@ -103,24 +103,37 @@
           <div>
             <p class="graficas-eyebrow">Métricas</p>
             <h2>Totales por periodo</h2>
+            <button id="btnToggleFiltrosMetricas" class="facturacion-toggle-filtros" type="button" aria-controls="facturacionFiltrosMetricas" aria-expanded="false" onclick="toggleFiltrosMetricas(this)">
+              <i class="fa-solid fa-filter"></i><span>Mostrar filtros</span>
+            </button>
           </div>
-          <div class="facturacion-filtros">
-            <label>
-              <span>Mes</span>
-              <select id="facturacionMes">
-                <option value="actual">Mes actual</option>
-                <option value="anterior">Mes anterior</option>
-                <option value="todos">Todo</option>
-              </select>
-            </label>
-            <label>
-              <span>Semana</span>
-              <select id="facturacionSemana">
-                <option value="actual">Semana actual</option>
-                <option value="anterior">Semana anterior</option>
-                <option value="todos">Todo</option>
-              </select>
-            </label>
+          <div class="facturacion-filtros" id="facturacionFiltrosMetricas" hidden>
+            <label><span>Periodo</span><select id="facturacionPeriodo">
+              <option value="hoy">Hoy</option>
+              <option value="semana">Esta semana</option>
+              <option value="mes" selected>Este mes</option>
+              <option value="mesAnterior">Mes anterior</option>
+              <option value="personalizado">Personalizado</option>
+            </select></label>
+            <label><span>Fecha inicio</span><input id="facturacionFechaInicio" type="date"></label>
+            <label><span>Fecha fin</span><input id="facturacionFechaFin" type="date"></label>
+            <label><span>Método de pago</span><select id="facturacionMetodo">
+              <option value="todos">Todos</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+            </select></label>
+            <label><span>Estado</span><select id="facturacionEstado">
+              <option value="todos">Todos</option>
+              <option value="completada">Completada</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="reprogramada">Reprogramada</option>
+            </select></label>
+            <label><span>Servicio</span><select id="facturacionServicio"><option value="todos">Todos</option></select></label>
+            <label><span>Manicurista</span><select id="facturacionManicurista"><option value="todos">Todos</option></select></label>
+            <label class="facturacion-cliente"><span>Cliente</span><input id="facturacionCliente" type="search" placeholder="Todos"></label>
+            <p class="facturacion-rango" id="facturacionRango">Mostrando información de: —</p>
           </div>
         </div>
 
@@ -146,6 +159,21 @@
               <div class="kpi-value" id="facturacionTransferencia">$0</div>
             </div>
           </div>
+          <div class="kpi-card">
+            <div class="kpi-icon gold"><i class="fa fa-check"></i></div>
+            <div><div class="kpi-label">Citas completadas</div><div class="kpi-value" id="facturacionCompletadas">0</div></div>
+          </div>
+          <div class="kpi-card facturacion-mayor-valor" id="facturacionMayorValorCard" tabindex="0" aria-describedby="facturacionMayorValorTooltip">
+            <div class="kpi-icon purple"><i class="fa fa-trophy"></i></div>
+            <div><div class="kpi-label">Mayor valor</div><div class="kpi-value" id="facturacionMayorValor">$0</div></div>
+            <div class="facturacion-kpi-tooltip" id="facturacionMayorValorTooltip" role="tooltip"></div>
+          </div>
+        </div>
+
+        <div class="facturacion-comparacion" id="facturacionComparacion">
+          <strong id="facturacionComparacionTitulo">Periodo anterior</strong>
+          <span>Total anterior: <b id="facturacionComparacionTotal">$0</b></span>
+          <span id="facturacionComparacionVariacion">Sin variación</span>
         </div>
 
         <div class="facturacion-actions">
@@ -154,20 +182,26 @@
           </button>
         </div>
 
+        <div class="facturacion-graficas">
         <div class="chart-card facturacion-chart-card">
           <div class="facturacion-chart-header">
-            <h3>Facturación del periodo</h3>
-            <label class="facturacion-chart-filter">
-              <span>Ver</span>
-              <select id="facturacionChartFilter">
-                <option value="todos">Todo</option>
-                <option value="efectivo">Efectivo</option>
-                <option value="transferencia">Transferencia</option>
-              </select>
-            </label>
+            <h3>Ingresos por fecha</h3>
           </div>
+          <div class="facturacion-line-chart" id="chartIngresosFecha"></div>
+        </div>
+        <div class="chart-card facturacion-chart-card">
+          <div class="facturacion-chart-header"><h3>Efectivo vs Transferencia</h3></div>
           <div class="donut-chart-wrapper" id="chartEstadoFacturacion"></div>
         </div>
+        </div>
+
+        <section class="facturacion-tabla-wrap">
+          <div class="facturacion-tabla-header"><h3>Detalle de facturación</h3><span id="facturacionResumenFilas">0 registros</span></div>
+          <div class="facturacion-tabla-scroll"><table class="facturacion-tabla">
+            <thead><tr><th>Fecha</th><th>Cliente</th><th>Servicio</th><th>Manicurista</th><th>Precio</th><th>Método de pago</th><th>Estado</th></tr></thead>
+            <tbody id="facturacionTablaBody"></tbody>
+          </table></div>
+        </section>
       </section>
     </main>
   </div>
@@ -180,6 +214,19 @@
     const hamburger = document.getElementById('hamburger');
     const overlay = document.getElementById('overlay');
     const openSidebarBtn = document.getElementById('openSidebarBtn');
+
+    function toggleFiltrosMetricas(button) {
+      const panel = document.getElementById('facturacionFiltrosMetricas');
+      if (!panel) return;
+
+      const mostrar = panel.hidden;
+      panel.hidden = !mostrar;
+      button.setAttribute('aria-expanded', String(mostrar));
+      const texto = button.querySelector('span');
+      if (texto) texto.textContent = mostrar ? 'Ocultar filtros' : 'Mostrar filtros';
+      const icono = button.querySelector('i');
+      if (icono) icono.className = mostrar ? 'fa-solid fa-sliders' : 'fa-solid fa-filter';
+    }
 
     function closeMobile() {
       body.classList.remove('mobile-open');
