@@ -3337,8 +3337,12 @@ body.collapsed .open-sidebar {
 }
 
 .appointment-card {
+  --appointment-card-radius: 18px;
+  --appointment-status-color: #c58b12;
+  position: relative;
+  overflow: hidden;
   background: white;
-  border-radius: 18px;
+  border-radius: var(--appointment-card-radius);
   padding: 14px;
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
   border: 1px solid rgba(194, 24, 91, 0.1);
@@ -3349,6 +3353,34 @@ body.collapsed .open-sidebar {
   width: 100%;
   min-height: calc(var(--blocks, 1) * 56px);
   grid-column: 1 / -1;
+}
+
+.appointment-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 6px;
+  border-radius: 0 var(--appointment-card-radius) var(--appointment-card-radius) 0;
+  background: var(--appointment-status-color);
+  pointer-events: none;
+}
+
+.appointment-card.status-confirmada {
+  --appointment-status-color: #3182ce;
+}
+
+.appointment-card.status-completada {
+  --appointment-status-color: #2f855a;
+}
+
+.appointment-card.status-cancelada {
+  --appointment-status-color: #c53030;
+}
+
+.appointment-card.status-reprogramada {
+  --appointment-status-color: #805ad5;
 }
 
 .appointment-card:hover {
@@ -3447,6 +3479,17 @@ body.collapsed .open-sidebar {
 .status-pill.status-reprogramada {
   background: #f3e8ff;
   color: #7b1fa2;
+}
+
+.appointment-card .status-pill {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  padding: 7px 14px 7px 12px;
+  border-radius: 0 var(--appointment-card-radius) 0 12px;
+  background: var(--appointment-status-color);
+  color: #fff;
 }
 
 .appointment-meta {

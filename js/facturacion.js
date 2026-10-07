@@ -74,6 +74,10 @@ function formatInputDate(date) {
 function getPeriodWindow(period, baseDate = new Date()) {
     const date = new Date(baseDate);
     if (period === 'hoy') return { start: startOfDay(date), end: endOfDay(date) };
+    if (period === 'ayer') {
+        date.setDate(date.getDate() - 1);
+        return { start: startOfDay(date), end: endOfDay(date) };
+    }
     if (period === 'semana') return { start: getWeekStart(date), end: endOfDay(date) };
     if (period === 'mesAnterior') return getMonthWindow(date, 'anterior');
     if (period === 'personalizado') {
@@ -187,6 +191,7 @@ function hexToRgba(hex, alpha = 1) {
 
 function getFechaFacturacion(data) {
     const candidatos = [
+        data?.fechaFacturacion,
         data?.fechaPago,
         data?.fechaCompletada,
         data?.fechaCambioEstado,
@@ -221,6 +226,7 @@ async function obtenerFacturacion(range = getBillingRange()) {
     snap.forEach((docu) => {
         const data = docu.data() || {};
         const estado = String(data.estado || 'pendiente').trim().toLowerCase();
+        if (estado === 'cancelada') return;
         const fecha = getFechaFacturacion(data);
         if (!fecha || fecha < range.start || fecha > range.end) return;
 

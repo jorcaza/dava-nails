@@ -299,6 +299,7 @@ function normalizarPrecioFacturacion(valor) {
 
 function getFechaFacturacion(data) {
   const candidatos = [
+    data?.fechaFacturacion,
     data?.fechaPago,
     data?.fechaCompletada,
     data?.fechaCambioEstado,
@@ -529,11 +530,15 @@ function getDuracionMinutos(str) {
   return Number.isNaN(numero) ? 30 : numero;
 }
 
+function getDuracionCita(cita, fallback = '30') {
+  return cita?.duracionCita || cita?.duracion || cita?.duracionMin || cita?.duracionM || fallback;
+}
+
 function slotsFromCita(cita) {
   const slots = [];
   const fecha = getFechaHora(cita);
   if (!fecha) return slots;
-  const minutos = getDuracionMinutos(cita.duracion || cita.duracionMin || cita.duracionM || '');
+  const minutos = getDuracionMinutos(getDuracionCita(cita, '30'));
   const bloques = Math.ceil(minutos / 30);
 
   let h = fecha.getHours();
@@ -551,10 +556,12 @@ function slotsFromCita(cita) {
 function crearEventoCalendario(cita) {
   const fecha = getFechaHora(cita);
   const horaLabel = fecha ? formatHourLabel(fecha) : "?";
-  const durMin = getDuracionMinutos(cita.duracion || '30');
+  const duracion = getDuracionCita(cita, '30');
+  const durMin = getDuracionMinutos(duracion);
   const fechaFin = fecha ? new Date(fecha.getTime() + durMin * 60000) : null;
   const horaFinLabel = fechaFin ? formatHourLabel(fechaFin) : "?";
   const servicio = cita.servicioNombre || "?";
+  const iconoServicio = cita.servicioIcono || 'fa-spa';
   const manicurista = cita.manicuristaNombre || "?";
   const estado = cita.estado || "pendiente";
   const estadoLabel = {
@@ -571,7 +578,7 @@ function crearEventoCalendario(cita) {
   const bloques = Math.max(1, Math.ceil(durMin / 30));
 
   return `
-    <article class="appointment-card status-${estado}" data-id="${escapeHtml(cita.id)}" data-fecha="${escapeHtml(dataFecha)}" data-hora="${escapeHtml(dataHora)}" data-duracion="${escapeHtml(String(cita.duracion || ''))}" style="--blocks:${bloques};" onclick="editarCitaDesdeCalendario('${escapeHtml(cita.id)}')">
+    <article class="appointment-card status-${estado}" data-id="${escapeHtml(cita.id)}" data-fecha="${escapeHtml(dataFecha)}" data-hora="${escapeHtml(dataHora)}" data-duracion="${escapeHtml(String(duracion))}" style="--blocks:${bloques};">
       <div class="appointment-top">
         <div>
           <div class="appointment-client">${escapeHtml(cita.cliente || "Cliente")}</div>
@@ -582,17 +589,24 @@ function crearEventoCalendario(cita) {
 
       <div class="appointment-meta">
         <div class="meta-item"><i class="fa-regular fa-clock"></i><span>${escapeHtml(fechaHoraTexto)}</span></div>
-        <div class="meta-item"><i class="fa-solid fa-spa"></i><span>${escapeHtml(servicio)}</span></div>
+        <div class="meta-item"><i class="fa-solid ${escapeHtml(iconoServicio)}"></i><span>${escapeHtml(servicio)}</span></div>
+        <!-- Manicurista temporalmente oculta; conservar para reactivarla.
         <div class="meta-item"><i class="fa-solid fa-user-check"></i><span>${escapeHtml(manicurista)}</span></div>
+        -->
       </div>
 
       <div class="appointment-actions">
         <select class="estado-select estado-${estado}" data-estado-anterior="${escapeHtml(estado)}" onclick="event.stopPropagation()" onchange="cambiarEstado(this, '${escapeHtml(cita.id)}')">
-          <option value="pendiente" ${estado === "pendiente" ? "selected" : ""}>Pendiente</option>
-          <option value="confirmada" ${estado === "confirmada" ? "selected" : ""}>Confirmada</option>
-          <option value="completada" ${estado === "completada" ? "selected" : ""}>Completada</option>
-          <option value="cancelada" ${estado === "cancelada" ? "selected" : ""}>Cancelada</option>
-          <option value="reprogramada" ${estado === "reprogramada" ? "selected" : ""}>Reprogramada</option>
+          ${estado === "completada" ? `
+            <option value="completada" selected>Completada</option>
+            <option value="cancelada">Cancelar</option>
+          ` : `
+            <option value="pendiente" ${estado === "pendiente" ? "selected" : ""}>Pendiente</option>
+            <option value="confirmada" ${estado === "confirmada" ? "selected" : ""}>Confirmada</option>
+            <option value="completada" ${estado === "completada" ? "selected" : ""}>Completada</option>
+            <option value="cancelada" ${estado === "cancelada" ? "selected" : ""}>Cancelada</option>
+            <option value="reprogramada" ${estado === "reprogramada" ? "selected" : ""}>Reprogramada</option>
+          `}
         </select>
 
         <div class="acciones" onclick="event.stopPropagation()">
@@ -637,7 +651,7 @@ async function cargarCitas() {
 
     if (statusFilter && statusFilter !== 'all' && cita.estado !== statusFilter) continue;
 
-    if (["cancelada", "completada"].includes(cita.estado)) continue;
+    if (cita.estado === "cancelada") continue;
 
     if (searchQuery) {
       const cliente = String(cita.cliente || "").toLowerCase();
@@ -659,10 +673,18 @@ async function cargarCitas() {
           if (servicioSnap.exists()) {
             const sdata = servicioSnap.data();
             cita.servicioNombre = sdata.nombre;
+            cita.servicioIcono = sdata.icono || 'fa-spa';
             if (sdata.duracion) cita.duracion = sdata.duracion;
           }
         } else {
           cita.servicioNombre = cita.servicio;
+          const servicioSnap = await getDocs(query(
+            collection(db, 'servicios'),
+            where('nombre', '==', cita.servicio)
+          ));
+          if (!servicioSnap.empty) {
+            cita.servicioIcono = servicioSnap.docs[0].data().icono || 'fa-spa';
+          }
         }
       } catch (e) {
         console.warn("Error cargando servicio:", e);
@@ -682,7 +704,7 @@ async function cargarCitas() {
     try {
       const inicio = getFechaHora(cita);
       cita._start = inicio;
-      const durMin = getDuracionMinutos(cita.duracion || cita.duracionMin || cita.duracionM || '30');
+      const durMin = getDuracionMinutos(getDuracionCita(cita));
       const fin = inicio ? new Date(inicio.getTime() + durMin * 60000) : null;
       cita._end = fin;
       cita._slots = inicio ? slotsFromCita(cita) : [];
@@ -835,7 +857,17 @@ window.cambiarEstado = async function (select, id) {
     const fechaCita = getFechaHora(citaActual);
     const hoy = startOfDay(new Date());
 
-    if (!fechaCita || startOfDay(fechaCita) > hoy) {
+    if (citaActual.estado === 'completada' && nuevoEstado !== 'cancelada') {
+      select.value = 'completada';
+      await Swal.fire({
+        icon: 'info',
+        title: 'Estado bloqueado',
+        text: 'Una cita completada solo puede cancelarse.'
+      });
+      return;
+    }
+
+    if (citaActual.estado !== 'completada' && (!fechaCita || startOfDay(fechaCita) > hoy)) {
       select.value = estadoAnterior || 'pendiente';
       await Swal.fire({
         icon: 'info',
@@ -937,18 +969,31 @@ window.cambiarEstado = async function (select, id) {
         estado: nuevoEstado,
         formaPago: String(value.formaPago || 'efectivo').trim().toLowerCase(),
         precio: Number(value.precio),
+        fechaFacturacion: new Date(),
         fechaPago: new Date(),
         fechaCompletada: new Date(),
         fechaCambioEstado: new Date()
       });
 
     } else if (nuevoEstado === 'cancelada') {
-      await updateDoc(doc(db, "citas", id), {
+      const cambiosCancelacion = {
         estado: nuevoEstado,
         fechaHora: null,
         fecha: null,
         hora: null
-      });
+      };
+
+      if (citaActual.estado === 'completada') {
+        Object.assign(cambiosCancelacion, {
+          precio: 0,
+          formaPago: null,
+          fechaFacturacion: null,
+          fechaPago: null,
+          fechaCompletada: null
+        });
+      }
+
+      await updateDoc(doc(db, "citas", id), cambiosCancelacion);
     } else {
       await updateDoc(doc(db, "citas", id), {
         estado: nuevoEstado
@@ -1177,7 +1222,7 @@ let citaActualId = null;
 
 function obtenerIntervaloCita(cita) {
   const fecha = cita?.fechaHora?.toDate ? cita.fechaHora.toDate() : new Date(cita?.fechaHora || null);
-  const durMin = getDuracionMinutos(cita?.duracion || '30');
+  const durMin = getDuracionMinutos(getDuracionCita(cita));
   const fin = fecha ? new Date(fecha.getTime() + durMin * 60000) : null;
   return { inicio: fecha, fin };
 }
@@ -1195,7 +1240,7 @@ async function obtenerConflictoReprogramacion(fechaSeleccionada, horaSeleccionad
 
   const citaActualData = citaActualSnap.data();
   const nuevaFechaHora = new Date(`${fechaSeleccionada}T${horaSeleccionada}:00`);
-  const durMin = getDuracionMinutos(citaActualData.duracion || '30');
+  const durMin = getDuracionMinutos(getDuracionCita(citaActualData));
   const nuevoFin = new Date(nuevaFechaHora.getTime() + durMin * 60000);
 
   const fechaInicio = new Date(`${fechaSeleccionada}T00:00:00`);
@@ -1248,7 +1293,7 @@ async function obtenerCitaConflictiva(fechaSeleccionada, horaSeleccionada, exclu
     if (!data.fechaHora) continue;
 
     const inicio = data.fechaHora.toDate ? data.fechaHora.toDate() : new Date(data.fechaHora);
-    const durMin = getDuracionMinutos(data.duracion || '30');
+    const durMin = getDuracionMinutos(getDuracionCita(data));
     const fin = new Date(inicio.getTime() + durMin * 60000);
 
     if (nuevaFechaHora < fin && inicio < new Date(nuevaFechaHora.getTime() + 30 * 60000)) {
@@ -1278,7 +1323,9 @@ function mostrarModalConflicto(citaConflicto) {
     <strong>${escapeHtml(cliente)}</strong>
     <div class="conflict-meta">${escapeHtml(rango)}</div>
     <div class="conflict-meta">${escapeHtml(servicio)}</div>
+    <!-- Manicurista temporalmente oculta; conservar para reactivarla.
     <div class="conflict-meta">${escapeHtml(manicurista)}</div>
+    -->
     ${telefono ? `<div class="conflict-meta">📱 ${escapeHtml(telefono)}</div>` : ''}
   `;
 
@@ -1669,7 +1716,7 @@ async function obtenerHorasOcupadas(fechaSeleccionada, excludeId = null) {
 
     if (data.fechaHora) {
       const fecha = data.fechaHora.toDate ? data.fechaHora.toDate() : new Date(data.fechaHora);
-      const durMin = getDuracionMinutos(data.duracion || '30');
+      const durMin = getDuracionMinutos(getDuracionCita(data));
       const bloques = Math.ceil(durMin / 30);
       let cursor = new Date(fecha);
 
